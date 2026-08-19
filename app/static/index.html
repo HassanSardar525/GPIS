@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPIS — District Performance Evidence</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#">GPIS <span>Prototype</span></a>
+    <p>Government Performance Intelligence System</p>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Evidence before slogans</p>
+        <h1>See what official data says about your district.</h1>
+        <p class="lede">Compare education, health access and public financial management across five South Punjab districts. Every claim links back to its source.</p>
+      </div>
+      <label class="district-search">
+        <span>Choose a district</span>
+        <select id="district-select" aria-label="Choose a district"></select>
+      </label>
+    </section>
+
+    <section id="notice" class="notice"></section>
+
+    <section class="district-heading">
+      <div>
+        <p class="eyebrow">District scorecard · Census 2023 / FY 2023–24</p>
+        <h2 id="district-name">Loading…</h2>
+        <p id="population"></p>
+      </div>
+      <div class="overall-badge">
+        <span>Overall comparative score</span>
+        <strong id="overall-score">—</strong>
+        <small id="overall-rank">—</small>
+      </div>
+    </section>
+
+    <section id="scorecards" class="score-grid" aria-label="Performance scores"></section>
+
+    <section class="two-column">
+      <article class="panel">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">Five-district comparison</p>
+            <h2>Ranking</h2>
+          </div>
+          <select id="ranking-category" aria-label="Ranking category">
+            <option value="overall">Overall</option>
+            <option value="education">Education</option>
+            <option value="health">Health access</option>
+            <option value="accountability">Financial management</option>
+          </select>
+        </div>
+        <ol id="ranking-list" class="ranking-list"></ol>
+      </article>
+
+      <article class="panel chat-panel">
+        <p class="eyebrow">Citation-grounded assistant</p>
+        <h2>Ask about the evidence</h2>
+        <div id="chat-answer" class="chat-answer">
+          Try: “How does literacy compare?” or “What does the health score measure?”
+        </div>
+        <form id="chat-form">
+          <input id="chat-question" autocomplete="off" placeholder="Ask about this district…" required>
+          <button type="submit">Ask</button>
+        </form>
+      </article>
+    </section>
+
+    <section class="panel methodology">
+      <p class="eyebrow">Read scores responsibly</p>
+      <h2>What the prototype measures</h2>
+      <div class="method-grid">
+        <div><strong>Education</strong><p>Average of total literacy, female literacy and gender parity. Census 2023.</p></div>
+        <div><strong>Health</strong><p>Relative index of listed public health facilities per 100,000 people within these five districts. It does not measure care quality.</p></div>
+        <div><strong>Accountability</strong><p>Average overall and development-budget utilization. Spending money is not proof that it was spent well.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Prototype v1 · Scores are deterministic; retrieved evidence is used only for explanations.</footer>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

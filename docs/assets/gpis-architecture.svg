@@ -1,0 +1,244 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">GPIS One-Week MVP Architecture</title>
+  <desc id="desc">Architecture diagram showing official data sources flowing through a Python ingestion pipeline into PostgreSQL and pgvector, then through deterministic scoring and citation-backed RAG services to a React dashboard and public chat.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7f9fc"/>
+      <stop offset="1" stop-color="#eef3fa"/>
+    </linearGradient>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#12305a"/>
+      <stop offset="1" stop-color="#245b96"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#17324d" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#43617f"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#7255b8"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#207a59"/>
+    </marker>
+    <style>
+      .title { font: 700 34px 'Segoe UI', Arial, sans-serif; fill: #ffffff; }
+      .subtitle { font: 400 17px 'Segoe UI', Arial, sans-serif; fill: #dbe8f6; }
+      .lane-title { font: 700 17px 'Segoe UI', Arial, sans-serif; fill: #23384f; letter-spacing: .8px; }
+      .box-title { font: 700 17px 'Segoe UI', Arial, sans-serif; fill: #18324c; }
+      .box-copy { font: 400 14px 'Segoe UI', Arial, sans-serif; fill: #465d73; }
+      .small { font: 400 12px 'Segoe UI', Arial, sans-serif; fill: #546b80; }
+      .pill { font: 700 11px 'Segoe UI', Arial, sans-serif; letter-spacing: .5px; }
+      .flow-label { font: 600 12px 'Segoe UI', Arial, sans-serif; fill: #456078; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="112" fill="url(#header)"/>
+  <circle cx="1510" cy="-10" r="150" fill="#ffffff" opacity="0.05"/>
+  <circle cx="1420" cy="80" r="95" fill="#ffffff" opacity="0.04"/>
+
+  <text x="56" y="52" class="title">GPIS — District Development &amp; Accountability Platform</text>
+  <text x="56" y="83" class="subtitle">One-week MVP architecture • deterministic scores • citation-backed RAG chat • five Punjab districts</text>
+
+  <!-- Lane backgrounds -->
+  <rect x="42" y="138" width="254" height="632" rx="22" fill="#e9f2ff" stroke="#bdd5f2"/>
+  <rect x="322" y="138" width="250" height="632" rx="22" fill="#eaf8f2" stroke="#b9dfd0"/>
+  <rect x="598" y="138" width="294" height="632" rx="22" fill="#f1edfb" stroke="#d4c8ef"/>
+  <rect x="918" y="138" width="330" height="632" rx="22" fill="#fff5e6" stroke="#f0d3a7"/>
+  <rect x="1274" y="138" width="284" height="632" rx="22" fill="#eaf7f8" stroke="#b9dfe2"/>
+
+  <!-- Lane titles -->
+  <text x="169" y="171" text-anchor="middle" class="lane-title">1  OFFICIAL SOURCES</text>
+  <text x="447" y="171" text-anchor="middle" class="lane-title">2  DATA PIPELINE</text>
+  <text x="745" y="171" text-anchor="middle" class="lane-title">3  DATA LAYER</text>
+  <text x="1083" y="171" text-anchor="middle" class="lane-title">4  INTELLIGENCE</text>
+  <text x="1416" y="171" text-anchor="middle" class="lane-title">5  USER EXPERIENCE</text>
+
+  <!-- Source cards -->
+  <g filter="url(#shadow)">
+    <rect x="62" y="198" width="214" height="128" rx="15" fill="#ffffff" stroke="#9fc2e8"/>
+    <rect x="62" y="348" width="214" height="128" rx="15" fill="#ffffff" stroke="#9fc2e8"/>
+    <rect x="62" y="498" width="214" height="128" rx="15" fill="#ffffff" stroke="#9fc2e8"/>
+  </g>
+  <rect x="78" y="214" width="48" height="48" rx="12" fill="#dbeaff"/>
+  <path d="M89 251h26v-24H89zm4-19h18m-18 6h18m-18 6h12" fill="none" stroke="#2b68a3" stroke-width="2.5"/>
+  <text x="139" y="228" class="box-title">Punjab Statistics</text>
+  <text x="78" y="278" class="small">District profiles, education,</text>
+  <text x="78" y="296" class="small">health and development</text>
+  <text x="78" y="318" class="pill" fill="#2b68a3">STRUCTURED METRICS</text>
+
+  <rect x="78" y="364" width="48" height="48" rx="12" fill="#dbeaff"/>
+  <path d="M90 373h22l6 6v25H90zm22 0v7h6M96 387h16m-16 7h16" fill="none" stroke="#2b68a3" stroke-width="2.5"/>
+  <text x="139" y="378" class="box-title">AGP Audit Report</text>
+  <text x="78" y="428" class="small">Findings, amounts and categories</text>
+  <text x="78" y="446" class="small">Recommendations + page refs</text>
+  <text x="78" y="468" class="pill" fill="#2b68a3">PDF EVIDENCE</text>
+
+  <rect x="78" y="514" width="48" height="48" rx="12" fill="#dbeaff"/>
+  <path d="M87 551l8-28 8 21 7-13 11 20z" fill="none" stroke="#2b68a3" stroke-width="2.5"/>
+  <circle cx="116" cy="525" r="4" fill="#2b68a3"/>
+  <text x="139" y="528" class="box-title">ECP / Assembly</text>
+  <text x="78" y="578" class="small">Constituencies and representatives</text>
+  <text x="78" y="596" class="small">Party and government periods</text>
+  <text x="78" y="618" class="pill" fill="#2b68a3">RESPONSIBILITY CONTEXT</text>
+
+  <rect x="62" y="650" width="214" height="88" rx="14" fill="#dcecff" stroke="#9fc2e8"/>
+  <text x="169" y="681" text-anchor="middle" class="box-title">Strict MVP scope</text>
+  <text x="169" y="704" text-anchor="middle" class="box-copy">5 districts • 3 scorecards</text>
+  <text x="169" y="724" text-anchor="middle" class="box-copy">1 audit report • 1–2 periods</text>
+
+  <!-- Pipeline -->
+  <g filter="url(#shadow)">
+    <rect x="342" y="198" width="210" height="154" rx="15" fill="#ffffff" stroke="#9bcfbb"/>
+    <rect x="342" y="376" width="210" height="154" rx="15" fill="#ffffff" stroke="#9bcfbb"/>
+    <rect x="342" y="554" width="210" height="154" rx="15" fill="#ffffff" stroke="#9bcfbb"/>
+  </g>
+  <circle cx="377" cy="231" r="18" fill="#d7f1e5"/>
+  <path d="M367 231h20m-10-10v20" stroke="#23825f" stroke-width="3"/>
+  <text x="407" y="228" class="box-title">Ingest</text>
+  <text x="362" y="266" class="box-copy">• Download / import files</text>
+  <text x="362" y="290" class="box-copy">• Record source metadata</text>
+  <text x="362" y="314" class="box-copy">• Preserve page references</text>
+  <text x="362" y="338" class="pill" fill="#23825f">PYTHON</text>
+
+  <circle cx="377" cy="409" r="18" fill="#d7f1e5"/>
+  <path d="M366 409l7 7 15-17" fill="none" stroke="#23825f" stroke-width="3"/>
+  <text x="407" y="406" class="box-title">Clean &amp; validate</text>
+  <text x="362" y="444" class="box-copy">• Standardize districts/years</text>
+  <text x="362" y="468" class="box-copy">• Validate units and ranges</text>
+  <text x="362" y="492" class="box-copy">• Flag missing information</text>
+  <text x="362" y="516" class="pill" fill="#23825f">PANDAS + RULES</text>
+
+  <circle cx="377" cy="587" r="18" fill="#d7f1e5"/>
+  <path d="M367 580h20v15h-20zm5-7h10" fill="none" stroke="#23825f" stroke-width="2.5"/>
+  <text x="407" y="584" class="box-title">Prepare evidence</text>
+  <text x="362" y="622" class="box-copy">• Split PDFs into chunks</text>
+  <text x="362" y="646" class="box-copy">• Attach page/category tags</text>
+  <text x="362" y="670" class="box-copy">• Generate embeddings</text>
+  <text x="362" y="694" class="pill" fill="#23825f">REUSABLE PIPELINE</text>
+
+  <!-- Data layer -->
+  <g filter="url(#shadow)">
+    <rect x="620" y="198" width="250" height="154" rx="15" fill="#ffffff" stroke="#c0ace8"/>
+    <rect x="620" y="376" width="250" height="154" rx="15" fill="#ffffff" stroke="#c0ace8"/>
+    <rect x="620" y="554" width="250" height="154" rx="15" fill="#ffffff" stroke="#c0ace8"/>
+  </g>
+  <ellipse cx="665" cy="226" rx="25" ry="10" fill="#e8e0fa" stroke="#7255b8" stroke-width="2"/>
+  <path d="M640 226v30c0 6 11 10 25 10s25-4 25-10v-30M640 241c0 6 11 10 25 10s25-4 25-10" fill="#e8e0fa" stroke="#7255b8" stroke-width="2"/>
+  <text x="708" y="231" class="box-title">PostgreSQL</text>
+  <text x="642" y="288" class="box-copy">District metrics • periods</text>
+  <text x="642" y="312" class="box-copy">Scores • components • sources</text>
+  <text x="642" y="338" class="pill" fill="#7255b8">FACTS &amp; NUMBERS</text>
+
+  <circle cx="665" cy="421" r="25" fill="#e8e0fa"/>
+  <circle cx="655" cy="414" r="4" fill="#7255b8"/>
+  <circle cx="676" cy="408" r="4" fill="#7255b8"/>
+  <circle cx="677" cy="430" r="4" fill="#7255b8"/>
+  <path d="M658 413l14-4m-14 8l15 11m3-16v14" stroke="#7255b8" stroke-width="2"/>
+  <text x="708" y="426" class="box-title">pgvector</text>
+  <text x="642" y="466" class="box-copy">Audit/report chunks with</text>
+  <text x="642" y="490" class="box-copy">embeddings and page metadata</text>
+  <text x="642" y="516" class="pill" fill="#7255b8">SEMANTIC EVIDENCE</text>
+
+  <rect x="640" y="575" width="50" height="50" rx="12" fill="#e8e0fa"/>
+  <path d="M651 587h28m-28 9h22m-22 9h26m-26 9h17" stroke="#7255b8" stroke-width="2.5"/>
+  <text x="708" y="588" class="box-title">Methodology</text>
+  <text x="642" y="646" class="box-copy">Metric definitions • weights</text>
+  <text x="642" y="670" class="box-copy">coverage rules • versions</text>
+  <text x="642" y="695" class="pill" fill="#7255b8">PUBLIC &amp; AUDITABLE</text>
+
+  <!-- Intelligence -->
+  <g filter="url(#shadow)">
+    <rect x="940" y="198" width="286" height="118" rx="15" fill="#ffffff" stroke="#e7bd80"/>
+    <rect x="940" y="338" width="286" height="164" rx="15" fill="#ffffff" stroke="#8fcfb6"/>
+    <rect x="940" y="524" width="286" height="184" rx="15" fill="#ffffff" stroke="#c3b1e7"/>
+  </g>
+  <rect x="958" y="216" width="51" height="51" rx="12" fill="#fff0d7"/>
+  <path d="M969 228h29v27h-29zm6-6h17m-17 39h17" fill="none" stroke="#b87516" stroke-width="2.5"/>
+  <text x="1024" y="229" class="box-title">FastAPI gateway</text>
+  <text x="1024" y="252" class="box-copy">Read API + chat endpoint</text>
+  <text x="958" y="296" class="pill" fill="#b87516">VALIDATED REQUESTS</text>
+
+  <circle cx="978" cy="376" r="23" fill="#d9f1e7"/>
+  <path d="M966 377l8 8 17-19" fill="none" stroke="#207a59" stroke-width="3"/>
+  <text x="1015" y="376" class="box-title">Scoring engine</text>
+  <text x="960" y="421" class="box-copy">Education • Health • Accountability</text>
+  <text x="960" y="447" class="box-copy">Reproducible weighted formulas</text>
+  <rect x="960" y="466" width="228" height="22" rx="11" fill="#d9f1e7"/>
+  <text x="1074" y="481" text-anchor="middle" class="pill" fill="#207a59">NO LLM — DETERMINISTIC ONLY</text>
+
+  <circle cx="978" cy="562" r="23" fill="#ece5fa"/>
+  <path d="M967 557h22v15h-12l-7 6v-6h-3z" fill="none" stroke="#7255b8" stroke-width="2.5"/>
+  <text x="1015" y="562" class="box-title">RAG orchestrator</text>
+  <text x="960" y="604" class="box-copy">1. Fetch numeric facts from SQL</text>
+  <text x="960" y="628" class="box-copy">2. Retrieve supporting report pages</text>
+  <text x="960" y="652" class="box-copy">3. Ask LLM to explain simply</text>
+  <text x="960" y="676" class="box-copy">4. Validate citations before reply</text>
+  <text x="960" y="696" class="pill" fill="#7255b8">ANSWER OR ABSTAIN</text>
+
+  <!-- UX -->
+  <g filter="url(#shadow)">
+    <rect x="1296" y="198" width="240" height="178" rx="15" fill="#ffffff" stroke="#8bc9ce"/>
+    <rect x="1296" y="398" width="240" height="178" rx="15" fill="#ffffff" stroke="#8bc9ce"/>
+    <rect x="1296" y="598" width="240" height="110" rx="15" fill="#ffffff" stroke="#8bc9ce"/>
+  </g>
+  <rect x="1315" y="216" width="50" height="50" rx="12" fill="#d9eff1"/>
+  <path d="M1325 252v-16m10 16v-26m10 26v-20m10 20v-31" stroke="#217a83" stroke-width="5"/>
+  <text x="1378" y="231" class="box-title">React dashboard</text>
+  <text x="1316" y="290" class="box-copy">• District scorecards</text>
+  <text x="1316" y="314" class="box-copy">• Rankings and trends</text>
+  <text x="1316" y="338" class="box-copy">• Government-period context</text>
+  <text x="1316" y="362" class="pill" fill="#217a83">ENGLISH + URDU LABELS</text>
+
+  <rect x="1315" y="416" width="50" height="50" rx="12" fill="#d9eff1"/>
+  <path d="M1324 426h32v23h-18l-9 8v-8h-5z" fill="none" stroke="#217a83" stroke-width="2.5"/>
+  <text x="1378" y="431" class="box-title">Public RAG chat</text>
+  <text x="1316" y="490" class="box-copy">“Why is this score low?”</text>
+  <text x="1316" y="514" class="box-copy">“What improved since 2019?”</text>
+  <text x="1316" y="538" class="box-copy">“Which report supports this?”</text>
+  <text x="1316" y="562" class="pill" fill="#217a83">SIMPLE CITED ANSWERS</text>
+
+  <circle cx="1338" cy="630" r="18" fill="#d9eff1"/>
+  <path d="M1329 630l6 6 12-14" fill="none" stroke="#217a83" stroke-width="3"/>
+  <text x="1370" y="629" class="box-title">Trust controls</text>
+  <text x="1316" y="668" class="box-copy">Page citations • limitations</text>
+  <text x="1316" y="690" class="box-copy">No unsupported causal claims</text>
+
+  <!-- Main arrows -->
+  <path d="M276 275 H326" fill="none" stroke="#43617f" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M276 425 H326" fill="none" stroke="#43617f" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M276 575 H326" fill="none" stroke="#43617f" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M552 275 H604" fill="none" stroke="#43617f" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M552 452 H582 V320 H604" fill="none" stroke="#43617f" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M552 631 H586 V453 H604" fill="none" stroke="#43617f" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M870 275 H924" fill="none" stroke="#43617f" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M870 302 H898 V398 H924" fill="none" stroke="#43617f" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <path d="M870 453 H910 V606 H924" fill="none" stroke="#7255b8" stroke-width="3" marker-end="url(#arrowPurple)"/>
+  <path d="M870 631 H906 V446 H924" fill="none" stroke="#207a59" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <path d="M1083 338 V322" fill="none" stroke="#b87516" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <path d="M1226 257 H1280" fill="none" stroke="#43617f" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M1226 616 H1260 V487 H1280" fill="none" stroke="#7255b8" stroke-width="3" marker-end="url(#arrowPurple)"/>
+
+  <!-- Request/response return path -->
+  <path d="M1296 470 H1260 V190 H1090" fill="none" stroke="#217a83" stroke-width="2.5" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+  <text x="1258" y="181" text-anchor="end" class="flow-label">question</text>
+  <path d="M1188 719 H1416 V716" fill="none" stroke="#7255b8" stroke-width="2.5" stroke-dasharray="8 7" marker-end="url(#arrowPurple)"/>
+  <text x="1288" y="742" class="flow-label">verified answer + citations</text>
+
+  <!-- Footer legend -->
+  <rect x="42" y="798" width="1516" height="72" rx="18" fill="#ffffff" stroke="#d5dee8"/>
+  <text x="66" y="827" class="box-title">Design rule:</text>
+  <text x="166" y="827" class="box-copy">AI explains evidence; it never calculates or changes performance scores.</text>
+  <circle cx="704" cy="824" r="7" fill="#23825f"/>
+  <text x="719" y="829" class="small">Pipeline / deterministic logic</text>
+  <circle cx="920" cy="824" r="7" fill="#7255b8"/>
+  <text x="935" y="829" class="small">RAG / AI explanation</text>
+  <circle cx="1102" cy="824" r="7" fill="#2b68a3"/>
+  <text x="1117" y="829" class="small">Official evidence</text>
+  <circle cx="1270" cy="824" r="7" fill="#b87516"/>
+  <text x="1285" y="829" class="small">Validation / API boundary</text>
+  <text x="66" y="854" class="small">Every public answer includes source, document page and limitations; unsupported questions return “insufficient evidence.”</text>
+</svg>

@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.DS_Store
+.pytest_cache/
+.coverage
+data/curated/agp_audit_text.txt
+data/raw/*
+!data/raw/README.md
+GPIS_Project_Proposal.docx
