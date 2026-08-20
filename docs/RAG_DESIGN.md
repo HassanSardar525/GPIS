@@ -6,15 +6,15 @@ The evidence assistant helps a user understand official district data without as
 
 ## Current implementation
 
-1. The user submits a question and selected district.
-2. A deterministic router selects exact fact, comparison, temporal comparison, methodology, score explanation, project, evidence, or unsupported handling.
-3. SQL supplies exact observations, persisted scores, score components, rankings, and two-period calculations.
-4. PostgreSQL full-text search and 384-dimensional MiniLM cosine search retrieve filtered passages.
-5. Reciprocal-rank fusion returns at most six deduplicated chunks; semantic-only hits below `0.35` are discarded.
-6. Groq may write the answer at temperature `0.1`; every factual sentence must cite a retrieved evidence ID.
-7. Unknown citations, provider errors, timeouts, and malformed output trigger the extractive fallback.
-8. Unsupported or evidence-free questions abstain.
-9. Optional Phoenix/OpenTelemetry spans group routing, retrieval, RRF ranks, generation, citation validation, fallbacks, latency, and errors under one chat trace.
+1. The browser creates a session ID and submits the question plus selected district filters.
+2. A single LangGraph agent may answer conversation directly or call at most two tool rounds.
+3. `district_data` supplies exact district lists, scores, rankings, comparisons, and two-period trends.
+4. `evidence_search` uses exact facts plus PostgreSQL full-text and MiniLM pgvector retrieval with RRF.
+5. `project_knowledge` retrieves citable scope, architecture, source, limitation, and scoring-methodology evidence.
+6. LangGraph short-term memory retains messages and tool results for the browser session, so relevant context can be reused.
+7. Groq writes the answer at temperature `0.1`; only citation IDs returned by tools are exposed through the API.
+8. Invented citations, provider errors, timeouts, rate limits, or invalid agent output trigger the existing deterministic RAG fallback.
+9. Without a Groq key, the previous deterministic router, extractive fallback, and abstention behavior remain available.
 
 The application remains fully usable without a Groq key. Retrieved documents are treated as untrusted data and cannot supply instructions or modify scores.
 
@@ -26,6 +26,7 @@ The application remains fully usable without a Groq key. Retrieved documents are
 - Distinguish audit observations from proven fraud or corruption.
 - Distinguish service capacity from service quality.
 - Refuse unsupported candidate recommendations.
+- Never allow the agent or its tools to calculate or modify stored scores.
 
 ## Evaluation set
 

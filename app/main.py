@@ -8,7 +8,9 @@ from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from langchain_groq import ChatGroq
 
+from app.agent import AgentChatService
 from app.config import ROOT, Settings
 from app.embeddings import MiniLMEmbedder
 from app.errors import GPISException
@@ -46,7 +48,18 @@ def build_chat_service(
         if settings.groq_api_key
         else FailingProvider()
     )
-    return ChatService(repository, retriever, provider, observability)
+    fallback = ChatService(repository, retriever, provider, observability)
+    if not settings.groq_api_key:
+        return fallback
+    model = ChatGroq(
+        api_key=settings.groq_api_key,
+        model=settings.groq_model,
+        base_url=settings.groq_base_url.removesuffix("/openai/v1"),
+        temperature=0.1,
+        timeout=settings.groq_timeout_seconds,
+        max_retries=1,
+    )
+    return AgentChatService(repository, retriever, model, fallback)
 
 
 def create_app(

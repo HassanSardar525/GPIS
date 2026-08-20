@@ -1,6 +1,6 @@
 # Government Performance Intelligence System (GPIS)
 
-GPIS is a citation-first dashboard and RAG assistant for comparing education, health access, and public-financial-management indicators across ten South Punjab districts.
+GPIS is a citation-first dashboard and tool-using RAG assistant for comparing education, health access, and public-financial-management indicators across ten South Punjab districts.
 
 ## Architecture
 
@@ -9,11 +9,16 @@ flowchart LR
     S["Official PDF/XLSX sources"] --> J["Reviewed curated JSON"]
     J --> I["Idempotent seed + MiniLM embeddings"]
     I --> P["PostgreSQL + pgvector"]
-    P --> Q["SQL facts, full-text search, vector search"]
-    Q --> R["Filtered reciprocal-rank fusion"]
-    R --> G["Groq grounded generation"]
-    R --> F["Extractive fallback / abstention"]
-    R --> X["Phoenix/OpenTelemetry traces"]
+    P --> D1["District-data tool: SQL facts"]
+    P --> R["Filtered full-text + vector RRF"]
+    R --> E1["Evidence-search tool"]
+    J --> K1["Project-knowledge tool"]
+    D1 --> L["LangGraph agent + session memory"]
+    E1 --> L
+    K1 --> L
+    L --> G["Groq tool calling + grounded generation"]
+    L --> F["Extractive fallback / abstention"]
+    L --> X["Phoenix/OpenTelemetry traces"]
     G --> A["FastAPI /api/v1"]
     F --> A
     P --> D["Deterministic scoring"]
@@ -30,6 +35,7 @@ app/
   database/       SQLAlchemy models, PostgreSQL repository, seed and sessions
   static/         Browser UI
   main.py         FastAPI app and /api/v1 routes
+  agent.py        LangGraph agent, three tools, bounded calls and session memory
   services.py     District, retrieval and chat orchestration
   scoring.py      Deterministic score formulas
   routing.py      Question classification and controlled query expansion

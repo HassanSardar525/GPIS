@@ -1,4 +1,9 @@
-const state = { district: null, districts: [], trend: null };
+const state = {
+  district: null,
+  districts: [],
+  trend: null,
+  sessionId: window.crypto?.randomUUID?.() || `session-${Date.now()}`,
+};
 const select = document.querySelector('#district-select');
 const compareSelect = document.querySelector('#compare-district');
 const rankingCategory = document.querySelector('#ranking-category');
@@ -127,13 +132,15 @@ async function askQuestion(question, districts = [state.district.slug]) {
     const data = await json('/api/v1/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, districts }),
+      body: JSON.stringify({ question, districts, session_id: state.sessionId }),
     });
+    state.sessionId = data.session_id || state.sessionId;
     const citations = data.citations.map(citation =>
       `<li><a href="${safeUrl(citation.url)}" target="_blank" rel="noreferrer">${escapeHtml(citation.publisher)}: ${escapeHtml(citation.title)}</a> — ${escapeHtml(citation.period)} · ${escapeHtml(citation.locator)}</li>`
     ).join('');
     const warnings = data.warnings.map(warning => `<li>${escapeHtml(warning)}</li>`).join('');
-    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${data.mode}">${escapeHtml(data.mode)}</span><span>${escapeHtml(data.route)}</span><span>trace ${escapeHtml(data.trace_id.slice(0, 8))}</span></div><p>${escapeHtml(data.answer)}</p>${citations ? `<ol>${citations}</ol>` : ''}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
+    const tools = data.tools_used?.length ? `<span>tools: ${escapeHtml(data.tools_used.join(', '))}</span>` : '';
+    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${data.mode}">${escapeHtml(data.mode)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(data.trace_id.slice(0, 8))}</span></div><p>${escapeHtml(data.answer)}</p>${citations ? `<ol>${citations}</ol>` : ''}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
   } catch (error) {
     answer.innerHTML = `<p>Evidence service unavailable: ${escapeHtml(error.message)}</p>`;
   } finally {

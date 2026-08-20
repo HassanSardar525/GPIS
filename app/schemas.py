@@ -19,6 +19,7 @@ class AnswerMode(StrEnum):
 
 
 class QuestionRoute(StrEnum):
+    CONVERSATION = "conversation"
     EXACT_FACT = "exact_fact"
     COMPARISON = "comparison"
     METHODOLOGY = "methodology"
@@ -134,6 +135,7 @@ class ChatRequest(BaseModel):
     district: str | None = Field(default=None, description="Compatibility alias for one selected district")
     category: Category | None = None
     period: str | None = Field(default=None, max_length=80)
+    session_id: str | None = Field(default=None, min_length=8, max_length=100)
 
     @field_validator("question")
     @classmethod
@@ -176,6 +178,8 @@ class ChatResponse(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     trace_id: str
     abstained: bool
+    session_id: str | None = None
+    tools_used: list[str] = Field(default_factory=list)
 
 
 class HealthResponse(BaseModel):

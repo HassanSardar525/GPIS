@@ -21,13 +21,15 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Added local MiniLM embeddings and retrieval traces.
 - [x] Added optional self-hosted Phoenix/OpenTelemetry tracing plus detailed PostgreSQL trace records.
 - [x] Added optional Groq generation with strict citation validation and deterministic fallback.
+- [x] Added a single LangGraph agent with district-data, hybrid-evidence, and project-knowledge tools.
+- [x] Added bounded tool calls, conversational replies, and browser-session memory.
 - [x] Added deterministic FY 2022-23 to FY 2023-24 development-utilization comparisons and a cited temporal RAG route.
 - [x] Added global citable project/methodology evidence and deterministic score-component explanations.
 - [x] Live-tested Groq generation with `openai/gpt-oss-20b` and validated retrieved citations.
 - [x] Built a responsive browser dashboard.
 - [x] Reconnected the dashboard to ten-district ranks, period trends, score explanations, comparisons, RAG modes, and trace IDs.
 - [x] Added a 60-case RAG evaluation and adversarial/provider-failure tests.
-- [x] Passed all 42 automated tests and every RAG acceptance metric locally.
+- [x] Passed all local automated tests and every RAG acceptance metric locally.
 - [x] Added architecture, methodology, RAG, status, backlog, and decision documentation.
 
 ## Next milestone
@@ -40,4 +42,5 @@ Create the remote GitHub repository, push the phased history, then prepare manag
 - Health and accountability are provisional proxies.
 - Raw source acquisition is manual.
 - Groq remains optional; the extractive fallback keeps the application functional without it.
+- Agent sessions are currently in memory and reset when the API process restarts.
 - Phoenix is optional and local; no hosted monitoring, authentication, or deployment pipeline exists.
