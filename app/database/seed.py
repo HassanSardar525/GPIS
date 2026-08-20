@@ -134,6 +134,23 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                     ["id"],
                 )
 
+        for evidence in data.get("project_evidence", []):
+            source = data["sources"][evidence["source_id"]]
+            _upsert(
+                session,
+                EvidenceChunk,
+                {
+                    "id": evidence["id"],
+                    "district_id": None,
+                    "source_id": evidence["source_id"],
+                    "category": evidence["category"],
+                    "period": source["period"],
+                    "text": evidence["text"],
+                    "locator": evidence["locator"],
+                },
+                ["id"],
+            )
+
         for category, formula in FORMULAS.items():
             _upsert(
                 session,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import time
 import uuid
 from collections import defaultdict
@@ -18,6 +19,10 @@ from app.schemas import (
     QuestionRoute,
     RetrievedEvidence,
 )
+from app.score_explanations import requested_score_category
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 METHODOLOGY_TEXT = {
@@ -60,11 +65,12 @@ class HybridRetriever:
 
     def retrieve(self, request: ChatRequest, route: QuestionRoute, limit: int = 6) -> list[RetrievedEvidence]:
         districts = request.selected_districts()
-        facts = (
-            self.repository.trend_search(request.question, districts, limit)
-            if route == QuestionRoute.TEMPORAL_COMPARISON
-            else self.repository.fact_search(request.question, districts, limit)
-        )
+        if route == QuestionRoute.TEMPORAL_COMPARISON:
+            facts = self.repository.trend_search(request.question, districts, limit)
+        elif route == QuestionRoute.SCORE_EXPLANATION:
+            facts = self.repository.score_search(request.question, districts, request.category, limit)
+        else:
+            facts = self.repository.fact_search(request.question, districts, limit)
         keyword = facts + self.repository.keyword_search(
             request.question, districts, request.category, request.period, limit
         )
@@ -73,7 +79,21 @@ class HybridRetriever:
                 (category for category in ("education", "health", "accountability") if category in request.question.casefold()),
                 "education health accountability",
             )
-            keyword += self.repository.keyword_search(method_query, districts, request.category, request.period, limit)
+            keyword += self.repository.keyword_search(method_query, districts, None, request.period, limit)
+        elif route == QuestionRoute.SCORE_EXPLANATION:
+            score_category = requested_score_category(request.question, request.category)
+            keyword += self.repository.keyword_search(
+                f"{score_category} formula score components", districts, None, request.period, limit
+            )
+        elif route == QuestionRoute.PROJECT:
+            project_query = (
+                "RAG architecture"
+                if any(word in request.question.casefold() for word in ("architecture", "pipeline", "rag", "retrieval"))
+                else "project"
+            )
+            keyword += self.repository.keyword_search(
+                project_query, [], None, None, limit
+            )
         elif route == QuestionRoute.COMPARISON and not keyword:
             keyword += self.repository.keyword_search(
                 "education health accountability", districts, request.category, request.period, limit
@@ -183,8 +203,12 @@ class ChatService:
                 )
                 self._record_trace(request, response, evidence, started)
                 return response
-        except Exception:
-            pass
+            LOGGER.warning("LLM response failed citation validation", extra={"trace_id": trace_id})
+        except Exception as error:
+            if self.provider.name != "unavailable":
+                LOGGER.warning(
+                    "LLM generation failed: %s", type(error).__name__, extra={"trace_id": trace_id}
+                )
 
         response = ChatResponse(
             answer=self._fallback_answer(request, route, evidence),
@@ -204,6 +228,8 @@ class ChatService:
             QuestionRoute.EXACT_FACT,
             QuestionRoute.COMPARISON,
             QuestionRoute.METHODOLOGY,
+            QuestionRoute.SCORE_EXPLANATION,
+            QuestionRoute.PROJECT,
             QuestionRoute.TEMPORAL_COMPARISON,
         }:
             return ""
@@ -248,6 +274,8 @@ class ChatService:
             )
             markers = " ".join(f"[{item.id}]" for item in evidence[:3])
             return f"{METHODOLOGY_TEXT[category]} {markers}".strip()
+        if route in {QuestionRoute.SCORE_EXPLANATION, QuestionRoute.PROJECT}:
+            return " ".join(f"{item.text} [{item.id}]" for item in evidence[:3])
         if route == QuestionRoute.TEMPORAL_COMPARISON:
             return " ".join(f"{item.text} [{item.id}]" for item in evidence[:3])
         if route == QuestionRoute.COMPARISON and any(

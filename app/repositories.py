@@ -12,6 +12,7 @@ from app.retrieval import EvidenceRetriever
 from app.schemas import Citation, RetrievedEvidence
 from app.scoring import rankings as calculate_rankings
 from app.scoring import score_districts
+from app.score_explanations import format_score_explanation, requested_score_category
 from app.temporal import development_budget_trend
 
 
@@ -45,6 +46,9 @@ class GPISRepository(Protocol):
     ) -> list[RetrievedEvidence]: ...
     def development_trend(self, slug: str) -> dict: ...
     def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]: ...
+    def score_search(
+        self, query: str, district_slugs: list[str], category: str | None, limit: int
+    ) -> list[RetrievedEvidence]: ...
     def record_trace(self, trace: dict) -> None: ...
 
 
@@ -58,7 +62,21 @@ class JsonRepository:
         self.data = json.loads(path.read_text(encoding="utf-8"))
         self.districts = score_districts(self.data["districts"])
         self.by_slug = {district["slug"]: district for district in self.districts}
-        self.retriever = EvidenceRetriever(self.districts, self.data["sources"])
+        self.retriever = EvidenceRetriever(
+            self.districts, self.data["sources"], self.data.get("project_evidence", [])
+        )
+
+    def _methodology_citation(self, evidence_id: str, locator: str) -> dict:
+        source = self.data["sources"]["gpis_methodology_v1"]
+        return {
+            "evidence_id": evidence_id,
+            "source_id": "gpis_methodology_v1",
+            "publisher": source["publisher"],
+            "title": source["title"],
+            "period": source["period"],
+            "url": source["url"],
+            "locator": locator,
+        }
 
     def healthcheck(self) -> bool:
         return self.path.is_file()
@@ -145,6 +163,58 @@ class JsonRepository:
                     locator=citation.locator,
                     period=citation.period,
                     keyword_rank=rank,
+                    citation=citation,
+                )
+            )
+        return results
+
+    def score_search(
+        self, query: str, district_slugs: list[str], category: str | None, limit: int
+    ) -> list[RetrievedEvidence]:
+        selected = district_slugs or list(self.by_slug)
+        score_category = requested_score_category(query, category)
+        rates = [district["derived"]["facilities_per_100k"] for district in self.districts]
+        results = []
+        for slug in selected[:limit]:
+            district = self.by_slug.get(slug)
+            if not district:
+                continue
+            scores = district["derived"]["scores"]
+            education = district["education"]
+            accountability = district["accountability"]
+            components = {
+                "education": {
+                    "literacy_total_pct": education["literacy_total_pct"],
+                    "literacy_female_pct": education["literacy_female_pct"],
+                    "gender_parity": 100 - abs(education["literacy_male_pct"] - education["literacy_female_pct"]),
+                },
+                "health": {
+                    "facility_count": district["derived"]["facility_count"],
+                    "facilities_per_100k": district["derived"]["facilities_per_100k"],
+                    "cohort_min": min(rates),
+                    "cohort_max": max(rates),
+                },
+                "accountability": {
+                    "overall_budget_utilization_pct": 100 - accountability["overall_budget_lapse_pct"],
+                    "development_budget_utilization_pct": 100 - accountability["development_budget_lapse_pct"],
+                },
+                "overall": {name: scores[name] for name in ("education", "health", "accountability")},
+            }[score_category]
+            evidence_id = f"score-{slug}-{score_category}-prototype-v1"
+            citation = self._methodology_citation(evidence_id, f"{score_category.title()} formula and stored components")
+            results.append(
+                RetrievedEvidence(
+                    id=evidence_id,
+                    district_slug=slug,
+                    district_name=district["name"],
+                    category=score_category,
+                    text=format_score_explanation(
+                        district["name"], score_category, scores[score_category], components
+                    ),
+                    source_id=citation["source_id"],
+                    locator=citation["locator"],
+                    period=citation["period"],
+                    keyword_rank=len(results) + 1,
                     citation=citation,
                 )
             )

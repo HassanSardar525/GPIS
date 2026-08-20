@@ -30,9 +30,9 @@ class InventedCitationProvider:
         return GeneratedAnswer("An unsupported claim [invented].", ["invented"], [])
 
 
-def test_evaluation_fixture_has_forty_cases_and_expected_routes():
+def test_evaluation_fixture_has_fifty_cases_and_expected_routes():
     cases = json.loads((ROOT / "tests/fixtures/rag_evaluation.json").read_text(encoding="utf-8"))
-    assert len(cases) == 40
+    assert len(cases) == 50
     for case in cases:
         assert classify_question(case["question"]).value == case["route"], case["id"]
 
@@ -47,7 +47,8 @@ def test_hybrid_retrieval_is_district_scoped_and_deduplicated():
     retriever = HybridRetriever(REPOSITORY, embedder=None)
     results = retriever.retrieve(ChatRequest(question="literacy and education", districts=["multan"]), QuestionRoute.EXACT_FACT)
     assert results
-    assert all(item.district_slug == "multan" for item in results)
+    assert all(item.district_slug in {"multan", "project"} for item in results)
+    assert any(item.district_slug == "multan" for item in results)
     assert len({item.id for item in results}) == len(results)
 
 

@@ -62,7 +62,9 @@ class EvidenceChunk(Base):
     __tablename__ = "evidence_chunks"
 
     id: Mapped[str] = mapped_column(String(160), primary_key=True)
-    district_id: Mapped[int] = mapped_column(ForeignKey("districts.id", ondelete="CASCADE"), index=True)
+    district_id: Mapped[int | None] = mapped_column(
+        ForeignKey("districts.id", ondelete="CASCADE"), index=True, nullable=True
+    )
     source_id: Mapped[str] = mapped_column(ForeignKey("sources.id"))
     category: Mapped[str] = mapped_column(String(40), index=True)
     period: Mapped[str] = mapped_column(String(100), index=True)

@@ -24,7 +24,7 @@ def test_migration_and_seed_are_idempotent():
     first = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     second = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     assert first == second
-    assert second == {"districts": 10, "observations": 190, "evidence_chunks": 40, "score_results": 40}
+    assert second == {"districts": 10, "observations": 190, "evidence_chunks": 47, "score_results": 40}
 
 
 def test_provenance_is_complete_after_seed():
@@ -63,3 +63,14 @@ def test_postgres_development_trend_uses_canonical_evidence():
     trend = repository.development_trend("rahim-yar-khan")
     assert trend["change_percentage_points"] == 54.23
     assert trend["citation"]["evidence_id"] == "ryk-development-trend"
+
+
+def test_postgres_score_reasoning_and_global_project_evidence():
+    repository = PostgresRepository(DATABASE_URL, "prototype-v1")
+    score_evidence = repository.score_search(
+        "Why did Vehari receive its accountability score?", ["vehari"], None, 6
+    )
+    assert score_evidence[0].id == "score-vehari-accountability-prototype-v1"
+    assert "98.5" in score_evidence[0].text
+    project_evidence = repository.keyword_search("RAG architecture", ["vehari"], None, None, 6)
+    assert any(item.id == "gpis-rag-architecture" for item in project_evidence)

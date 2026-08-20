@@ -11,13 +11,19 @@ TEMPORAL = {
     "change", "changed", "decline", "declined", "decrease", "decreased", "improve", "improved",
     "improvement", "previous", "trend", "year", "yearly",
 }
-METHODOLOGY = {"calculate", "calculated", "formula", "method", "methodology", "score", "weight", "weighted", "mean"}
+METHODOLOGY = {
+    "calculate", "calculated", "formula", "mean", "method", "methodology", "normalization",
+    "normalized", "score", "weight", "weighted",
+}
+FORMULA_WORDS = METHODOLOGY - {"score"}
+SCORE_REASON = {"explain", "got", "given", "reason", "received", "why"}
+PROJECT = {"architecture", "gpis", "pipeline", "project", "rag", "retrieval"}
 FACTS = {
     "literacy", "female", "male", "school", "children", "population", "facility", "facilities",
     "bhu", "bhus", "rhc", "rhcs", "hospital", "hospitals", "budget", "lapse", "utilization", "accountability", "education", "health",
 }
 UNSUPPORTED = {"weather", "recipe", "movie", "sport", "sports", "cricket", "stock", "stocks", "horoscope", "joke"}
-PERSON_BLAME = {"blame", "caused", "politician", "representative"}
+PERSON_BLAME = {"blame", "caused", "politician", "politicians", "representative", "representatives"}
 SCORE_MANIPULATION = {"override"}
 EVIDENCE_WORDS = FACTS | {
     "access", "audit", "care", "development", "district", "evidence", "girls", "learning",
@@ -35,6 +41,10 @@ def classify_question(question: str) -> QuestionRoute:
         return QuestionRoute.TEMPORAL_COMPARISON
     if tokens & COMPARISON:
         return QuestionRoute.COMPARISON
+    if "score" in tokens and tokens & SCORE_REASON and not tokens & FORMULA_WORDS:
+        return QuestionRoute.SCORE_EXPLANATION
+    if tokens & PROJECT:
+        return QuestionRoute.PROJECT
     if tokens & METHODOLOGY:
         return QuestionRoute.METHODOLOGY
     if tokens & FACTS:

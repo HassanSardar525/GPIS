@@ -22,6 +22,8 @@ class QuestionRoute(StrEnum):
     EXACT_FACT = "exact_fact"
     COMPARISON = "comparison"
     METHODOLOGY = "methodology"
+    SCORE_EXPLANATION = "score_explanation"
+    PROJECT = "project"
     EVIDENCE = "evidence"
     TEMPORAL_COMPARISON = "temporal_comparison"
     UNSUPPORTED = "unsupported"

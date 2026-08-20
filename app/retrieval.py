@@ -19,12 +19,14 @@ def tokenize(text: str) -> list[str]:
 
 
 class EvidenceRetriever:
-    def __init__(self, districts: list[dict], sources: dict):
+    def __init__(self, districts: list[dict], sources: dict, global_evidence: list[dict] | None = None):
         self.sources = sources
         self.documents = []
         for district in districts:
             for evidence in district["evidence"]:
                 self.documents.append({**evidence, "district": district["name"], "slug": district["slug"]})
+        for evidence in global_evidence or []:
+            self.documents.append({**evidence, "district": "GPIS Project", "slug": "project"})
         self.document_frequency = Counter()
         for document in self.documents:
             self.document_frequency.update(set(tokenize(self._search_text(document))))
@@ -53,7 +55,7 @@ class EvidenceRetriever:
         total_documents = len(self.documents)
         results = []
         for document in self.documents:
-            if selected and document["slug"] not in selected:
+            if selected and document["slug"] not in selected and document["slug"] != "project":
                 continue
             if category and document["category"] != category:
                 continue

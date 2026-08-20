@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.orm import joinedload
 
 from app.database.models import DatasetMetadata, District, EvidenceChunk, Observation, RetrievalTrace, ScoreResult, Source
@@ -12,6 +12,7 @@ from app.database.session import session_factory
 from app.errors import DistrictNotFound, InvalidCategory, TrendUnavailable
 from app.facts import format_fact, requested_metrics
 from app.schemas import Citation, RetrievedEvidence
+from app.score_explanations import format_score_explanation, requested_score_category
 from app.temporal import development_budget_trend
 
 
@@ -151,6 +152,57 @@ class PostgresRepository:
             )
         return results
 
+    def score_search(self, query, district_slugs, category, limit):
+        score_category = requested_score_category(query, category)
+        with self.sessions() as session:
+            statement = (
+                select(ScoreResult, District)
+                .join(District, District.id == ScoreResult.district_id)
+                .where(
+                    ScoreResult.version == self.score_version,
+                    ScoreResult.category == score_category,
+                )
+                .order_by(District.name)
+            )
+            if district_slugs:
+                statement = statement.where(District.slug.in_(district_slugs))
+            rows = session.execute(statement.limit(limit)).all()
+            source = session.get(Source, "gpis_methodology_v1")
+            if not source:
+                return []
+            results = []
+            for rank, (score, district) in enumerate(rows, start=1):
+                evidence_id = f"score-{district.slug}-{score_category}-{self.score_version}"
+                locator = f"{score_category.title()} formula and stored components"
+                results.append(
+                    RetrievedEvidence(
+                        id=evidence_id,
+                        district_slug=district.slug,
+                        district_name=district.name,
+                        category=score_category,
+                        text=format_score_explanation(
+                            district.name,
+                            score_category,
+                            float(score.score),
+                            {key: float(value) for key, value in score.components.items()},
+                        ),
+                        source_id=source.id,
+                        locator=locator,
+                        period=source.period,
+                        keyword_rank=rank,
+                        citation=Citation(
+                            evidence_id=evidence_id,
+                            source_id=source.id,
+                            publisher=source.publisher,
+                            title=source.title,
+                            period=source.period,
+                            url=source.url,
+                            locator=locator,
+                        ),
+                    )
+                )
+            return results
+
     def get_district(self, slug: str) -> dict:
         with self.sessions() as session:
             district = session.scalar(select(District).where(District.slug == slug))
@@ -226,7 +278,9 @@ class PostgresRepository:
 
     def _filters(self, statement, district_slugs: list[str], category: str | None, period: str | None):
         if district_slugs:
-            statement = statement.where(District.slug.in_(district_slugs))
+            statement = statement.where(
+                or_(District.slug.in_(district_slugs), EvidenceChunk.district_id.is_(None))
+            )
         if category:
             statement = statement.where(EvidenceChunk.category == category)
         if period:
@@ -238,8 +292,8 @@ class PostgresRepository:
         chunk, district, source = row
         return RetrievedEvidence(
             id=chunk.id,
-            district_slug=district.slug,
-            district_name=district.name,
+            district_slug=district.slug if district else "project",
+            district_name=district.name if district else "GPIS Project",
             category=chunk.category,
             text=chunk.text,
             source_id=chunk.source_id,
@@ -265,7 +319,7 @@ class PostgresRepository:
             rank = func.ts_rank_cd(EvidenceChunk.search_vector, ts_query).label("rank")
             statement = (
                 select(EvidenceChunk, District, Source, rank)
-                .join(District, District.id == EvidenceChunk.district_id)
+                .outerjoin(District, District.id == EvidenceChunk.district_id)
                 .join(Source, Source.id == EvidenceChunk.source_id)
                 .where(EvidenceChunk.search_vector.op("@@")(ts_query))
             )
@@ -318,7 +372,7 @@ class PostgresRepository:
             distance = EvidenceChunk.embedding.cosine_distance(embedding).label("distance")
             statement = (
                 select(EvidenceChunk, District, Source, distance)
-                .join(District, District.id == EvidenceChunk.district_id)
+                .outerjoin(District, District.id == EvidenceChunk.district_id)
                 .join(Source, Source.id == EvidenceChunk.source_id)
                 .where(EvidenceChunk.embedding.is_not(None))
             )

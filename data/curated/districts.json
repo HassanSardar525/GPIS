@@ -34,8 +34,24 @@
       "period": "FY 2022-23 and FY 2023-24",
       "url": "https://www.agp.gov.pk/SiteImage/Policy/AR%20on%20the%20accounts%20of%2017%20%20district%20hrealt%20authorities%20of%20punjab%20south%202024-25.pdf",
       "local_file": "data/raw/agp_punjab_south_dha_2024-25.pdf"
+    },
+    "gpis_methodology_v1": {
+      "publisher": "GPIS Project",
+      "title": "GPIS Prototype Methodology and RAG Architecture",
+      "period": "prototype-v1, 2026-08-20",
+      "url": "https://github.com/HassanSardar525/GPIS/blob/main/docs/KNOWLEDGE_BASE.md",
+      "local_file": "docs/KNOWLEDGE_BASE.md"
     }
   },
+  "project_evidence": [
+    {"id": "gpis-project-scope", "category": "project", "text": "GPIS is a ten-district South Punjab prototype for comparing education, public-health-facility availability, budget-utilization accountability proxies, and an equal-weight overall score. It helps users inspect evidence and limitations; it does not attribute district outcomes to individual politicians.", "source_id": "gpis_methodology_v1", "locator": "Project scope and limitations"},
+    {"id": "gpis-rag-architecture", "category": "project", "text": "The GPIS RAG architecture routes exact facts, rankings, score calculations, and two-period changes to deterministic application and SQL functions. Explanatory questions use retrieval over keyword and MiniLM vector evidence, combine results with reciprocal-rank fusion, and optionally ask Groq to write an answer whose citation IDs must match retrieved evidence.", "source_id": "gpis_methodology_v1", "locator": "RAG architecture"},
+    {"id": "gpis-method-education", "category": "methodology", "text": "The education score is the arithmetic mean of total literacy percentage, female literacy percentage, and gender parity, where gender parity equals 100 minus the absolute male-female literacy gap. The score is rounded to one decimal.", "source_id": "gpis_methodology_v1", "locator": "Education formula"},
+    {"id": "gpis-method-health", "category": "methodology", "text": "The health score counts listed public facilities, divides by population to obtain facilities per 100,000 residents, and min-max normalizes that rate from 0 to 100 within the fixed ten-district cohort. It measures relative listed facility availability, not quality or health outcomes.", "source_id": "gpis_methodology_v1", "locator": "Health formula"},
+    {"id": "gpis-method-accountability", "category": "methodology", "text": "The accountability score is the arithmetic mean of overall budget utilization and development-budget utilization. Each utilization is 100 minus its reported lapse percentage. It is a financial-utilization proxy and is not proof of honesty, corruption, service quality, or impact.", "source_id": "gpis_methodology_v1", "locator": "Accountability formula"},
+    {"id": "gpis-method-overall", "category": "methodology", "text": "The overall GPIS score is the equal-weight arithmetic mean of the education, health, and accountability scores, rounded to one decimal. A high overall score only summarizes the selected indicators and their current definitions.", "source_id": "gpis_methodology_v1", "locator": "Overall formula"},
+    {"id": "gpis-method-temporal", "category": "methodology", "text": "The only supported year-over-year metric is development-budget utilization, calculated as expenditure divided by final grant times 100 for FY 2022-23 and FY 2023-24. The change is current utilization minus previous utilization in percentage points; it is not a change in the full accountability or overall score.", "source_id": "gpis_methodology_v1", "locator": "Temporal comparison formula"}
+  ],
   "districts": [
     {
       "slug": "multan",
