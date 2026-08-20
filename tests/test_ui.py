@@ -8,8 +8,10 @@ def test_dashboard_exposes_trend_comparison_and_rag_states():
     html = (ROOT / "app/static/index.html").read_text(encoding="utf-8")
     script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
     assert 'id="trend-periods"' in html
-    assert 'id="compare-scores"' in html
-    assert 'id="compare-trends"' in html
+    assert html.count('id="chat-form"') == 1
+    assert 'id="compare-scores"' not in html
+    assert 'id="compare-trends"' not in html
+    assert 'id="compare-district"' not in html
     assert "/trends/development-budget" in script
     assert "data.mode" in script and "data.route" in script and "data.trace_id" in script
     assert "Rank ${rank.rank} of ${state.districts.length}" in script

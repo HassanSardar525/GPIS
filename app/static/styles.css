@@ -71,10 +71,6 @@ select, input { width: 100%; padding: 14px 16px; border: 1px solid var(--line); 
 .answer-mode { padding: 4px 8px; border: 1px solid rgba(255,255,255,.2); border-radius: 99px; }
 .chat-prompts { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 12px; }
 .chat-prompts button { padding: 7px 10px; border: 1px solid rgba(255,255,255,.18); color: #dbe9e3; background: transparent; font-size: .74rem; font-weight: 700; }
-.compare-controls { display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; align-items: center; margin-top: 12px; }
-.compare-controls label { color: #9ec8b6; font-size: .74rem; font-weight: 700; }
-.compare-controls select { padding: 8px 10px; }
-.compare-controls button { padding: 8px 10px; font-size: .72rem; }
 .chat-warnings { color: #f4c976; font-size: .78rem; }
 #chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 14px; }
 #chat-form input { background: white; }
@@ -90,6 +86,4 @@ footer { padding: 28px; border-top: 1px solid var(--line); text-align: center; c
   .hero { padding-top: 42px; gap: 18px; }
   .district-heading { align-items: stretch; flex-direction: column; }
   .overall-badge { min-width: 0; }
-  .compare-controls { grid-template-columns: 1fr 1fr; }
-  .compare-controls label, .compare-controls select { grid-column: 1 / -1; }
 }

@@ -5,7 +5,6 @@ const state = {
   sessionId: window.crypto?.randomUUID?.() || `session-${Date.now()}`,
 };
 const select = document.querySelector('#district-select');
-const compareSelect = document.querySelector('#compare-district');
 const rankingCategory = document.querySelector('#ranking-category');
 
 const number = (value, digits = 0) => Number(value).toLocaleString('en-PK', {
@@ -41,14 +40,6 @@ function card(category, title, score, rank, metrics, sourceUrl) {
   </article>`;
 }
 
-function updateCompareOptions() {
-  if (!state.district) return;
-  const previous = compareSelect.value;
-  const available = state.districts.filter(item => item.slug !== state.district.slug);
-  compareSelect.innerHTML = available.map(item => `<option value="${item.slug}">${escapeHtml(item.name)}</option>`).join('');
-  if (available.some(item => item.slug === previous)) compareSelect.value = previous;
-}
-
 function renderDistrict(data) {
   state.district = data;
   document.querySelector('#notice').textContent = data.metadata.disclaimer;
@@ -77,7 +68,6 @@ function renderDistrict(data) {
       ['Formations audited', `${accountability.audited_formations} of ${accountability.total_formations}`],
     ], data.sources.agp_dha.url),
   ].join('');
-  updateCompareOptions();
   loadRankings();
 }
 
@@ -182,20 +172,6 @@ document.querySelectorAll('.chat-prompts button').forEach(button => {
     document.querySelector('#chat-question').value = question;
     askQuestion(question, button.dataset.allDistricts === 'true' ? [] : [state.district.slug]);
   });
-});
-
-document.querySelector('#compare-scores').addEventListener('click', () => {
-  const other = state.districts.find(item => item.slug === compareSelect.value);
-  const question = `Compare the overall scores of ${state.district.name} and ${other.name}.`;
-  document.querySelector('#chat-question').value = question;
-  askQuestion(question, [state.district.slug, other.slug]);
-});
-
-document.querySelector('#compare-trends').addEventListener('click', () => {
-  const other = state.districts.find(item => item.slug === compareSelect.value);
-  const question = `Compare last-year development utilization change in ${state.district.name} and ${other.name}.`;
-  document.querySelector('#chat-question').value = question;
-  askQuestion(question, [state.district.slug, other.slug]);
 });
 
 init().catch(error => { document.querySelector('#notice').textContent = error.message; });
