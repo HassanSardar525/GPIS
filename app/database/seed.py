@@ -23,7 +23,7 @@ FORMULAS = {
     },
     "health": {
         "components": ["listed_public_facilities_per_100k"],
-        "normalization": "min_max_within_fixed_five_district_cohort",
+        "normalization": "min_max_within_fixed_ten_district_cohort",
     },
     "accountability": {
         "components": ["overall_budget_utilization_pct", "development_budget_utilization_pct"],
@@ -45,6 +45,8 @@ def _upsert(session, model, values: dict, keys: list[str]) -> None:
 def _unit(metric: str) -> str:
     if metric.endswith("_pct"):
         return "percent"
+    if metric.endswith("_million_pkr"):
+        return "million_pkr"
     return "count"
 
 
@@ -69,7 +71,9 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
 
         for district in scored:
             district_id = district_ids[district["slug"]]
-            evidence_by_category = {item["category"]: item for item in district["evidence"]}
+            evidence_by_category = {}
+            for item in district["evidence"]:
+                evidence_by_category.setdefault(item["category"], item)
             population_evidence = {"source_id": "pbs_table_1", "locator": f"{district['name']} District row"}
             observations = [("context", "population_2023", district["population_2023"], population_evidence)]
             for category in ("education", "health", "accountability"):
@@ -93,6 +97,26 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                     },
                     ["district_id", "metric_key", "period"],
                 )
+            temporal_evidence = next(
+                item for item in district["evidence"] if item["id"].endswith("-development-trend")
+            )
+            for period, period_values in district["accountability_periods"].items():
+                for metric, value in period_values.items():
+                    _upsert(
+                        session,
+                        Observation,
+                        {
+                            "district_id": district_id,
+                            "metric_key": metric,
+                            "category": "accountability",
+                            "value": value,
+                            "unit": _unit(metric),
+                            "period": period,
+                            "source_id": temporal_evidence["source_id"],
+                            "locator": temporal_evidence["locator"],
+                        },
+                        ["district_id", "metric_key", "period"],
+                    )
             for evidence in district["evidence"]:
                 source = data["sources"][evidence["source_id"]]
                 _upsert(

@@ -104,7 +104,9 @@ class JsonRepository:
             district = self.by_slug.get(slug)
             if not district:
                 continue
-            evidence_by_category = {item["category"]: item for item in district["evidence"]}
+            evidence_by_category = {}
+            for item in district["evidence"]:
+                evidence_by_category.setdefault(item["category"], item)
             for metric in metrics:
                 if metric == "population_2023":
                     value, category, source_id, locator, unit = district[metric], "context", "pbs_table_1", f"{district['name']} District row", "count"

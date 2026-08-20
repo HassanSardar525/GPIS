@@ -10,7 +10,7 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 
 ## Completed
 
-- [x] Selected five South Punjab pilot districts.
+- [x] Selected ten South Punjab pilot districts.
 - [x] Downloaded and inspected PBS Census and Auditor-General sources.
 - [x] Created a reviewed evidence contract with source/page metadata.
 - [x] Implemented deterministic education, health, accountability, and overall scores.
@@ -28,11 +28,11 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 
 ## Next milestone
 
-Polish the fixed five-district product and evidence quality without expanding scope.
+Complete the RAG-first temporal comparison and evaluation phases without changing score formulas.
 
 ## Known limitations
 
-- Only five districts and one main period are covered.
+- Ten districts are covered; only development-budget utilization has two comparable periods.
 - Health and accountability are provisional proxies.
 - Raw source acquisition is manual.
 - Groq remains optional; the extractive fallback keeps the application functional without it.

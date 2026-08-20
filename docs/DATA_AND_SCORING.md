@@ -29,7 +29,7 @@ This score measures literacy level and gender inclusion. It does not measure tea
 
 ## Health-access score
 
-The prototype totals listed DHA facilities and converts the result to facilities per 100,000 Census 2023 residents. It then applies min-max normalization within the five-district cohort:
+The prototype totals listed DHA facilities and converts the result to facilities per 100,000 Census 2023 residents. It then applies min-max normalization within the ten-district cohort:
 
 ```text
 rate = listed facilities / population * 100,000
@@ -57,7 +57,7 @@ This is better described as a public financial-management proxy. Budget utilizat
 overall = mean(education, health, accountability)
 ```
 
-All three categories currently receive equal weight. Version `prototype-v1` applies only to the five selected districts.
+All three categories currently receive equal weight. Version `prototype-v1` applies only to the ten selected districts.
 
 ## Rules for future changes
 

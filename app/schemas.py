@@ -109,7 +109,7 @@ class ChatRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     question: str = Field(min_length=1, max_length=500)
-    districts: list[str] = Field(default_factory=list, max_length=5)
+    districts: list[str] = Field(default_factory=list, max_length=10)
     district: str | None = Field(default=None, description="Compatibility alias for one selected district")
     category: Category | None = None
     period: str | None = Field(default=None, max_length=80)

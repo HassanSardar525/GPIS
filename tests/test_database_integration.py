@@ -24,7 +24,7 @@ def test_migration_and_seed_are_idempotent():
     first = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     second = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     assert first == second
-    assert second == {"districts": 5, "observations": 75, "evidence_chunks": 15, "score_results": 20}
+    assert second == {"districts": 10, "observations": 190, "evidence_chunks": 40, "score_results": 40}
 
 
 def test_provenance_is_complete_after_seed():
@@ -40,10 +40,12 @@ def test_pgvector_round_trip_and_embedding_seed_are_idempotent():
     sessions = session_factory(DATABASE_URL)
     with sessions.begin() as session:
         session.execute(update(EvidenceChunk).values(embedding=None))
-    assert embed_missing(DATABASE_URL, embedder) == 15
+    assert embed_missing(DATABASE_URL, embedder) == 40
     assert embed_missing(DATABASE_URL, embedder) == 0
     data = __import__("json").loads((ROOT / "data/curated/districts.json").read_text(encoding="utf-8"))
-    text = data["districts"][0]["evidence"][0]["text"]
+    evidence = data["districts"][0]["evidence"][0]
+    source = data["sources"][evidence["source_id"]]
+    text = f"{evidence['category']}. {source['title']}. {evidence['text']}"
     repository = PostgresRepository(DATABASE_URL, "prototype-v1")
     results = repository.vector_search(embedder.embed([text])[0], ["multan"], "education", None, 3)
     assert results[0].id == "multan-education"

@@ -22,7 +22,7 @@ from app.schemas import (
 
 METHODOLOGY_TEXT = {
     "education": "Education is the mean of total literacy, female literacy, and 100 minus the male-female literacy gap.",
-    "health": "Health is a min-max normalized comparison of listed public health facilities per 100,000 residents within the fixed five-district cohort.",
+    "health": "Health is a min-max normalized comparison of listed public health facilities per 100,000 residents within the fixed ten-district cohort.",
     "accountability": "Accountability is the mean of overall budget utilization and development-budget utilization.",
     "overall": "Overall is the equal-weight mean of education, health, and accountability scores.",
 }

@@ -1,6 +1,6 @@
 # Government Performance Intelligence System (GPIS)
 
-GPIS is a citation-first dashboard and RAG assistant for comparing education, health access, and public-financial-management indicators across five South Punjab districts.
+GPIS is a citation-first dashboard and RAG assistant for comparing education, health access, and public-financial-management indicators across ten South Punjab districts.
 
 ## Architecture
 
@@ -35,7 +35,7 @@ app/
   llm.py          Groq provider and citation validation
   embeddings.py   Local MiniLM embeddings
 alembic/          Database migrations
-data/curated/     Reviewed five-district seed dataset
+data/curated/     Reviewed ten-district seed dataset
 data/raw/         Local official source documents
 docs/             Scope, architecture, RAG, methodology and backlog
 scripts/          Evaluation and documentation checks
@@ -97,7 +97,7 @@ $env:GPIS_TEST_DATABASE_URL="postgresql+psycopg://gpis:gpis@localhost:5432/gpis_
 
 ## Current scope and limits
 
-- Five districts and one main reporting period.
+- Ten districts, one current score period, and a two-period development-budget comparison.
 - Education uses literacy and gender parity.
 - Health is relative facility availability, not care quality or outcomes.
 - Accountability is budget utilization, not proof of honesty or corruption.

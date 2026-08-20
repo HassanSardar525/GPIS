@@ -23,7 +23,7 @@ def test_health_contract_reports_fallbacks():
 def test_district_list_contract_is_versioned():
     response = CLIENT.get("/api/v1/districts")
     assert response.status_code == 200
-    assert len(response.json()["districts"]) == 5
+    assert len(response.json()["districts"]) == 10
 
 
 def test_invalid_district_returns_structured_error():

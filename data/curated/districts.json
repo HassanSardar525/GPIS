@@ -2,7 +2,7 @@
   "metadata": {
     "title": "GPIS South Punjab prototype dataset",
     "generated_on": "2026-08-20",
-    "comparison_scope": "Five selected South Punjab districts",
+    "comparison_scope": "Ten selected South Punjab districts",
     "score_version": "prototype-v1",
     "disclaimer": "Scores are comparative indicators, not proof that a politician caused an outcome. Health and accountability are provisional proxies and must be read with their component metrics."
   },
@@ -27,6 +27,13 @@
       "period": "FY 2023-24 / Audit Year 2024-25",
       "url": "https://www.agp.gov.pk/SiteImage/Policy/AR%20on%20the%20accounts%20of%2017%20%20district%20hrealt%20authorities%20of%20punjab%20south%202024-25.pdf",
       "local_file": "data/raw/agp_punjab_south_dha_2024-25.pdf"
+    },
+    "agp_dha_development_comparison": {
+      "publisher": "Auditor-General of Pakistan",
+      "title": "Audit Report on District Health Authorities of Punjab (South), comparative development grants and expenditure",
+      "period": "FY 2022-23 and FY 2023-24",
+      "url": "https://www.agp.gov.pk/SiteImage/Policy/AR%20on%20the%20accounts%20of%2017%20%20district%20hrealt%20authorities%20of%20punjab%20south%202024-25.pdf",
+      "local_file": "data/raw/agp_punjab_south_dha_2024-25.pdf"
     }
   },
   "districts": [
@@ -35,12 +42,17 @@
       "name": "Multan",
       "population_2023": 5362305,
       "education": {"literacy_total_pct": 61.410495, "literacy_male_pct": 67.280602, "literacy_female_pct": 55.268645, "out_of_school_children_5_16": 475376},
-      "health": {"government_dispensaries": 82, "bhus": 3, "rhcs": 8, "thq_hospitals": 2, "dhq_hospitals": 2, "dhdc": 1},
+      "health": {"government_dispensaries": 3, "bhus": 82, "rhcs": 8, "thq_hospitals": 2, "dhq_hospitals": 2, "dhdc": 1},
       "accountability": {"overall_budget_lapse_pct": 15.75, "development_budget_lapse_pct": 74.67, "audited_formations": 6, "total_formations": 22},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 1155.67, "development_expenditure_million_pkr": 4.771},
+        "FY 2023-24": {"development_final_grant_million_pkr": 1013.029, "development_expenditure_million_pkr": 256.568}
+      },
       "evidence": [
         {"id": "multan-education", "category": "education", "text": "Census 2023 reports Multan District total literacy at 61.41%, male literacy at 67.28%, female literacy at 55.27%, and 475,376 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Multan District row block"},
-        {"id": "multan-health", "category": "health", "text": "The audit report's Annexure-B lists 82 government dispensaries, 3 BHUs, 8 RHCs, 2 THQ hospitals, 2 DHQ hospitals and 1 DHDC for Multan DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
-        {"id": "multan-accountability", "category": "accountability", "text": "For FY 2023-24, Multan DHA's total budget lapse was 15.75% and its development budget lapse was 74.67%. Six of 22 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303 (printed pages 290 and 292)"}
+        {"id": "multan-health", "category": "health", "text": "The audit report's Annexure-B lists 82 BHUs, 3 government rural dispensaries, 8 RHCs, 2 THQ hospitals, 2 DHQ hospitals and 1 DHDC for Multan DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "multan-accountability", "category": "accountability", "text": "For FY 2023-24, Multan DHA's total budget lapse was 15.75% and its development budget lapse was 74.67%. Six of 22 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303 (printed pages 290 and 292)"},
+        {"id": "multan-development-trend", "category": "accountability", "text": "Multan DHA's final development grant and expenditure were Rs 1,155.670 million and Rs 4.771 million in FY 2022-23, compared with Rs 1,013.029 million and Rs 256.568 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 10"}
       ]
     },
     {
@@ -48,12 +60,17 @@
       "name": "Bahawalpur",
       "population_2023": 4284964,
       "education": {"literacy_total_pct": 53.354768, "literacy_male_pct": 59.397744, "literacy_female_pct": 47.08977, "out_of_school_children_5_16": 487764},
-      "health": {"government_dispensaries": 74, "bhus": 58, "rhcs": 13, "thq_hospitals": 4, "dhq_hospitals": 0, "dhdc": 1},
+      "health": {"government_dispensaries": 58, "bhus": 74, "rhcs": 13, "thq_hospitals": 4, "dhq_hospitals": 0, "dhdc": 1},
       "accountability": {"overall_budget_lapse_pct": 0.01, "development_budget_lapse_pct": 0.0, "audited_formations": 6, "total_formations": 28},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 24.524, "development_expenditure_million_pkr": 24.524},
+        "FY 2023-24": {"development_final_grant_million_pkr": 3.854, "development_expenditure_million_pkr": 3.854}
+      },
       "evidence": [
         {"id": "bahawalpur-education", "category": "education", "text": "Census 2023 reports Bahawalpur District total literacy at 53.35%, male literacy at 59.40%, female literacy at 47.09%, and 487,764 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Bahawalpur District row block"},
-        {"id": "bahawalpur-health", "category": "health", "text": "The audit report's Annexure-B lists 74 government dispensaries, 58 BHUs, 13 RHCs, 4 THQ hospitals, no DHQ hospital and 1 DHDC for Bahawalpur DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
-        {"id": "bahawalpur-accountability", "category": "accountability", "text": "For FY 2023-24, Bahawalpur DHA's total budget lapse was reported as 0.01% and its development budget lapse as 0.00%. Six of 28 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301-302 (printed pages 290-291)"}
+        {"id": "bahawalpur-health", "category": "health", "text": "The audit report's Annexure-B lists 74 BHUs, 58 government rural dispensaries, 13 RHCs, 4 THQ hospitals, no DHQ hospital and 1 DHDC for Bahawalpur DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "bahawalpur-accountability", "category": "accountability", "text": "For FY 2023-24, Bahawalpur DHA's total budget lapse was reported as 0.01% and its development budget lapse as 0.00%. Six of 28 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301-302 (printed pages 290-291)"},
+        {"id": "bahawalpur-development-trend", "category": "accountability", "text": "Bahawalpur DHA's final development grant and expenditure were both Rs 24.524 million in FY 2022-23 and both Rs 3.854 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 2"}
       ]
     },
     {
@@ -61,12 +78,17 @@
       "name": "Rahim Yar Khan",
       "population_2023": 5564703,
       "education": {"literacy_total_pct": 47.937694, "literacy_male_pct": 55.141811, "literacy_female_pct": 40.149446, "out_of_school_children_5_16": 781930},
-      "health": {"government_dispensaries": 102, "bhus": 56, "rhcs": 20, "thq_hospitals": 4, "dhq_hospitals": 0, "dhdc": 1},
+      "health": {"government_dispensaries": 56, "bhus": 102, "rhcs": 20, "thq_hospitals": 4, "dhq_hospitals": 0, "dhdc": 1},
       "accountability": {"overall_budget_lapse_pct": 11.18, "development_budget_lapse_pct": 5.27, "audited_formations": 5, "total_formations": 32},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 499.977, "development_expenditure_million_pkr": 202.492},
+        "FY 2023-24": {"development_final_grant_million_pkr": 301.618, "development_expenditure_million_pkr": 285.709}
+      },
       "evidence": [
         {"id": "ryk-education", "category": "education", "text": "Census 2023 reports Rahim Yar Khan District total literacy at 47.94%, male literacy at 55.14%, female literacy at 40.15%, and 781,930 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Rahim Yar Khan District row block"},
-        {"id": "ryk-health", "category": "health", "text": "The audit report's Annexure-B lists 102 government dispensaries, 56 BHUs, 20 RHCs, 4 THQ hospitals, no DHQ hospital and 1 DHDC for Rahim Yar Khan DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
-        {"id": "ryk-accountability", "category": "accountability", "text": "For FY 2023-24, Rahim Yar Khan DHA's total budget lapse was 11.18% and its development budget lapse was 5.27%. Five of 32 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303 (printed pages 290 and 292)"}
+        {"id": "ryk-health", "category": "health", "text": "The audit report's Annexure-B lists 102 BHUs, 56 government rural dispensaries, 20 RHCs, 4 THQ hospitals, no DHQ hospital and 1 DHDC for Rahim Yar Khan DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "ryk-accountability", "category": "accountability", "text": "For FY 2023-24, Rahim Yar Khan DHA's total budget lapse was 11.18% and its development budget lapse was 5.27%. Five of 32 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303 (printed pages 290 and 292)"},
+        {"id": "ryk-development-trend", "category": "accountability", "text": "Rahim Yar Khan DHA's final development grant and expenditure were Rs 499.977 million and Rs 202.492 million in FY 2022-23, compared with Rs 301.618 million and Rs 285.709 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 13"}
       ]
     },
     {
@@ -74,12 +96,17 @@
       "name": "Muzaffargarh",
       "population_2023": 5015325,
       "education": {"literacy_total_pct": 47.988055, "literacy_male_pct": 55.947895, "literacy_female_pct": 39.723343, "out_of_school_children_5_16": 710633},
-      "health": {"government_dispensaries": 72, "bhus": 14, "rhcs": 13, "thq_hospitals": 4, "dhq_hospitals": 1, "dhdc": 1},
+      "health": {"government_dispensaries": 14, "bhus": 72, "rhcs": 13, "thq_hospitals": 4, "dhq_hospitals": 1, "dhdc": 1},
       "accountability": {"overall_budget_lapse_pct": 1.07, "development_budget_lapse_pct": 7.63, "audited_formations": 7, "total_formations": 26},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 3.320, "development_expenditure_million_pkr": 3.230},
+        "FY 2023-24": {"development_final_grant_million_pkr": 3.067, "development_expenditure_million_pkr": 2.833}
+      },
       "evidence": [
         {"id": "muzaffargarh-education", "category": "education", "text": "Census 2023 reports Muzaffargarh District total literacy at 47.99%, male literacy at 55.95%, female literacy at 39.72%, and 710,633 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Muzaffargarh District row block"},
-        {"id": "muzaffargarh-health", "category": "health", "text": "The audit report's Annexure-B lists 72 government dispensaries, 14 BHUs, 13 RHCs, 4 THQ hospitals, 1 DHQ hospital and 1 DHDC for Muzaffargarh DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
-        {"id": "muzaffargarh-accountability", "category": "accountability", "text": "For FY 2023-24, Muzaffargarh DHA's total budget lapse was 1.07% and its development budget lapse was 7.63%. Seven of 26 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303 (printed pages 290 and 292)"}
+        {"id": "muzaffargarh-health", "category": "health", "text": "The audit report's Annexure-B lists 72 BHUs, 14 government rural dispensaries, 13 RHCs, 4 THQ hospitals, 1 DHQ hospital and 1 DHDC for Muzaffargarh DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "muzaffargarh-accountability", "category": "accountability", "text": "For FY 2023-24, Muzaffargarh DHA's total budget lapse was 1.07% and its development budget lapse was 7.63%. Seven of 26 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303 (printed pages 290 and 292)"},
+        {"id": "muzaffargarh-development-trend", "category": "accountability", "text": "Muzaffargarh DHA's final development grant and expenditure were Rs 3.320 million and Rs 3.230 million in FY 2022-23, compared with Rs 3.067 million and Rs 2.833 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 11"}
       ]
     },
     {
@@ -87,12 +114,107 @@
       "name": "Dera Ghazi Khan",
       "population_2023": 3393705,
       "education": {"literacy_total_pct": 46.78309, "literacy_male_pct": 56.170529, "literacy_female_pct": 37.204588, "out_of_school_children_5_16": 514965},
-      "health": {"government_dispensaries": 52, "bhus": 3, "rhcs": 9, "thq_hospitals": 2, "dhq_hospitals": 0, "dhdc": 1},
+      "health": {"government_dispensaries": 3, "bhus": 52, "rhcs": 9, "thq_hospitals": 2, "dhq_hospitals": 0, "dhdc": 1},
       "accountability": {"overall_budget_lapse_pct": 15.12, "development_budget_lapse_pct": 79.35, "audited_formations": 4, "total_formations": 20},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 418.897, "development_expenditure_million_pkr": 46.912},
+        "FY 2023-24": {"development_final_grant_million_pkr": 447.981, "development_expenditure_million_pkr": 92.503}
+      },
       "evidence": [
         {"id": "dgk-education", "category": "education", "text": "Census 2023 reports Dera Ghazi Khan District total literacy at 46.78%, male literacy at 56.17%, female literacy at 37.20%, and 514,965 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Dera Ghazi Khan District row block"},
-        {"id": "dgk-health", "category": "health", "text": "The audit report's Annexure-B lists 52 government dispensaries, 3 BHUs, 9 RHCs, 2 THQ hospitals, no DHQ hospital and 1 DHDC for Dera Ghazi Khan DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
-        {"id": "dgk-accountability", "category": "accountability", "text": "For FY 2023-24, Dera Ghazi Khan DHA's total budget lapse was 15.12% and its development budget lapse was 79.35%. Four of 20 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301-302 (printed pages 290-291)"}
+        {"id": "dgk-health", "category": "health", "text": "The audit report's Annexure-B lists 52 BHUs, 3 government rural dispensaries, 9 RHCs, 2 THQ hospitals, no DHQ hospital and 1 DHDC for Dera Ghazi Khan DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "dgk-accountability", "category": "accountability", "text": "For FY 2023-24, Dera Ghazi Khan DHA's total budget lapse was 15.12% and its development budget lapse was 79.35%. Four of 20 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301-302 (printed pages 290-291)"},
+        {"id": "dgk-development-trend", "category": "accountability", "text": "Dera Ghazi Khan DHA's final development grant and expenditure were Rs 418.897 million and Rs 46.912 million in FY 2022-23, compared with Rs 447.981 million and Rs 92.503 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 4"}
+      ]
+    },
+    {
+      "slug": "khanewal",
+      "name": "Khanewal",
+      "population_2023": 3364077,
+      "education": {"literacy_total_pct": 60.967377, "literacy_male_pct": 69.263675, "literacy_female_pct": 52.178560, "out_of_school_children_5_16": 270019},
+      "health": {"government_dispensaries": 4, "bhus": 81, "rhcs": 9, "thq_hospitals": 3, "dhq_hospitals": 1, "dhdc": 1},
+      "accountability": {"overall_budget_lapse_pct": 1.94, "development_budget_lapse_pct": 62.81, "audited_formations": 6, "total_formations": 21},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 59.449, "development_expenditure_million_pkr": 9.879},
+        "FY 2023-24": {"development_final_grant_million_pkr": 64.610, "development_expenditure_million_pkr": 24.026}
+      },
+      "evidence": [
+        {"id": "khanewal-education", "category": "education", "text": "Census 2023 reports Khanewal District total literacy at 60.97%, male literacy at 69.26%, female literacy at 52.18%, and 270,019 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Khanewal District row block"},
+        {"id": "khanewal-health", "category": "health", "text": "The audit report's Annexure-B lists 81 BHUs, 4 government rural dispensaries, 9 RHCs, 3 THQ hospitals, 1 DHQ hospital and 1 DHDC for Khanewal DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "khanewal-accountability", "category": "accountability", "text": "For FY 2023-24, Khanewal DHA's total budget lapse was 1.94% and its development budget lapse was 62.81%. Six of 21 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301-303 (printed pages 290-292)"},
+        {"id": "khanewal-development-trend", "category": "accountability", "text": "Khanewal DHA's final development grant and expenditure were Rs 59.449 million and Rs 9.879 million in FY 2022-23, compared with Rs 64.610 million and Rs 24.026 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 7"}
+      ]
+    },
+    {
+      "slug": "layyah",
+      "name": "Layyah",
+      "population_2023": 2102386,
+      "education": {"literacy_total_pct": 61.834461, "literacy_male_pct": 70.914339, "literacy_female_pct": 52.206214, "out_of_school_children_5_16": 145207},
+      "health": {"government_dispensaries": 24, "bhus": 37, "rhcs": 6, "thq_hospitals": 6, "dhq_hospitals": 1, "dhdc": 1},
+      "accountability": {"overall_budget_lapse_pct": 6.28, "development_budget_lapse_pct": 1.57, "audited_formations": 9, "total_formations": 21},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 15.500, "development_expenditure_million_pkr": 5.070},
+        "FY 2023-24": {"development_final_grant_million_pkr": 107.990, "development_expenditure_million_pkr": 106.299}
+      },
+      "evidence": [
+        {"id": "layyah-education", "category": "education", "text": "Census 2023 reports Layyah District total literacy at 61.83%, male literacy at 70.91%, female literacy at 52.21%, and 145,207 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Layyah District row block"},
+        {"id": "layyah-health", "category": "health", "text": "The audit report's Annexure-B lists 37 BHUs, 24 government rural dispensaries, 6 RHCs, 6 THQ hospitals, 1 DHQ hospital and 1 DHDC for Layyah DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "layyah-accountability", "category": "accountability", "text": "For FY 2023-24, Layyah DHA's total budget lapse was 6.28% and its development budget lapse was 1.57%. Nine of 21 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303 (printed pages 290 and 292)"},
+        {"id": "layyah-development-trend", "category": "accountability", "text": "Layyah DHA's final development grant and expenditure were Rs 15.500 million and Rs 5.070 million in FY 2022-23, compared with Rs 107.990 million and Rs 106.299 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 8"}
+      ]
+    },
+    {
+      "slug": "lodhran",
+      "name": "Lodhran",
+      "population_2023": 1928299,
+      "education": {"literacy_total_pct": 51.681144, "literacy_male_pct": 60.630562, "literacy_female_pct": 42.116031, "out_of_school_children_5_16": 214246},
+      "health": {"government_dispensaries": 16, "bhus": 48, "rhcs": 4, "thq_hospitals": 2, "dhq_hospitals": 1, "dhdc": 0},
+      "accountability": {"overall_budget_lapse_pct": 0.19, "development_budget_lapse_pct": 22.91, "audited_formations": 5, "total_formations": 15},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 17.774, "development_expenditure_million_pkr": 12.379},
+        "FY 2023-24": {"development_final_grant_million_pkr": 22.017, "development_expenditure_million_pkr": 16.974}
+      },
+      "evidence": [
+        {"id": "lodhran-education", "category": "education", "text": "Census 2023 reports Lodhran District total literacy at 51.68%, male literacy at 60.63%, female literacy at 42.12%, and 214,246 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Lodhran District row block"},
+        {"id": "lodhran-health", "category": "health", "text": "The audit report's Annexure-B lists 48 BHUs, 16 government rural dispensaries, 4 RHCs, 2 THQ hospitals, 1 DHQ hospital and no DHDC for Lodhran DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "lodhran-accountability", "category": "accountability", "text": "For FY 2023-24, Lodhran DHA's total budget lapse was 0.19% and its development budget lapse was 22.91%. Five of 15 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303 (printed pages 290 and 292)"},
+        {"id": "lodhran-development-trend", "category": "accountability", "text": "Lodhran DHA's final development grant and expenditure were Rs 17.774 million and Rs 12.379 million in FY 2022-23, compared with Rs 22.017 million and Rs 16.974 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 9"}
+      ]
+    },
+    {
+      "slug": "rajanpur",
+      "name": "Rajanpur",
+      "population_2023": 2381049,
+      "education": {"literacy_total_pct": 36.090532, "literacy_male_pct": 43.682468, "literacy_female_pct": 28.183515, "out_of_school_children_5_16": 442819},
+      "health": {"government_dispensaries": 12, "bhus": 32, "rhcs": 7, "thq_hospitals": 2, "dhq_hospitals": 1, "dhdc": 1},
+      "accountability": {"overall_budget_lapse_pct": 17.63, "development_budget_lapse_pct": 87.10, "audited_formations": 7, "total_formations": 16},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 4.320, "development_expenditure_million_pkr": 4.843},
+        "FY 2023-24": {"development_final_grant_million_pkr": 97.970, "development_expenditure_million_pkr": 12.638}
+      },
+      "evidence": [
+        {"id": "rajanpur-education", "category": "education", "text": "Census 2023 reports Rajanpur District total literacy at 36.09%, male literacy at 43.68%, female literacy at 28.18%, and 442,819 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Rajanpur District row block"},
+        {"id": "rajanpur-health", "category": "health", "text": "The audit report's Annexure-B lists 32 BHUs, 12 government rural dispensaries, 7 RHCs, 2 THQ hospitals, 1 DHQ hospital and 1 DHDC for Rajanpur DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "rajanpur-accountability", "category": "accountability", "text": "For FY 2023-24, Rajanpur DHA's total budget lapse was 17.63% and its development budget lapse was 87.10%. Seven of 16 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 303-304 (printed pages 290 and 292-293)"},
+        {"id": "rajanpur-development-trend", "category": "accountability", "text": "Rajanpur DHA's final development grant and expenditure were Rs 4.320 million and Rs 4.843 million in FY 2022-23, compared with Rs 97.970 million and Rs 12.638 million in FY 2023-24. Expenditure exceeded the final grant in FY 2022-23, so utilization is above 100% for that period.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 14"}
+      ]
+    },
+    {
+      "slug": "vehari",
+      "name": "Vehari",
+      "population_2023": 3430421,
+      "education": {"literacy_total_pct": 59.099434, "literacy_male_pct": 66.433133, "literacy_female_pct": 51.566887, "out_of_school_children_5_16": 307383},
+      "health": {"government_dispensaries": 31, "bhus": 41, "rhcs": 14, "thq_hospitals": 2, "dhq_hospitals": 1, "dhdc": 1},
+      "accountability": {"overall_budget_lapse_pct": 0.65, "development_budget_lapse_pct": 2.27, "audited_formations": 5, "total_formations": 24},
+      "accountability_periods": {
+        "FY 2022-23": {"development_final_grant_million_pkr": 30.871, "development_expenditure_million_pkr": 22.370},
+        "FY 2023-24": {"development_final_grant_million_pkr": 95.131, "development_expenditure_million_pkr": 92.967}
+      },
+      "evidence": [
+        {"id": "vehari-education", "category": "education", "text": "Census 2023 reports Vehari District total literacy at 59.10%, male literacy at 66.43%, female literacy at 51.57%, and 307,383 out-of-school children aged 5-16.", "source_id": "pbs_table_12", "locator": "Vehari District row block"},
+        {"id": "vehari-health", "category": "health", "text": "The audit report's Annexure-B lists 41 BHUs, 31 government rural dispensaries, 14 RHCs, 2 THQ hospitals, 1 DHQ hospital and 1 DHDC for Vehari DHA.", "source_id": "agp_dha", "locator": "PDF page 300 (printed page 289)"},
+        {"id": "vehari-accountability", "category": "accountability", "text": "For FY 2023-24, Vehari DHA's total budget lapse was 0.65% and its development budget lapse was 2.27%. Five of 24 formations were audited.", "source_id": "agp_dha", "locator": "PDF pages 301 and 304 (printed pages 290 and 293)"},
+        {"id": "vehari-development-trend", "category": "accountability", "text": "Vehari DHA's final development grant and expenditure were Rs 30.871 million and Rs 22.370 million in FY 2022-23, compared with Rs 95.131 million and Rs 92.967 million in FY 2023-24.", "source_id": "agp_dha_development_comparison", "locator": "PDF page 26 (printed page 15), row 17"}
       ]
     }
   ]

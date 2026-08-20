@@ -8,8 +8,8 @@
 |---|---|---|
 | 0 | FastAPI, PostgreSQL/pgvector, deterministic scoring, Groq, citations and baseline evaluation | Done (`51f40b9`) |
 | 1 | Verify ten-district and two-period source coverage; lock temporal metric definitions | Done |
-| 2 | Add five districts and FY 2022-23/FY 2023-24 structured observations | Next |
-| 3 | Add deterministic temporal comparison API and question route | Pending |
+| 2 | Add five districts and FY 2022-23/FY 2023-24 structured observations | Done |
+| 3 | Add deterministic temporal comparison API and question route | Next |
 | 4 | Expand project/methodology RAG and score-reasoning answers | Pending |
 | 5 | Add Phoenix tracing and a larger RAG evaluation suite | Pending |
 | 6 | Reconnect UI trends/comparisons and complete end-to-end verification | Pending |

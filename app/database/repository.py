@@ -15,6 +15,11 @@ from app.schemas import Citation, RetrievedEvidence
 
 
 RANKING_CATEGORIES = {"overall", "education", "health", "accountability"}
+CURRENT_METRICS = {
+    "education": {"literacy_total_pct", "literacy_male_pct", "literacy_female_pct", "out_of_school_children_5_16"},
+    "health": {"government_dispensaries", "bhus", "rhcs", "thq_hospitals", "dhq_hospitals", "dhdc"},
+    "accountability": {"overall_budget_lapse_pct", "development_budget_lapse_pct", "audited_formations", "total_formations"},
+}
 
 
 class PostgresRepository:
@@ -94,7 +99,7 @@ class PostgresRepository:
 
             categories: dict[str, dict] = {"education": {}, "health": {}, "accountability": {}}
             for observation in observations:
-                if observation.category in categories:
+                if observation.metric_key in CURRENT_METRICS.get(observation.category, set()):
                     value = float(observation.value)
                     categories[observation.category][observation.metric_key] = int(value) if value.is_integer() else value
             scores = {row.category: float(row.score) for row in score_rows}
