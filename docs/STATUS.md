@@ -6,6 +6,8 @@
 
 **State:** Working locally
 
+The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
+
 ## Completed
 
 - [x] Selected five South Punjab pilot districts.
