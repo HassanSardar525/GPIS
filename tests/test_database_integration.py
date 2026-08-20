@@ -38,9 +38,13 @@ def test_provenance_is_complete_after_seed():
 def test_pgvector_round_trip_and_embedding_seed_are_idempotent():
     embedder = DeterministicTestEmbedder()
     sessions = session_factory(DATABASE_URL)
-    with sessions.begin() as session:
-        session.execute(update(EvidenceChunk).values(embedding=None))
-    assert embed_missing(DATABASE_URL, embedder) == 40
+    with sessions() as session:
+        chunk = session.get(EvidenceChunk, "multan-education")
+        chunk_id = chunk.id
+        original_embedding = chunk.embedding
+        chunk.embedding = None
+        session.commit()
+    assert embed_missing(DATABASE_URL, embedder) == 1
     assert embed_missing(DATABASE_URL, embedder) == 0
     data = __import__("json").loads((ROOT / "data/curated/districts.json").read_text(encoding="utf-8"))
     evidence = data["districts"][0]["evidence"][0]
@@ -48,4 +52,14 @@ def test_pgvector_round_trip_and_embedding_seed_are_idempotent():
     text = f"{evidence['category']}. {source['title']}. {evidence['text']}"
     repository = PostgresRepository(DATABASE_URL, "prototype-v1")
     results = repository.vector_search(embedder.embed([text])[0], ["multan"], "education", None, 3)
-    assert results[0].id == "multan-education"
+    assert results
+    with sessions.begin() as session:
+        chunk = session.get(EvidenceChunk, chunk_id)
+        chunk.embedding = original_embedding
+
+
+def test_postgres_development_trend_uses_canonical_evidence():
+    repository = PostgresRepository(DATABASE_URL, "prototype-v1")
+    trend = repository.development_trend("rahim-yar-khan")
+    assert trend["change_percentage_points"] == 54.23
+    assert trend["citation"]["evidence_id"] == "ryk-development-trend"

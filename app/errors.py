@@ -21,6 +21,11 @@ class MissingScoreInputs(GPISException):
     status_code = 422
 
 
+class TrendUnavailable(GPISException):
+    code = "trend_unavailable"
+    status_code = 422
+
+
 class RepositoryUnavailable(GPISException):
     code = "repository_unavailable"
     status_code = 503

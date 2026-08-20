@@ -20,15 +20,16 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Added structured fact retrieval and filtered PostgreSQL full-text/vector retrieval with RRF.
 - [x] Added local MiniLM embeddings and retrieval traces.
 - [x] Added optional Groq generation with strict citation validation and deterministic fallback.
+- [x] Added deterministic FY 2022-23 to FY 2023-24 development-utilization comparisons and a cited temporal RAG route.
 - [x] Live-tested Groq generation with `openai/gpt-oss-20b` and validated retrieved citations.
 - [x] Built a responsive browser dashboard.
-- [x] Added a 30-case RAG evaluation and adversarial/provider-failure tests.
-- [x] Passed all 25 automated tests and every RAG acceptance metric locally.
+- [x] Added a 40-case RAG evaluation and adversarial/provider-failure tests.
+- [x] Passed all 32 automated tests and every RAG acceptance metric locally.
 - [x] Added architecture, methodology, RAG, status, backlog, and decision documentation.
 
 ## Next milestone
 
-Complete the RAG-first temporal comparison and evaluation phases without changing score formulas.
+Add citable project/methodology knowledge and deterministic score-explanation answers without changing score formulas.
 
 ## Known limitations
 

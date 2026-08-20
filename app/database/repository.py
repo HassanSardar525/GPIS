@@ -9,9 +9,10 @@ from sqlalchemy.orm import joinedload
 
 from app.database.models import DatasetMetadata, District, EvidenceChunk, Observation, RetrievalTrace, ScoreResult, Source
 from app.database.session import session_factory
-from app.errors import DistrictNotFound, InvalidCategory
+from app.errors import DistrictNotFound, InvalidCategory, TrendUnavailable
 from app.facts import format_fact, requested_metrics
 from app.schemas import Citation, RetrievedEvidence
+from app.temporal import development_budget_trend
 
 
 RANKING_CATEGORIES = {"overall", "education", "health", "accountability"}
@@ -75,6 +76,80 @@ class PostgresRepository:
                 {"rank": rank, "slug": row.slug, "name": row.name, "score": float(row.score)}
                 for rank, row in enumerate(rows, start=1)
             ]
+
+    def development_trend(self, slug: str) -> dict:
+        metric_keys = {"development_final_grant_million_pkr", "development_expenditure_million_pkr"}
+        with self.sessions() as session:
+            district = session.scalar(select(District).where(District.slug == slug))
+            if not district:
+                raise DistrictNotFound(f"District '{slug}' was not found")
+            rows = session.execute(
+                select(Observation, Source)
+                .join(Source, Source.id == Observation.source_id)
+                .where(Observation.district_id == district.id, Observation.metric_key.in_(metric_keys))
+                .order_by(Observation.period, Observation.metric_key)
+            ).all()
+            periods: dict[str, dict[str, float]] = defaultdict(dict)
+            for observation, _source in rows:
+                periods[observation.period][observation.metric_key] = float(observation.value)
+            try:
+                trend = development_budget_trend(periods)
+            except ValueError as error:
+                raise TrendUnavailable(str(error)) from error
+            if not rows:
+                raise TrendUnavailable(f"Comparable development-budget periods are unavailable for {district.name}")
+            observation, source = rows[0]
+            evidence_chunk = session.scalar(
+                select(EvidenceChunk).where(
+                    EvidenceChunk.district_id == district.id,
+                    EvidenceChunk.id.like("%-development-trend"),
+                )
+            )
+            if not evidence_chunk:
+                raise TrendUnavailable(f"Development-trend evidence is unavailable for {district.name}")
+            return {
+                "district_slug": slug,
+                "district_name": district.name,
+                **trend,
+                "citation": {
+                    "evidence_id": evidence_chunk.id,
+                    "source_id": source.id,
+                    "publisher": source.publisher,
+                    "title": source.title,
+                    "period": source.period,
+                    "url": source.url,
+                    "locator": evidence_chunk.locator,
+                },
+            }
+
+    def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]:
+        selected = district_slugs or [item["slug"] for item in self.list_districts()]
+        trends = [self.development_trend(slug) for slug in selected]
+        reverse = not any(word in query.casefold() for word in ("decline", "decrease", "least", "worst"))
+        trends.sort(key=lambda item: item["change_percentage_points"], reverse=reverse)
+        results = []
+        for rank, trend in enumerate(trends[:limit], start=1):
+            previous, current = trend["periods"]
+            citation = Citation(**trend["citation"])
+            results.append(
+                RetrievedEvidence(
+                    id=citation.evidence_id,
+                    district_slug=trend["district_slug"],
+                    district_name=trend["district_name"],
+                    category="accountability",
+                    text=(
+                        f"{trend['district_name']} development-budget utilization was {previous['utilization_pct']:.2f}% "
+                        f"in {previous['period']} and {current['utilization_pct']:.2f}% in {current['period']}; "
+                        f"it {trend['direction']} by {abs(trend['change_percentage_points']):.2f} percentage points."
+                    ),
+                    source_id=citation.source_id,
+                    locator=citation.locator,
+                    period=citation.period,
+                    keyword_rank=rank,
+                    citation=citation,
+                )
+            )
+        return results
 
     def get_district(self, slug: str) -> dict:
         with self.sessions() as session:

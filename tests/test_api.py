@@ -57,3 +57,12 @@ def test_chat_rejects_unknown_district_before_retrieval():
     response = CLIENT.post("/api/v1/chat", json={"question": "What is literacy?", "districts": ["unknown"]})
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "district_not_found"
+
+
+def test_development_budget_trend_contract():
+    response = CLIENT.get("/api/v1/districts/layyah/trends/development-budget")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["metric"] == "development_budget_utilization_pct"
+    assert body["change_percentage_points"] == 65.72
+    assert body["citation"]["evidence_id"] == "layyah-development-trend"

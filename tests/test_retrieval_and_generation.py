@@ -30,9 +30,9 @@ class InventedCitationProvider:
         return GeneratedAnswer("An unsupported claim [invented].", ["invented"], [])
 
 
-def test_evaluation_fixture_has_thirty_cases_and_expected_routes():
+def test_evaluation_fixture_has_forty_cases_and_expected_routes():
     cases = json.loads((ROOT / "tests/fixtures/rag_evaluation.json").read_text(encoding="utf-8"))
-    assert len(cases) == 30
+    assert len(cases) == 40
     for case in cases:
         assert classify_question(case["question"]).value == case["route"], case["id"]
 

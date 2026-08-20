@@ -14,7 +14,7 @@ from app.embeddings import MiniLMEmbedder
 from app.errors import GPISException
 from app.llm import FailingProvider, GroqProvider
 from app.repositories import GPISRepository, JsonRepository
-from app.schemas import ChatRequest, ChatResponse, DistrictDetail, DistrictListResponse, HealthResponse, RankingResponse
+from app.schemas import ChatRequest, ChatResponse, DistrictDetail, DistrictListResponse, HealthResponse, RankingResponse, TrendResponse
 from app.services import ChatService, DistrictService, HybridRetriever
 
 
@@ -120,6 +120,10 @@ def create_app(
     @application.get("/api/v1/rankings", response_model=RankingResponse)
     def ranking(category: str = Query(default="overall")) -> RankingResponse:
         return RankingResponse(category=category, rankings=district_service.rankings(category))
+
+    @application.get("/api/v1/districts/{slug}/trends/development-budget", response_model=TrendResponse)
+    def development_budget_trend(slug: str) -> TrendResponse:
+        return TrendResponse.model_validate(district_service.development_trend(slug))
 
     @application.post("/api/v1/chat", response_model=ChatResponse)
     async def chat(request: ChatRequest) -> ChatResponse:

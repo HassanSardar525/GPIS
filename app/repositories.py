@@ -6,12 +6,13 @@ import json
 from pathlib import Path
 from typing import Protocol
 
-from app.errors import DistrictNotFound, InvalidCategory
+from app.errors import DistrictNotFound, InvalidCategory, TrendUnavailable
 from app.facts import format_fact, requested_metrics
 from app.retrieval import EvidenceRetriever
-from app.schemas import RetrievedEvidence
+from app.schemas import Citation, RetrievedEvidence
 from app.scoring import rankings as calculate_rankings
 from app.scoring import score_districts
+from app.temporal import development_budget_trend
 
 
 RANKING_CATEGORIES = {"overall", "education", "health", "accountability"}
@@ -42,6 +43,8 @@ class GPISRepository(Protocol):
         period: str | None,
         limit: int,
     ) -> list[RetrievedEvidence]: ...
+    def development_trend(self, slug: str) -> dict: ...
+    def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]: ...
     def record_trace(self, trace: dict) -> None: ...
 
 
@@ -93,6 +96,59 @@ class JsonRepository:
         if category not in RANKING_CATEGORIES:
             raise InvalidCategory(f"Unknown ranking category: {category}")
         return calculate_rankings(self.districts, category)
+
+    def development_trend(self, slug: str) -> dict:
+        district = self.by_slug.get(slug)
+        if not district:
+            raise DistrictNotFound(f"District '{slug}' was not found")
+        if "accountability_periods" not in district:
+            raise TrendUnavailable(f"Comparable development-budget periods are unavailable for {district['name']}")
+        trend = development_budget_trend(district["accountability_periods"])
+        evidence = next(item for item in district["evidence"] if item["id"].endswith("-development-trend"))
+        source = self.data["sources"][evidence["source_id"]]
+        return {
+            "district_slug": slug,
+            "district_name": district["name"],
+            **trend,
+            "citation": {
+                "evidence_id": evidence["id"],
+                "source_id": evidence["source_id"],
+                "publisher": source["publisher"],
+                "title": source["title"],
+                "period": source["period"],
+                "url": source["url"],
+                "locator": evidence["locator"],
+            },
+        }
+
+    def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]:
+        selected = district_slugs or list(self.by_slug)
+        trends = [self.development_trend(slug) for slug in selected]
+        reverse = not any(word in query.casefold() for word in ("decline", "decrease", "least", "worst"))
+        trends.sort(key=lambda item: item["change_percentage_points"], reverse=reverse)
+        results = []
+        for rank, trend in enumerate(trends[:limit], start=1):
+            previous, current = trend["periods"]
+            citation = Citation(**trend["citation"])
+            results.append(
+                RetrievedEvidence(
+                    id=citation.evidence_id,
+                    district_slug=trend["district_slug"],
+                    district_name=trend["district_name"],
+                    category="accountability",
+                    text=(
+                        f"{trend['district_name']} development-budget utilization was {previous['utilization_pct']:.2f}% "
+                        f"in {previous['period']} and {current['utilization_pct']:.2f}% in {current['period']}; "
+                        f"it {trend['direction']} by {abs(trend['change_percentage_points']):.2f} percentage points."
+                    ),
+                    source_id=citation.source_id,
+                    locator=citation.locator,
+                    period=citation.period,
+                    keyword_rank=rank,
+                    citation=citation,
+                )
+            )
+        return results
 
     def fact_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]:
         metrics = requested_metrics(query)

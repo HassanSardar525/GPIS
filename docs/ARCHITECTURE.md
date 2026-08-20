@@ -40,6 +40,7 @@ The application has no runtime dependency on the raw documents. Reviewed values 
 - `GET /api/v1/health`
 - `GET /api/v1/districts`
 - `GET /api/v1/districts/{slug}`
+- `GET /api/v1/districts/{slug}/trends/development-budget`
 - `GET /api/v1/rankings?category={category}`
 - `POST /api/v1/chat`
 

@@ -23,6 +23,7 @@ class QuestionRoute(StrEnum):
     COMPARISON = "comparison"
     METHODOLOGY = "methodology"
     EVIDENCE = "evidence"
+    TEMPORAL_COMPARISON = "temporal_comparison"
     UNSUPPORTED = "unsupported"
 
 
@@ -103,6 +104,24 @@ class DistrictDetail(BaseModel):
 class RankingResponse(BaseModel):
     category: RankingCategory
     rankings: list[RankingEntry]
+
+
+class TrendPeriod(BaseModel):
+    period: str
+    final_grant_million_pkr: float
+    expenditure_million_pkr: float
+    utilization_pct: float
+
+
+class TrendResponse(BaseModel):
+    district_slug: str
+    district_name: str
+    metric: Literal["development_budget_utilization_pct"]
+    periods: list[TrendPeriod]
+    change_percentage_points: float
+    direction: Literal["increased", "decreased", "unchanged"]
+    warnings: list[str]
+    citation: Citation
 
 
 class ChatRequest(BaseModel):

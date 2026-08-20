@@ -41,6 +41,9 @@ class DistrictService:
     def rankings(self, category: str) -> list[dict]:
         return self.repository.rankings(category)
 
+    def development_trend(self, slug: str) -> dict:
+        return self.repository.development_trend(slug)
+
 
 class HybridRetriever:
     def __init__(
@@ -57,7 +60,11 @@ class HybridRetriever:
 
     def retrieve(self, request: ChatRequest, route: QuestionRoute, limit: int = 6) -> list[RetrievedEvidence]:
         districts = request.selected_districts()
-        facts = self.repository.fact_search(request.question, districts, limit)
+        facts = (
+            self.repository.trend_search(request.question, districts, limit)
+            if route == QuestionRoute.TEMPORAL_COMPARISON
+            else self.repository.fact_search(request.question, districts, limit)
+        )
         keyword = facts + self.repository.keyword_search(
             request.question, districts, request.category, request.period, limit
         )
@@ -71,7 +78,18 @@ class HybridRetriever:
             keyword += self.repository.keyword_search(
                 "education health accountability", districts, request.category, request.period, limit
             )
-        keyword = list({item.id: item for item in keyword}.values())[:limit]
+        elif route == QuestionRoute.TEMPORAL_COMPARISON:
+            keyword += self.repository.keyword_search(
+                "development grant expenditure FY 2022-23 FY 2023-24",
+                districts,
+                "accountability",
+                request.period,
+                limit,
+            )
+        deduplicated = {}
+        for item in keyword:
+            deduplicated.setdefault(item.id, item)
+        keyword = list(deduplicated.values())[:limit]
         vector: list[RetrievedEvidence] = []
         if self.embedder and route not in {QuestionRoute.UNSUPPORTED, QuestionRoute.METHODOLOGY}:
             query_vector = self.embedder.embed([expand_semantic_query(request.question)])[0]
@@ -182,8 +200,25 @@ class ChatService:
 
     def _structured_context(self, request: ChatRequest, route: QuestionRoute) -> str:
         selected = request.selected_districts()
-        if route not in {QuestionRoute.EXACT_FACT, QuestionRoute.COMPARISON, QuestionRoute.METHODOLOGY}:
+        if route not in {
+            QuestionRoute.EXACT_FACT,
+            QuestionRoute.COMPARISON,
+            QuestionRoute.METHODOLOGY,
+            QuestionRoute.TEMPORAL_COMPARISON,
+        }:
             return ""
+        if route == QuestionRoute.TEMPORAL_COMPARISON:
+            slugs = selected or [item["slug"] for item in self.repository.list_districts()]
+            lines = []
+            for slug in slugs:
+                trend = self.repository.development_trend(slug)
+                previous, current = trend["periods"]
+                lines.append(
+                    f"{trend['district_name']}: {previous['period']} utilization={previous['utilization_pct']}%; "
+                    f"{current['period']} utilization={current['utilization_pct']}%; "
+                    f"change={trend['change_percentage_points']} percentage points; direction={trend['direction']}"
+                )
+            return "\n".join(lines)
         if selected:
             records = [self.repository.get_district(slug) for slug in selected]
         else:
@@ -213,6 +248,8 @@ class ChatService:
             )
             markers = " ".join(f"[{item.id}]" for item in evidence[:3])
             return f"{METHODOLOGY_TEXT[category]} {markers}".strip()
+        if route == QuestionRoute.TEMPORAL_COMPARISON:
+            return " ".join(f"{item.text} [{item.id}]" for item in evidence[:3])
         if route == QuestionRoute.COMPARISON and any(
             word in request.question.casefold() for word in ("rank", "best", "worst", "overall", "score")
         ):
@@ -246,6 +283,10 @@ class ChatService:
         warnings = []
         if route == QuestionRoute.COMPARISON:
             warnings.append("District comparisons describe available indicators, not causation by an individual politician.")
+        if route == QuestionRoute.TEMPORAL_COMPARISON:
+            warnings.append(
+                "The supported trend is development-budget utilization only; it is not an overall GPIS score or proof of impact."
+            )
         if "corruption" in question.casefold():
             warnings.append("An audit observation is not, by itself, proof of corruption or fraud.")
         return warnings

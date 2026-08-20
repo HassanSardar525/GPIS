@@ -7,6 +7,10 @@ from app.schemas import QuestionRoute
 
 
 COMPARISON = {"compare", "comparison", "better", "best", "worse", "worst", "rank", "ranking", "position", "versus", "vs"}
+TEMPORAL = {
+    "change", "changed", "decline", "declined", "decrease", "decreased", "improve", "improved",
+    "improvement", "previous", "trend", "year", "yearly",
+}
 METHODOLOGY = {"calculate", "calculated", "formula", "method", "methodology", "score", "weight", "weighted", "mean"}
 FACTS = {
     "literacy", "female", "male", "school", "children", "population", "facility", "facilities",
@@ -27,6 +31,8 @@ def classify_question(question: str) -> QuestionRoute:
         return QuestionRoute.UNSUPPORTED
     if tokens & UNSUPPORTED and not tokens & EVIDENCE_WORDS:
         return QuestionRoute.UNSUPPORTED
+    if tokens & TEMPORAL or "last year" in question.casefold() or "year over year" in question.casefold():
+        return QuestionRoute.TEMPORAL_COMPARISON
     if tokens & COMPARISON:
         return QuestionRoute.COMPARISON
     if tokens & METHODOLOGY:
