@@ -25,13 +25,14 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Added global citable project/methodology evidence and deterministic score-component explanations.
 - [x] Live-tested Groq generation with `openai/gpt-oss-20b` and validated retrieved citations.
 - [x] Built a responsive browser dashboard.
+- [x] Reconnected the dashboard to ten-district ranks, period trends, score explanations, comparisons, RAG modes, and trace IDs.
 - [x] Added a 60-case RAG evaluation and adversarial/provider-failure tests.
-- [x] Passed all 40 automated tests and every RAG acceptance metric locally.
+- [x] Passed all 42 automated tests and every RAG acceptance metric locally.
 - [x] Added architecture, methodology, RAG, status, backlog, and decision documentation.
 
 ## Next milestone
 
-Reconnect the browser UI to temporal comparisons and expose the final RAG states clearly.
+Create the remote GitHub repository, push the phased history, then prepare managed PostgreSQL and public deployment.
 
 ## Known limitations
 

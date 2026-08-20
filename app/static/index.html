@@ -42,6 +42,19 @@
 
     <section id="scorecards" class="score-grid" aria-label="Performance scores"></section>
 
+    <section class="panel trend-panel" aria-labelledby="trend-title">
+      <div class="panel-title">
+        <div>
+          <p class="eyebrow">Verified two-period comparison</p>
+          <h2 id="trend-title">Development-budget utilization</h2>
+        </div>
+        <strong id="trend-change" class="trend-change">Loading…</strong>
+      </div>
+      <div id="trend-periods" class="trend-periods"></div>
+      <p id="trend-warning" class="trend-warning"></p>
+      <a id="trend-source" class="source-link" target="_blank" rel="noreferrer">View comparison source ↗</a>
+    </section>
+
     <section class="two-column">
       <article class="panel">
         <div class="panel-title">
@@ -63,12 +76,18 @@
         <p class="eyebrow">Citation-grounded assistant</p>
         <h2>Ask about the evidence</h2>
         <div id="chat-answer" class="chat-answer">
-          Try: “How does literacy compare?” or “What does the health score measure?”
+          Try: “Why did this district receive its health score?” or “How did budget utilization change?”
         </div>
         <div class="chat-prompts" aria-label="Suggested questions">
           <button type="button" data-question="What is the literacy rate in this district?">Literacy</button>
           <button type="button" data-question="What health facilities are listed for this district?">Health evidence</button>
-          <button type="button" data-question="Compare literacy across the ten districts." data-all-districts="true">Compare all ten</button>
+          <button type="button" data-question="Which district ranks best overall?" data-all-districts="true">Best overall</button>
+        </div>
+        <div class="compare-controls">
+          <label for="compare-district">Compare with</label>
+          <select id="compare-district" aria-label="District to compare"></select>
+          <button id="compare-scores" type="button">Scores</button>
+          <button id="compare-trends" type="button">Yearly change</button>
         </div>
         <form id="chat-form">
           <input id="chat-question" autocomplete="off" placeholder="Ask about this district…" required>
@@ -88,7 +107,7 @@
     </section>
   </main>
 
-  <footer>Architecture v0.2 · Scores are deterministic; RAG retrieves and explains evidence only.</footer>
+  <footer>Architecture v0.2 · Scores and period changes are deterministic; RAG retrieves and explains them.</footer>
   <script src="/static/app.js" defer></script>
 </body>
 </html>

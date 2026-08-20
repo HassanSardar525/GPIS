@@ -12,7 +12,7 @@
 | 3 | Add deterministic temporal comparison API and question route | Done |
 | 4 | Expand project/methodology RAG and score-reasoning answers | Done |
 | 5 | Add Phoenix tracing and a larger RAG evaluation suite | Done |
-| 6 | Reconnect UI trends/comparisons and complete end-to-end verification | Next |
+| 6 | Reconnect UI trends/comparisons and complete end-to-end verification | Done |
 
 ## Locked decisions
 

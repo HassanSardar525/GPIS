@@ -31,7 +31,7 @@ The application has no runtime dependency on the raw documents. Reviewed values 
 | `app/database/` | SQLAlchemy schema, repositories, idempotent seed, and embeddings |
 | `app/llm.py` | Replaceable Groq provider and citation validator |
 | `app/main.py` | FastAPI application, API contracts, errors, request IDs, and static UI |
-| `app/static/` | District dashboard, rankings, evidence chat, and methodology UI |
+| `app/static/` | District dashboard, ten-district rankings, two-period trends, score explanations, comparisons, and evidence chat |
 | `data/curated/` | Versioned reviewed data contract |
 | `tests/` | Score range, ranking, retrieval-scope, and abstention checks |
 
