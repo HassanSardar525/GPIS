@@ -7,23 +7,15 @@ The evidence assistant helps a user understand official district data without as
 ## Current implementation
 
 1. The user submits a question and selected district.
-2. Retrieval is restricted to evidence for that district.
-3. A lexical relevance score ranks reviewed evidence passages.
-4. The generator builds a concise answer only from retrieved passages.
-5. Publisher, document, period, URL, and locator are returned as citations.
-6. If nothing relevant is found, the system abstains.
+2. A deterministic router selects exact fact, comparison, methodology, evidence, or unsupported handling.
+3. SQL supplies exact observations, scores, and rankings.
+4. PostgreSQL full-text search and 384-dimensional MiniLM cosine search retrieve filtered passages.
+5. Reciprocal-rank fusion returns at most six deduplicated chunks; semantic-only hits below `0.35` are discarded.
+6. Groq may write the answer at temperature `0.1`; every factual sentence must cite a retrieved evidence ID.
+7. Unknown citations, provider errors, timeouts, and malformed output trigger the extractive fallback.
+8. Unsupported or evidence-free questions abstain.
 
-The current generator is extractive and deterministic, so the demo works without an API key.
-
-## Planned hybrid RAG
-
-The next architecture will combine:
-
-- structured retrieval from PostgreSQL for exact metrics and ranks;
-- vector and keyword retrieval for report passages;
-- metadata filters for district, category, source, and period;
-- an LLM used only after retrieval;
-- citation validation before returning an answer.
+The application remains fully usable without a Groq key. Retrieved documents are treated as untrusted data and cannot supply instructions or modify scores.
 
 ## Required guardrails
 
@@ -38,4 +30,4 @@ The next architecture will combine:
 
 Maintain questions covering direct fact lookup, district comparison, score explanation, source and period questions, unsupported questions requiring abstention, and adversarial requests to blame a person or override a score.
 
-Track retrieval hit rate, citation correctness, factual consistency, abstention quality, and response latency.
+The fixed 30-question fixture currently passes route accuracy `100%`, retrieval recall@5 `100%`, citation precision `100%`, and unsupported abstention `100%`. Run `python scripts/run_rag_evaluation.py --enforce` against PostgreSQL before changing routing, chunks, embeddings, or thresholds.

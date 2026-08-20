@@ -7,7 +7,7 @@ const number = (value, digits = 0) => Number(value).toLocaleString('en-PK', { ma
 async function json(url, options) {
   const response = await fetch(url, options);
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error || 'Request failed');
+  if (!response.ok) throw new Error(data.error?.message || data.error || 'Request failed');
   return data;
 }
 
@@ -53,12 +53,12 @@ function renderDistrict(data) {
 }
 
 async function loadDistrict(slug) {
-  renderDistrict(await json(`/api/districts/${slug}`));
+  renderDistrict(await json(`/api/v1/districts/${slug}`));
 }
 
 async function loadRankings() {
   const category = rankingCategory.value;
-  const data = await json(`/api/rankings?category=${category}`);
+  const data = await json(`/api/v1/rankings?category=${category}`);
   document.querySelector('#ranking-list').innerHTML = data.rankings.map(item => `
     <li class="${state.district?.slug === item.slug ? 'active' : ''}">
       <strong>${item.rank}</strong>
@@ -68,7 +68,7 @@ async function loadRankings() {
 }
 
 async function init() {
-  const data = await json('/api/districts');
+  const data = await json('/api/v1/districts');
   state.districts = data.districts;
   select.innerHTML = data.districts.map(district => `<option value="${district.slug}">${district.name}</option>`).join('');
   await loadDistrict(data.districts[0].slug);
@@ -76,24 +76,40 @@ async function init() {
 
 select.addEventListener('change', () => loadDistrict(select.value));
 rankingCategory.addEventListener('change', loadRankings);
-document.querySelector('#chat-form').addEventListener('submit', async event => {
-  event.preventDefault();
-  const question = document.querySelector('#chat-question').value;
+async function askQuestion(question, allDistricts = false) {
   const answer = document.querySelector('#chat-answer');
-  answer.textContent = 'Searching the official evidence…';
+  const submit = document.querySelector('#chat-form button');
+  submit.disabled = true;
+  answer.textContent = 'Searching structured facts and official evidence...';
   try {
-    const data = await json('/api/chat', {
+    const data = await json('/api/v1/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, district: state.district.slug }),
+      body: JSON.stringify({ question, districts: allDistricts ? [] : [state.district.slug] }),
     });
     const citations = data.citations.map(citation =>
       `<li><a href="${citation.url}" target="_blank" rel="noreferrer">${citation.publisher}: ${citation.title}</a> — ${citation.locator}</li>`
     ).join('');
-    answer.innerHTML = `<p>${data.answer}</p>${citations ? `<ol>${citations}</ol>` : ''}`;
+    const warnings = data.warnings.map(warning => `<li>${warning}</li>`).join('');
+    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode">${data.mode}</span><span>${data.route}</span></div><p>${data.answer}</p>${citations ? `<ol>${citations}</ol>` : ''}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
   } catch (error) {
-    answer.textContent = error.message;
+    answer.innerHTML = `<p>Evidence service unavailable: ${error.message}</p>`;
+  } finally {
+    submit.disabled = false;
   }
+}
+
+document.querySelector('#chat-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  await askQuestion(document.querySelector('#chat-question').value);
+});
+
+document.querySelectorAll('.chat-prompts button').forEach(button => {
+  button.addEventListener('click', () => {
+    const question = button.dataset.question.replace('this district', state.district.name);
+    document.querySelector('#chat-question').value = question;
+    askQuestion(question, button.dataset.allDistricts === 'true');
+  });
 });
 
 init().catch(error => { document.querySelector('#notice').textContent = error.message; });

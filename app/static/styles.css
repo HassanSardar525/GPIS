@@ -57,9 +57,15 @@ select, input { width: 100%; padding: 14px 16px; border: 1px solid var(--line); 
 .chat-panel .eyebrow { color: #8ed1b5; }
 .chat-answer { min-height: 154px; padding: 18px; border-radius: 12px; background: rgba(255,255,255,.07); color: #e1ebe6; line-height: 1.55; font-size: .92rem; }
 .chat-answer a { color: #f4c976; }
+.answer-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; color: #9ec8b6; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
+.answer-mode { padding: 4px 8px; border: 1px solid rgba(255,255,255,.2); border-radius: 99px; }
+.chat-prompts { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 12px; }
+.chat-prompts button { padding: 7px 10px; border: 1px solid rgba(255,255,255,.18); color: #dbe9e3; background: transparent; font-size: .74rem; font-weight: 700; }
+.chat-warnings { color: #f4c976; font-size: .78rem; }
 #chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 14px; }
 #chat-form input { background: white; }
 button { padding: 0 22px; border: 0; border-radius: 10px; color: #14261f; background: var(--gold); font-weight: 900; cursor: pointer; }
+button:disabled { cursor: wait; opacity: .65; }
 .methodology { margin: 0 0 42px; }
 .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .method-grid p { color: var(--muted); line-height: 1.5; font-size: .88rem; }

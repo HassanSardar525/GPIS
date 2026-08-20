@@ -65,6 +65,11 @@
         <div id="chat-answer" class="chat-answer">
           Try: “How does literacy compare?” or “What does the health score measure?”
         </div>
+        <div class="chat-prompts" aria-label="Suggested questions">
+          <button type="button" data-question="What is the literacy rate in this district?">Literacy</button>
+          <button type="button" data-question="What health facilities are listed for this district?">Health evidence</button>
+          <button type="button" data-question="Compare literacy across the five districts." data-all-districts="true">Compare all five</button>
+        </div>
         <form id="chat-form">
           <input id="chat-question" autocomplete="off" placeholder="Ask about this district…" required>
           <button type="submit">Ask</button>
@@ -83,7 +88,7 @@
     </section>
   </main>
 
-  <footer>Prototype v1 · Scores are deterministic; retrieved evidence is used only for explanations.</footer>
+  <footer>Architecture v0.2 · Scores are deterministic; RAG retrieves and explains evidence only.</footer>
   <script src="/static/app.js" defer></script>
 </body>
 </html>

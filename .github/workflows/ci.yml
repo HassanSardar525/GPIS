@@ -10,12 +10,31 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: gpis_test
+          POSTGRES_USER: gpis
+          POSTGRES_PASSWORD: gpis
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gpis -d gpis_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      GPIS_TEST_DATABASE_URL: postgresql+psycopg://gpis:gpis@localhost:5432/gpis_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+      - name: Install project
+        run: pip install -e ".[dev]"
       - name: Run tests
-        run: python -m unittest discover -s tests -v
+        run: pytest -q
       - name: Check Markdown links
         run: python scripts/check_markdown_links.py

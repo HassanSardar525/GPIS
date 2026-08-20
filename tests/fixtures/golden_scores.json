@@ -1,0 +1,10 @@
+{
+  "score_version": "prototype-v1",
+  "districts": {
+    "multan": {"education": 68.2, "health": 0.0, "accountability": 54.8, "overall": 41.0},
+    "bahawalpur": {"education": 62.7, "health": 100.0, "accountability": 100.0, "overall": 87.6},
+    "rahim-yar-khan": {"education": 57.7, "health": 87.3, "accountability": 91.8, "overall": 78.9},
+    "muzaffargarh": {"education": 57.2, "health": 15.9, "accountability": 95.7, "overall": 56.3},
+    "dera-ghazi-khan": {"education": 55.0, "health": 8.8, "accountability": 52.8, "overall": 38.9}
+  }
+}

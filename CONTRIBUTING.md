@@ -9,7 +9,8 @@
 5. Run the tests before committing.
 
 ```powershell
-python -m unittest discover -s tests -v
+python -m pytest -q
+python scripts/run_rag_evaluation.py --enforce
 python scripts/check_markdown_links.py
 ```
 

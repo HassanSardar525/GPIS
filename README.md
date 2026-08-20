@@ -1,72 +1,110 @@
 # Government Performance Intelligence System (GPIS)
 
-GPIS is a citation-first district performance dashboard for South Punjab. It helps non-technical users compare education, health access, and public financial management using transparent scores linked to official evidence.
+GPIS is a citation-first dashboard and RAG assistant for comparing education, health access, and public-financial-management indicators across five South Punjab districts.
 
-> Prototype status: working local MVP covering Multan, Bahawalpur, Rahim Yar Khan, Muzaffargarh, and Dera Ghazi Khan.
+## Architecture
 
-![GPIS architecture](docs/assets/gpis-architecture.png)
-
-## What works now
-
-- District search and scorecards.
-- Five-district rankings by category and overall score.
-- Deterministic, inspectable scoring rules.
-- Source drill-down with document and page/table locators.
-- Citation-grounded evidence assistant with abstention behavior.
-- No external packages or API key required.
-
-The retrieval layer explains existing evidence. It never calculates or changes a district score.
-
-## Run locally
-
-Requires Python 3.11 or newer.
-
-```powershell
-git clone <repository-url>
-cd GPIS
-python -m app.server
+```mermaid
+flowchart LR
+    S["Official PDF/XLSX sources"] --> J["Reviewed curated JSON"]
+    J --> I["Idempotent seed + MiniLM embeddings"]
+    I --> P["PostgreSQL + pgvector"]
+    P --> Q["SQL facts, full-text search, vector search"]
+    Q --> R["Filtered reciprocal-rank fusion"]
+    R --> G["Groq grounded generation"]
+    R --> F["Extractive fallback / abstention"]
+    G --> A["FastAPI /api/v1"]
+    F --> A
+    P --> D["Deterministic scoring"]
+    D --> A
+    A --> U["HTML/CSS/JavaScript UI"]
 ```
 
-Open <http://127.0.0.1:8000>.
+Scores are calculated by versioned Python rules and stored in PostgreSQL. RAG and Groq may explain scores but cannot calculate or change them.
 
-Run the test suite:
+## Project structure
 
-```powershell
-python -m unittest discover -s tests -v
+```text
+app/
+  database/       SQLAlchemy models, PostgreSQL repository, seed and sessions
+  static/         Browser UI
+  main.py         FastAPI app and /api/v1 routes
+  services.py     District, retrieval and chat orchestration
+  scoring.py      Deterministic score formulas
+  routing.py      Question classification and controlled query expansion
+  llm.py          Groq provider and citation validation
+  embeddings.py   Local MiniLM embeddings
+alembic/          Database migrations
+data/curated/     Reviewed five-district seed dataset
+data/raw/         Local official source documents
+docs/             Scope, architecture, RAG, methodology and backlog
+scripts/          Evaluation and documentation checks
+tests/            API, scoring, RAG and PostgreSQL integration tests
+compose.yml       Local PostgreSQL/pgvector and API services
 ```
 
-## Current evidence
+## Setup
 
-- PBS Census 2023 Table 1: population denominator.
-- PBS Census 2023 Table 12: literacy and out-of-school counts.
-- Auditor-General audit report 2024-25: DHA facilities, audited coverage, and FY 2023-24 budget utilization.
+Requirements: Python 3.11+, Docker Desktop, and optionally a Groq API key. Local development uses Docker PostgreSQL; managed PostgreSQL can be added during deployment.
 
-Raw official documents are intentionally not stored in Git. The reviewed evidence contract used by the application is [`data/curated/districts.json`](data/curated/districts.json), and acquisition instructions are in [`data/raw/README.md`](data/raw/README.md).
+```powershell
+python -m venv .venv
+.\.venv\Scripts\pip install -e ".[dev]"
+Copy-Item .env.example .env   # Skip if .env already exists
+```
 
-## Important limits
+Add the optional key to `.env`; never commit this file:
 
-- District conditions are not proof that a politician caused an outcome.
-- Education is a literacy and gender-parity composite.
-- Health is a relative facility-availability proxy, not care quality or health outcomes.
-- Accountability is currently a budget-utilization proxy; high spending does not prove effective or honest spending.
-- Scores compare only the five prototype districts and are not a Punjab-wide league table.
+```env
+GROQ_API_KEY=gsk_your_key
+GROQ_MODEL=openai/gpt-oss-20b
+```
 
-## Documentation
+## Start locally
 
-- [Project scope](docs/PROJECT_SCOPE.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Data and scoring](docs/DATA_AND_SCORING.md)
-- [RAG design](docs/RAG_DESIGN.md)
-- [Current status](docs/STATUS.md)
-- [Backlog](docs/BACKLOG.md)
-- [Decision log](docs/DECISIONS.md)
-- [Official document survey](docs/DOCUMENT_SURVEY.md)
-- [Original one-week plan](plan.md)
-- [Contributing guide](CONTRIBUTING.md)
+Recommended development workflow:
 
-## Direction
+```powershell
+docker compose up -d database
+.\.venv\Scripts\alembic upgrade head
+.\.venv\Scripts\python -m app.cli bootstrap
+.\.venv\Scripts\python -m app.server
+```
 
-The prototype deliberately uses a standard-library server, reviewed JSON evidence, and lexical retrieval. The interfaces allow later replacement with FastAPI, PostgreSQL/pgvector, automated ingestion, and an LLM generator without moving score calculation into the model.
+Open <http://127.0.0.1:8000>. The first bootstrap downloads the local MiniLM model.
+
+Full Docker startup:
+
+```powershell
+docker compose up --build
+```
+
+## Stop locally
+
+- Stop the Python API with `Ctrl+C`.
+- Stop services while preserving database data: `docker compose stop`.
+- Remove containers while preserving the named database volume: `docker compose down`.
+- Delete containers and local database data only when intentionally resetting: `docker compose down -v`.
+
+## Verify
+
+```powershell
+$env:GPIS_TEST_DATABASE_URL="postgresql+psycopg://gpis:gpis@localhost:5432/gpis_test"
+.\.venv\Scripts\python -m pytest -q
+.\.venv\Scripts\python scripts\run_rag_evaluation.py --enforce
+.\.venv\Scripts\python scripts\check_markdown_links.py
+```
+
+## Current scope and limits
+
+- Five districts and one main reporting period.
+- Education uses literacy and gender parity.
+- Health is relative facility availability, not care quality or outcomes.
+- Accountability is budget utilization, not proof of honesty or corruption.
+- District results do not prove that an individual politician caused an outcome.
+- Automatic ingestion, additional periods, constituencies, Urdu, public deployment, and managed PostgreSQL are deferred.
+
+See [project status](docs/STATUS.md), [architecture](docs/ARCHITECTURE.md), [data and scoring](docs/DATA_AND_SCORING.md), and [RAG design](docs/RAG_DESIGN.md).
 
 ## License
 

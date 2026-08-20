@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from app.errors import MissingScoreInputs
+
 
 HEALTH_FIELDS = (
     "government_dispensaries",
@@ -12,9 +14,28 @@ HEALTH_FIELDS = (
     "dhdc",
 )
 
+EDUCATION_FIELDS = ("literacy_total_pct", "literacy_male_pct", "literacy_female_pct")
+ACCOUNTABILITY_FIELDS = ("overall_budget_lapse_pct", "development_budget_lapse_pct")
+
 
 def _round(value: float) -> float:
     return round(value, 1)
+
+
+def validate_score_inputs(district: dict) -> None:
+    missing = []
+    for section, fields in (
+        ("education", EDUCATION_FIELDS),
+        ("health", HEALTH_FIELDS),
+        ("accountability", ACCOUNTABILITY_FIELDS),
+    ):
+        values = district.get(section, {})
+        missing.extend(f"{section}.{field}" for field in fields if values.get(field) is None)
+    if district.get("population_2023") in (None, 0):
+        missing.append("population_2023")
+    if missing:
+        identity = district.get("slug") or district.get("name") or "unknown district"
+        raise MissingScoreInputs(f"Cannot score {identity}; missing: {', '.join(missing)}")
 
 
 def education_score(district: dict) -> float:
@@ -49,6 +70,10 @@ def accountability_score(district: dict) -> float:
 
 def score_districts(districts: list[dict]) -> list[dict]:
     """Return enriched districts; health is min-max relative to this cohort."""
+    if not districts:
+        return []
+    for district in districts:
+        validate_score_inputs(district)
     health_rates = [facilities_per_100k(district) for district in districts]
     low, high = min(health_rates), max(health_rates)
     spread = high - low

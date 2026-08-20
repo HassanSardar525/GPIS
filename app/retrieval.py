@@ -29,17 +29,33 @@ class EvidenceRetriever:
         for document in self.documents:
             self.document_frequency.update(set(tokenize(self._search_text(document))))
 
-    @staticmethod
-    def _search_text(document: dict) -> str:
-        return f"{document['district']} {document['category']} {document['text']}"
+    def _search_text(self, document: dict) -> str:
+        source = self.sources[document["source_id"]]
+        return (
+            f"{document['district']} {document['category']} {source['publisher']} "
+            f"{source['title']} {source['period']} {document['text']}"
+        )
 
-    def search(self, query: str, district_slug: str | None = None, limit: int = 4) -> list[dict]:
+    def search(
+        self,
+        query: str,
+        district_slug: str | None = None,
+        district_slugs: list[str] | None = None,
+        category: str | None = None,
+        period: str | None = None,
+        limit: int = 4,
+    ) -> list[dict]:
+        selected = set(district_slugs or [])
+        if district_slug:
+            selected.add(district_slug)
         query_tokens = tokenize(query)
         query_counts = Counter(query_tokens)
         total_documents = len(self.documents)
         results = []
         for document in self.documents:
-            if district_slug and document["slug"] != district_slug:
+            if selected and document["slug"] not in selected:
+                continue
+            if category and document["category"] != category:
                 continue
             document_counts = Counter(tokenize(self._search_text(document)))
             score = 0.0
@@ -52,11 +68,25 @@ class EvidenceRetriever:
                 score += query_frequency * (1 + math.log(document_counts[token])) * inverse_document_frequency
             if score > 0:
                 source = self.sources[document["source_id"]]
+                if period and period.casefold() not in source["period"].casefold():
+                    continue
                 results.append(
                     {
-                        **document,
-                        "relevance": round(score, 3),
+                        "id": document["id"],
+                        "district_slug": document["slug"],
+                        "district_name": document["district"],
+                        "category": document["category"],
+                        "text": document["text"],
+                        "source_id": document["source_id"],
+                        "locator": document["locator"],
+                        "period": source["period"],
+                        "keyword_rank": None,
+                        "vector_rank": None,
+                        "semantic_similarity": None,
+                        "rrf_score": round(score, 3),
                         "citation": {
+                            "evidence_id": document["id"],
+                            "source_id": document["source_id"],
                             "publisher": source["publisher"],
                             "title": source["title"],
                             "period": source["period"],
@@ -65,7 +95,10 @@ class EvidenceRetriever:
                         },
                     }
                 )
-        return sorted(results, key=lambda item: item["relevance"], reverse=True)[:limit]
+        ordered = sorted(results, key=lambda item: item["rrf_score"], reverse=True)[:limit]
+        for rank, result in enumerate(ordered, start=1):
+            result["keyword_rank"] = rank
+        return ordered
 
 
 def generate_grounded_answer(question: str, results: list[dict]) -> dict:
