@@ -9,6 +9,7 @@ from collections import defaultdict
 
 from app.embeddings import Embedder
 from app.llm import LLMProvider, validate_generated_answer
+from app.observability import NoopObservability, Observability
 from app.repositories import GPISRepository
 from app.routing import classify_question, expand_semantic_query
 from app.schemas import (
@@ -57,17 +58,59 @@ class HybridRetriever:
         embedder: Embedder | None,
         semantic_threshold: float = 0.35,
         rrf_k: int = 60,
+        observability: Observability | None = None,
     ):
         self.repository = repository
         self.embedder = embedder
         self.semantic_threshold = semantic_threshold
         self.rrf_k = rrf_k
+        self.observability = observability or NoopObservability()
 
     def retrieve(self, request: ChatRequest, route: QuestionRoute, limit: int = 6) -> list[RetrievedEvidence]:
+        with self.observability.span(
+            "gpis.retrieve",
+            "RETRIEVER",
+            {
+                "input.value": request.question,
+                "gpis.route": route.value,
+                "gpis.districts": request.selected_districts(),
+                "gpis.category": request.category,
+                "gpis.period": request.period,
+                "gpis.limit": limit,
+            },
+        ) as span:
+            results = self._retrieve(request, route, limit)
+            span.set_attributes(
+                {
+                    "retrieval.document_count": len(results),
+                    "retrieval.document_ids": [item.id for item in results],
+                    "gpis.keyword_ranks": {
+                        item.id: item.keyword_rank for item in results if item.keyword_rank is not None
+                    },
+                    "gpis.vector_ranks": {
+                        item.id: item.vector_rank for item in results if item.vector_rank is not None
+                    },
+                    "gpis.semantic_similarity": {
+                        item.id: item.semantic_similarity
+                        for item in results
+                        if item.semantic_similarity is not None
+                    },
+                    "gpis.rrf_scores": {item.id: item.rrf_score for item in results},
+                }
+            )
+            return results
+
+    def _retrieve(self, request: ChatRequest, route: QuestionRoute, limit: int) -> list[RetrievedEvidence]:
         districts = request.selected_districts()
         if route == QuestionRoute.TEMPORAL_COMPARISON:
             facts = self.repository.trend_search(request.question, districts, limit)
-        elif route == QuestionRoute.SCORE_EXPLANATION:
+        elif route == QuestionRoute.SCORE_EXPLANATION or (
+            route == QuestionRoute.COMPARISON
+            and (
+                request.category is not None
+                or any(word in request.question.casefold() for word in ("score", "rank", "position"))
+            )
+        ):
             facts = self.repository.score_search(request.question, districts, request.category, limit)
         else:
             facts = self.repository.fact_search(request.question, districts, limit)
@@ -75,10 +118,18 @@ class HybridRetriever:
             request.question, districts, request.category, request.period, limit
         )
         if route == QuestionRoute.METHODOLOGY:
-            method_query = request.category or next(
-                (category for category in ("education", "health", "accountability") if category in request.question.casefold()),
-                "education health accountability",
-            )
+            lowered = request.question.casefold()
+            if request.category:
+                method_query = request.category
+            elif "development" in lowered and "utilization" in lowered:
+                method_query = "development utilization"
+            elif "overall" in lowered:
+                method_query = "overall"
+            else:
+                method_query = next(
+                    (category for category in ("education", "health", "accountability") if category in lowered),
+                    "education health accountability",
+                )
             keyword += self.repository.keyword_search(method_query, districts, None, request.period, limit)
         elif route == QuestionRoute.SCORE_EXPLANATION:
             score_category = requested_score_category(request.question, request.category)
@@ -146,15 +197,48 @@ class ChatService:
         repository: GPISRepository,
         retriever: HybridRetriever,
         provider: LLMProvider,
+        observability: Observability | None = None,
     ):
         self.repository = repository
         self.retriever = retriever
         self.provider = provider
+        self.observability = observability or NoopObservability()
 
     async def answer(self, request: ChatRequest) -> ChatResponse:
         started = time.perf_counter()
         trace_id = str(uuid.uuid4())
         route = classify_question(request.question)
+        with self.observability.span(
+            "gpis.chat",
+            "CHAIN",
+            {
+                "input.value": request.question,
+                "session.id": trace_id,
+                "gpis.route": route.value,
+                "gpis.districts": request.selected_districts(),
+                "gpis.category": request.category,
+                "gpis.period": request.period,
+            },
+        ) as span:
+            response = await self._answer(request, route, trace_id, started)
+            span.set_attributes(
+                {
+                    "output.value": response.answer,
+                    "gpis.answer_mode": response.mode.value,
+                    "gpis.abstained": response.abstained,
+                    "gpis.citation_ids": [item.evidence_id for item in response.citations],
+                    "gpis.warning_count": len(response.warnings),
+                }
+            )
+            return response
+
+    async def _answer(
+        self,
+        request: ChatRequest,
+        route: QuestionRoute,
+        trace_id: str,
+        started: float,
+    ) -> ChatResponse:
         for slug in request.selected_districts():
             self.repository.get_district(slug)
         if route == QuestionRoute.UNSUPPORTED:
@@ -189,21 +273,38 @@ class ChatService:
 
         structured_context = self._structured_context(request, route)
         try:
-            generated = await self.provider.generate(request.question, evidence, structured_context)
-            if validate_generated_answer(generated, evidence):
-                selected = [item for item in evidence if item.id in set(generated.evidence_ids)]
-                response = ChatResponse(
-                    answer=generated.answer,
-                    mode=AnswerMode.GROQ,
-                    route=route,
-                    citations=self._citations(selected),
-                    warnings=generated.warnings + self._standard_warnings(route, request.question),
-                    trace_id=trace_id,
-                    abstained=False,
+            with self.observability.span(
+                "gpis.generate",
+                "LLM",
+                {
+                    "input.value": request.question,
+                    "llm.provider": self.provider.name,
+                    "gpis.evidence_ids": [item.id for item in evidence],
+                },
+            ) as generation_span:
+                generated = await self.provider.generate(request.question, evidence, structured_context)
+                valid = validate_generated_answer(generated, evidence)
+                generation_span.set_attributes(
+                    {
+                        "output.value": generated.answer,
+                        "gpis.generated_evidence_ids": generated.evidence_ids,
+                        "gpis.citation_validation": valid,
+                    }
                 )
-                self._record_trace(request, response, evidence, started)
-                return response
-            LOGGER.warning("LLM response failed citation validation", extra={"trace_id": trace_id})
+                if valid:
+                    selected = [item for item in evidence if item.id in set(generated.evidence_ids)]
+                    response = ChatResponse(
+                        answer=generated.answer,
+                        mode=AnswerMode.GROQ,
+                        route=route,
+                        citations=self._citations(selected),
+                        warnings=generated.warnings + self._standard_warnings(route, request.question),
+                        trace_id=trace_id,
+                        abstained=False,
+                    )
+                    self._record_trace(request, response, evidence, started)
+                    return response
+                LOGGER.warning("LLM response failed citation validation", extra={"trace_id": trace_id})
         except Exception as error:
             if self.provider.name != "unavailable":
                 LOGGER.warning(
@@ -339,5 +440,21 @@ class ChatService:
                 "retrieved_ids": [item.id for item in evidence],
                 "mode": response.mode.value,
                 "latency_ms": round((time.perf_counter() - started) * 1000, 2),
+                "details": {
+                    "provider": self.provider.name,
+                    "citations": [item.evidence_id for item in response.citations],
+                    "warnings": response.warnings,
+                    "abstained": response.abstained,
+                    "retrieval": [
+                        {
+                            "id": item.id,
+                            "keyword_rank": item.keyword_rank,
+                            "vector_rank": item.vector_rank,
+                            "semantic_similarity": item.semantic_similarity,
+                            "rrf_score": item.rrf_score,
+                        }
+                        for item in evidence
+                    ],
+                },
             }
         )

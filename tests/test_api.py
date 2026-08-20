@@ -17,6 +17,7 @@ def test_health_contract_reports_fallbacks():
     assert response.status_code == 200
     assert response.json()["repository"] == "json"
     assert response.json()["groq"] == "fallback"
+    assert response.json()["phoenix"] == "disabled"
     assert response.headers["X-Request-ID"]
 
 

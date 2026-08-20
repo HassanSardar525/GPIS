@@ -20,6 +20,17 @@ def _float(name: str, default: float) -> float:
         raise ValueError(f"{name} must be a number") from error
 
 
+def _bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    if value.casefold() in {"1", "true", "yes", "on"}:
+        return True
+    if value.casefold() in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"{name} must be true or false")
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     environment: str = "development"
@@ -33,6 +44,9 @@ class Settings:
     groq_model: str = "openai/gpt-oss-20b"
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_timeout_seconds: float = 15.0
+    phoenix_enabled: bool = False
+    phoenix_endpoint: str | None = None
+    phoenix_project_name: str = "gpis-local"
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -55,4 +69,7 @@ class Settings:
             groq_model=os.getenv("GROQ_MODEL", defaults.groq_model),
             groq_base_url=os.getenv("GROQ_BASE_URL", defaults.groq_base_url),
             groq_timeout_seconds=_float("GROQ_TIMEOUT_SECONDS", 15.0),
+            phoenix_enabled=_bool("PHOENIX_ENABLED", False),
+            phoenix_endpoint=os.getenv("PHOENIX_COLLECTOR_ENDPOINT") or None,
+            phoenix_project_name=os.getenv("PHOENIX_PROJECT_NAME", defaults.phoenix_project_name),
         )

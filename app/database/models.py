@@ -126,4 +126,5 @@ class RetrievalTrace(Base):
     retrieved_ids: Mapped[list] = mapped_column(JSONB)
     mode: Mapped[str] = mapped_column(String(40), index=True)
     latency_ms: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    details: Mapped[dict] = mapped_column(JSONB, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

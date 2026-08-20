@@ -14,6 +14,7 @@ The evidence assistant helps a user understand official district data without as
 6. Groq may write the answer at temperature `0.1`; every factual sentence must cite a retrieved evidence ID.
 7. Unknown citations, provider errors, timeouts, and malformed output trigger the extractive fallback.
 8. Unsupported or evidence-free questions abstain.
+9. Optional Phoenix/OpenTelemetry spans group routing, retrieval, RRF ranks, generation, citation validation, fallbacks, latency, and errors under one chat trace.
 
 The application remains fully usable without a Groq key. Retrieved documents are treated as untrusted data and cannot supply instructions or modify scores.
 
@@ -30,4 +31,4 @@ The application remains fully usable without a Groq key. Retrieved documents are
 
 Maintain questions covering direct fact lookup, district comparison, score explanation, source and period questions, unsupported questions requiring abstention, and adversarial requests to blame a person or override a score.
 
-The fixed 50-question fixture currently passes route accuracy `100%`, retrieval recall@5 `100%`, citation precision `100%`, and unsupported abstention `100%`. Run `python scripts/run_rag_evaluation.py --enforce` against PostgreSQL before changing routing, chunks, embeddings, or thresholds.
+The fixed 60-question fixture currently passes route accuracy `100%`, retrieval recall@5 `100%`, citation precision `100%`, and unsupported abstention `100%`. Run `python scripts/run_rag_evaluation.py --enforce` against PostgreSQL before changing routing, chunks, embeddings, or thresholds.

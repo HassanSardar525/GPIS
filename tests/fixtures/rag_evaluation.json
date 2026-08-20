@@ -10,8 +10,8 @@
   {"id":"compare-01","question":"Compare literacy in Multan and Bahawalpur.","districts":["multan","bahawalpur"],"route":"comparison","expected":["fact-multan-literacy_total_pct","fact-bahawalpur-literacy_total_pct"]},
   {"id":"compare-02","question":"Which district has better female literacy, Multan or Muzaffargarh?","districts":["multan","muzaffargarh"],"route":"comparison","expected":["fact-multan-literacy_female_pct","fact-muzaffargarh-literacy_female_pct"]},
   {"id":"compare-03","question":"Compare the development budget lapse for Bahawalpur and Multan.","districts":["bahawalpur","multan"],"route":"comparison","expected":["fact-bahawalpur-development_budget_lapse_pct","fact-multan-development_budget_lapse_pct"]},
-  {"id":"compare-04","question":"Which of the five districts ranks best overall?","districts":[],"route":"comparison","expected":[]},
-  {"id":"compare-05","question":"Show the worst education position in this comparison.","districts":[],"route":"comparison","expected":[]},
+  {"id":"compare-04","question":"Which of the ten districts ranks best overall?","districts":[],"route":"comparison","expected":["score-layyah-overall-prototype-v1"]},
+  {"id":"compare-05","question":"Show the worst education position in this comparison.","districts":[],"route":"comparison","expected":["score-rajanpur-education-prototype-v1"]},
   {"id":"compare-06","question":"Multan versus Rahim Yar Khan on health facilities.","districts":["multan","rahim-yar-khan"],"route":"comparison","expected":["multan-health","ryk-health"]},
   {"id":"method-01","question":"How is the education score calculated?","districts":["multan"],"route":"methodology","expected":["gpis-method-education"]},
   {"id":"method-02","question":"What formula is used for the health score?","districts":["bahawalpur"],"route":"methodology","expected":["gpis-method-health"]},
@@ -48,5 +48,15 @@
   {"id":"reason-03","question":"Why was Layyah given its health score?","districts":["layyah"],"route":"score_explanation","expected":["score-layyah-health-prototype-v1"]},
   {"id":"reason-04","question":"Explain the reason for Rajanpur's overall score.","districts":["rajanpur"],"route":"score_explanation","expected":["score-rajanpur-overall-prototype-v1"]},
   {"id":"method-05","question":"What is the overall score formula?","districts":[],"route":"methodology","expected":["gpis-method-overall"]},
-  {"id":"method-06","question":"How does health normalization work?","districts":[],"route":"methodology","expected":["gpis-method-health"]}
+  {"id":"method-06","question":"How does health normalization work?","districts":[],"route":"methodology","expected":["gpis-method-health"]},
+  {"id":"fact-09","question":"What is total literacy in Khanewal?","districts":["khanewal"],"route":"exact_fact","expected":["fact-khanewal-literacy_total_pct"]},
+  {"id":"fact-10","question":"How many BHUs are listed for Layyah?","districts":["layyah"],"route":"exact_fact","expected":["fact-layyah-bhus"]},
+  {"id":"fact-11","question":"What is female literacy in Lodhran?","districts":["lodhran"],"route":"exact_fact","expected":["fact-lodhran-literacy_female_pct"]},
+  {"id":"fact-12","question":"What was Rajanpur's overall budget lapse?","districts":["rajanpur"],"route":"exact_fact","expected":["fact-rajanpur-overall_budget_lapse_pct"]},
+  {"id":"fact-13","question":"How many out-of-school children are reported for Vehari?","districts":["vehari"],"route":"exact_fact","expected":["fact-vehari-out_of_school_children_5_16"]},
+  {"id":"compare-07","question":"Compare the overall scores of Khanewal and Vehari.","districts":["khanewal","vehari"],"route":"comparison","expected":["score-khanewal-overall-prototype-v1","score-vehari-overall-prototype-v1"]},
+  {"id":"reason-05","question":"Why did Lodhran receive its overall score?","districts":["lodhran"],"route":"score_explanation","expected":["score-lodhran-overall-prototype-v1"]},
+  {"id":"project-05","question":"Can the GPIS RAG pipeline alter stored scores?","districts":[],"route":"project","expected":["gpis-rag-architecture"]},
+  {"id":"method-07","question":"What formula calculates development-budget utilization?","districts":[],"route":"methodology","expected":["gpis-method-temporal"]},
+  {"id":"unsupported-04","question":"Can you predict next year's district score?","districts":["multan"],"route":"unsupported","expected":[]}
 ]

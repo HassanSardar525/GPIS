@@ -162,10 +162,16 @@ class PostgresRepository:
                     ScoreResult.version == self.score_version,
                     ScoreResult.category == score_category,
                 )
-                .order_by(District.name)
             )
             if district_slugs:
                 statement = statement.where(District.slug.in_(district_slugs))
+                statement = statement.order_by(District.name)
+            elif any(word in query.casefold() for word in ("best", "highest", "rank")):
+                statement = statement.order_by(ScoreResult.score.desc(), District.name)
+            elif any(word in query.casefold() for word in ("lowest", "worst")):
+                statement = statement.order_by(ScoreResult.score.asc(), District.name)
+            else:
+                statement = statement.order_by(District.name)
             rows = session.execute(statement.limit(limit)).all()
             source = session.get(Source, "gpis_methodology_v1")
             if not source:

@@ -25,6 +25,7 @@ FACTS = {
 UNSUPPORTED = {"weather", "recipe", "movie", "sport", "sports", "cricket", "stock", "stocks", "horoscope", "joke"}
 PERSON_BLAME = {"blame", "caused", "politician", "politicians", "representative", "representatives"}
 SCORE_MANIPULATION = {"override"}
+FUTURE_PREDICTION = {"forecast", "predict", "predicted", "prediction"}
 EVIDENCE_WORDS = FACTS | {
     "access", "audit", "care", "development", "district", "evidence", "girls", "learning",
     "medical", "performance", "places", "record", "report", "source",
@@ -34,6 +35,8 @@ EVIDENCE_WORDS = FACTS | {
 def classify_question(question: str) -> QuestionRoute:
     tokens = set(tokenize(question))
     if tokens & (PERSON_BLAME | SCORE_MANIPULATION):
+        return QuestionRoute.UNSUPPORTED
+    if tokens & FUTURE_PREDICTION or "next year" in question.casefold():
         return QuestionRoute.UNSUPPORTED
     if tokens & UNSUPPORTED and not tokens & EVIDENCE_WORDS:
         return QuestionRoute.UNSUPPORTED

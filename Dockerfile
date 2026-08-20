@@ -17,7 +17,7 @@ COPY data/curated ./data/curated
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install torch --index-url https://download.pytorch.org/whl/cpu
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-build-isolation .
+    pip install --no-build-isolation ".[observability]"
 
 EXPOSE 8000
 

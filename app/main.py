@@ -13,6 +13,7 @@ from app.config import ROOT, Settings
 from app.embeddings import MiniLMEmbedder
 from app.errors import GPISException
 from app.llm import FailingProvider, GroqProvider
+from app.observability import Observability, build_observability
 from app.repositories import GPISRepository, JsonRepository
 from app.schemas import ChatRequest, ChatResponse, DistrictDetail, DistrictListResponse, HealthResponse, RankingResponse, TrendResponse
 from app.services import ChatService, DistrictService, HybridRetriever
@@ -29,9 +30,12 @@ def build_repository(settings: Settings) -> GPISRepository:
     return JsonRepository(settings.curated_data_path)
 
 
-def build_chat_service(settings: Settings, repository: GPISRepository) -> ChatService:
+def build_chat_service(
+    settings: Settings, repository: GPISRepository, observability: Observability | None = None
+) -> ChatService:
+    observability = observability or build_observability(settings)
     embedder = MiniLMEmbedder(settings.embedding_model) if repository.name == "postgres" else None
-    retriever = HybridRetriever(repository, embedder, settings.semantic_threshold)
+    retriever = HybridRetriever(repository, embedder, settings.semantic_threshold, observability=observability)
     provider = (
         GroqProvider(
             settings.groq_api_key,
@@ -42,7 +46,7 @@ def build_chat_service(settings: Settings, repository: GPISRepository) -> ChatSe
         if settings.groq_api_key
         else FailingProvider()
     )
-    return ChatService(repository, retriever, provider)
+    return ChatService(repository, retriever, provider, observability)
 
 
 def create_app(
@@ -52,8 +56,9 @@ def create_app(
 ) -> FastAPI:
     settings = settings or Settings.from_env()
     repository = repository or build_repository(settings)
+    observability = build_observability(settings)
     district_service = DistrictService(repository)
-    chat_service = chat_service or build_chat_service(settings, repository)
+    chat_service = chat_service or build_chat_service(settings, repository, observability)
 
     application = FastAPI(
         title="Government Performance Intelligence System",
@@ -65,6 +70,7 @@ def create_app(
     application.state.settings = settings
     application.state.repository = repository
     application.state.chat_service = chat_service
+    application.state.observability = observability
 
     @application.middleware("http")
     async def request_context(request: Request, call_next):
@@ -107,6 +113,7 @@ def create_app(
             database=("available" if available else "unavailable") if repository.name == "postgres" else "not_configured",
             groq="configured" if settings.groq_api_key else "fallback",
             embedding_model=settings.embedding_model,
+            phoenix=observability.status,
         )
 
     @application.get("/api/v1/districts", response_model=DistrictListResponse)

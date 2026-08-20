@@ -173,6 +173,14 @@ class JsonRepository:
     ) -> list[RetrievedEvidence]:
         selected = district_slugs or list(self.by_slug)
         score_category = requested_score_category(query, category)
+        if not district_slugs and any(
+            word in query.casefold() for word in ("best", "highest", "lowest", "rank", "worst")
+        ):
+            reverse = not any(word in query.casefold() for word in ("lowest", "worst"))
+            selected.sort(
+                key=lambda slug: self.by_slug[slug]["derived"]["scores"][score_category],
+                reverse=reverse,
+            )
         rates = [district["derived"]["facilities_per_100k"] for district in self.districts]
         results = []
         for slug in selected[:limit]:

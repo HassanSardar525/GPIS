@@ -13,6 +13,7 @@ flowchart LR
     Q --> R["Filtered reciprocal-rank fusion"]
     R --> G["Groq grounded generation"]
     R --> F["Extractive fallback / abstention"]
+    R --> X["Phoenix/OpenTelemetry traces"]
     G --> A["FastAPI /api/v1"]
     F --> A
     P --> D["Deterministic scoring"]
@@ -34,6 +35,7 @@ app/
   routing.py      Question classification and controlled query expansion
   llm.py          Groq provider and citation validation
   embeddings.py   Local MiniLM embeddings
+  observability.py Optional Phoenix/OpenTelemetry spans and no-op fallback
 alembic/          Database migrations
 data/curated/     Reviewed ten-district seed dataset
 data/raw/         Local official source documents
@@ -73,6 +75,23 @@ docker compose up -d database
 
 Open <http://127.0.0.1:8000>. The first bootstrap downloads the local MiniLM model.
 
+### Optional RAG tracing with Phoenix
+
+Install the tracing extra, start Phoenix, and enable export in `.env`:
+
+```powershell
+.\.venv\Scripts\pip install -e ".[dev,observability]"
+docker compose --profile observability up -d database phoenix
+```
+
+```env
+PHOENIX_ENABLED=true
+PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006/v1/traces
+PHOENIX_PROJECT_NAME=gpis-local
+```
+
+Restart the API, ask a chat question, then open <http://127.0.0.1:6006>. Phoenix shows the parent chat span, retrieval IDs/ranks/similarities, generation validation, output mode, citations, latency, and errors. PostgreSQL also retains a compact trace record.
+
 Full Docker startup:
 
 ```powershell
@@ -89,7 +108,7 @@ docker compose up --build
 ## Verify
 
 ```powershell
-$env:GPIS_TEST_DATABASE_URL="postgresql+psycopg://gpis:gpis@localhost:5432/gpis_test"
+$env:GPIS_TEST_DATABASE_URL="postgresql+psycopg://gpis:gpis@localhost:5432/gpis"
 .\.venv\Scripts\python -m pytest -q
 .\.venv\Scripts\python scripts\run_rag_evaluation.py --enforce
 .\.venv\Scripts\python scripts\check_markdown_links.py

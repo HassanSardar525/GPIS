@@ -11,8 +11,8 @@
 | 2 | Add five districts and FY 2022-23/FY 2023-24 structured observations | Done |
 | 3 | Add deterministic temporal comparison API and question route | Done |
 | 4 | Expand project/methodology RAG and score-reasoning answers | Done |
-| 5 | Add Phoenix tracing and a larger RAG evaluation suite | Next |
-| 6 | Reconnect UI trends/comparisons and complete end-to-end verification | Pending |
+| 5 | Add Phoenix tracing and a larger RAG evaluation suite | Done |
+| 6 | Reconnect UI trends/comparisons and complete end-to-end verification | Next |
 
 ## Locked decisions
 

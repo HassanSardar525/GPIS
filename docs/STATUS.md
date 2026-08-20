@@ -19,18 +19,19 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Persisted versioned score components and verified them against golden fixtures.
 - [x] Added structured fact retrieval and filtered PostgreSQL full-text/vector retrieval with RRF.
 - [x] Added local MiniLM embeddings and retrieval traces.
+- [x] Added optional self-hosted Phoenix/OpenTelemetry tracing plus detailed PostgreSQL trace records.
 - [x] Added optional Groq generation with strict citation validation and deterministic fallback.
 - [x] Added deterministic FY 2022-23 to FY 2023-24 development-utilization comparisons and a cited temporal RAG route.
 - [x] Added global citable project/methodology evidence and deterministic score-component explanations.
 - [x] Live-tested Groq generation with `openai/gpt-oss-20b` and validated retrieved citations.
 - [x] Built a responsive browser dashboard.
-- [x] Added a 50-case RAG evaluation and adversarial/provider-failure tests.
-- [x] Passed all 38 automated tests and every RAG acceptance metric locally.
+- [x] Added a 60-case RAG evaluation and adversarial/provider-failure tests.
+- [x] Passed all 40 automated tests and every RAG acceptance metric locally.
 - [x] Added architecture, methodology, RAG, status, backlog, and decision documentation.
 
 ## Next milestone
 
-Add deeper retrieval traces, Phoenix observability, and at least ten more fixed evaluation questions.
+Reconnect the browser UI to temporal comparisons and expose the final RAG states clearly.
 
 ## Known limitations
 
@@ -38,4 +39,4 @@ Add deeper retrieval traces, Phoenix observability, and at least ten more fixed 
 - Health and accountability are provisional proxies.
 - Raw source acquisition is manual.
 - Groq remains optional; the extractive fallback keeps the application functional without it.
-- No authentication, deployment pipeline, or monitoring exists.
+- Phoenix is optional and local; no hosted monitoring, authentication, or deployment pipeline exists.

@@ -1,12 +1,13 @@
 import os
 import subprocess
 import sys
+import uuid
 from pathlib import Path
 
 import pytest
 from sqlalchemy import func, select, update
 
-from app.database.models import EvidenceChunk, Observation, ScoreResult
+from app.database.models import EvidenceChunk, Observation, RetrievalTrace, ScoreResult
 from app.database.repository import PostgresRepository
 from app.database.seed import embed_missing, seed_database
 from app.database.session import session_factory
@@ -74,3 +75,27 @@ def test_postgres_score_reasoning_and_global_project_evidence():
     assert "98.5" in score_evidence[0].text
     project_evidence = repository.keyword_search("RAG architecture", ["vehari"], None, None, 6)
     assert any(item.id == "gpis-rag-architecture" for item in project_evidence)
+
+
+def test_postgres_trace_persists_retrieval_details():
+    repository = PostgresRepository(DATABASE_URL, "prototype-v1")
+    trace_id = str(uuid.uuid4())
+    repository.record_trace(
+        {
+            "id": trace_id,
+            "question": "trace test",
+            "filters": {"districts": ["multan"]},
+            "route": "exact_fact",
+            "retrieved_ids": ["fact-multan-literacy_total_pct"],
+            "mode": "extractive",
+            "latency_ms": 1.25,
+            "details": {"retrieval": [{"id": "fact-multan-literacy_total_pct", "keyword_rank": 1}]},
+        }
+    )
+    sessions = session_factory(DATABASE_URL)
+    with sessions() as session:
+        stored = session.get(RetrievalTrace, trace_id)
+        assert stored.details["retrieval"][0]["keyword_rank"] == 1
+    with sessions.begin() as session:
+        stored = session.get(RetrievalTrace, trace_id)
+        session.delete(stored)
