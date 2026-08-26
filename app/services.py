@@ -241,6 +241,21 @@ class ChatService:
     ) -> ChatResponse:
         for slug in request.selected_districts():
             self.repository.get_district(slug)
+        if route == QuestionRoute.CONVERSATION:
+            response = ChatResponse(
+                answer=(
+                    "Hello! I can help with GPIS district scores, rankings, comparisons, trends, "
+                    "methodology, and supporting evidence."
+                ),
+                mode=AnswerMode.EXTRACTIVE,
+                route=route,
+                citations=[],
+                warnings=[],
+                trace_id=trace_id,
+                abstained=False,
+            )
+            self._record_trace(request, response, [], started)
+            return response
         if route == QuestionRoute.UNSUPPORTED:
             response = ChatResponse(
                 answer=(

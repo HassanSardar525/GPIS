@@ -1,10 +1,10 @@
 # Project status
 
-**Last updated:** 2026-08-20
+**Last updated:** 2026-08-26
 
-**Current milestone:** Architecture-first MVP v0.2
+**Current milestone:** Phase 2 comparison and explanation answers
 
-**State:** Working locally
+**State:** Planned
 
 The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 
@@ -31,10 +31,15 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Added a 60-case RAG evaluation and adversarial/provider-failure tests.
 - [x] Passed all local automated tests and every RAG acceptance metric locally.
 - [x] Added architecture, methodology, RAG, status, backlog, and decision documentation.
+- [x] Added deterministic refusal for prompt injection and unsafe/out-of-scope requests.
+- [x] Enforced real inline citations after evidence-bearing agent tools.
+- [x] Added agent/tool/retrieval/generation spans plus LangSmith run metadata.
+- [x] Expanded hardening coverage to 53 passing tests and added deterministic and live-agent metric gates.
+- [x] Recorded and passed the first JSON-backed Phase 1 evaluation baseline.
 
 ## Next milestone
 
-Create the remote GitHub repository, push the phased history, then prepare managed PostgreSQL and public deployment.
+Implement deterministic structured comparison results and grounded explanation output in the single chat interface.
 
 ## Known limitations
 

@@ -117,8 +117,11 @@ docker compose up --build
 $env:GPIS_TEST_DATABASE_URL="postgresql+psycopg://gpis:gpis@localhost:5432/gpis"
 .\.venv\Scripts\python -m pytest -q
 .\.venv\Scripts\python scripts\run_rag_evaluation.py --enforce
+.\.venv\Scripts\python scripts\run_agent_evaluation.py --enforce
 .\.venv\Scripts\python scripts\check_markdown_links.py
 ```
+
+The live-agent evaluation requires `GROQ_API_KEY`; the deterministic RAG evaluation does not. To trace LangGraph runs in LangSmith, set `LANGSMITH_TRACING=true`, `LANGSMITH_API_KEY`, and `LANGSMITH_PROJECT=gpis-phase-1`. LangSmith tracing and Phoenix remain optional.
 
 ## Current scope and limits
 

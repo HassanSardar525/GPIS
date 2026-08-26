@@ -59,7 +59,7 @@ def build_chat_service(
         timeout=settings.groq_timeout_seconds,
         max_retries=1,
     )
-    return AgentChatService(repository, retriever, model, fallback)
+    return AgentChatService(repository, retriever, model, fallback, observability=observability)
 
 
 def create_app(

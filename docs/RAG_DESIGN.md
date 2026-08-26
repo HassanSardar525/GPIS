@@ -32,4 +32,18 @@ The application remains fully usable without a Groq key. Retrieved documents are
 
 Maintain questions covering direct fact lookup, district comparison, score explanation, source and period questions, unsupported questions requiring abstention, and adversarial requests to blame a person or override a score.
 
-The fixed 60-question fixture currently passes route accuracy `100%`, retrieval recall@5 `100%`, citation precision `100%`, and unsupported abstention `100%`. Run `python scripts/run_rag_evaluation.py --enforce` against PostgreSQL before changing routing, chunks, embeddings, or thresholds.
+The fixed 60-question deterministic fixture measures route accuracy, answer accuracy, retrieval recall@5, citation precision, unsupported abstention, retrieval latency, and end-to-end answer latency. Run `python scripts/run_rag_evaluation.py --enforce` against PostgreSQL before changing routing, chunks, embeddings, or thresholds.
+
+The fixed 10-scenario live-agent fixture covers greetings, exact score lookup, comparisons, evidence search, methodology, temporal questions, follow-up memory, prompt injection, and score manipulation. With `GROQ_API_KEY` configured, run `python scripts/run_agent_evaluation.py --enforce` to measure answer accuracy, route accuracy, tool-selection accuracy, citation precision, abstention accuracy, and p50/p95 latency. Without a key, the command reports that the live-agent evaluation was skipped.
+
+## Agent tracing
+
+LangGraph emits its graph and node runs to LangSmith when the standard environment variables are enabled:
+
+```env
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=your-key
+LANGSMITH_PROJECT=gpis-phase-1
+```
+
+The graph invocation is tagged `gpis`, `phase-1`, and `langgraph-agent`. Tool calls, retrieval, and generation also emit the existing OpenTelemetry-compatible spans, so the same flow remains inspectable in optional Phoenix. Tracing is optional and never changes fallback behavior.

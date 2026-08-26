@@ -8,6 +8,7 @@ import re
 import time
 import uuid
 from contextvars import ContextVar
+from functools import wraps
 from typing import Any, Literal
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
@@ -18,8 +19,9 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel, Field
 
 from app.llm import CITATION_MARKER
+from app.observability import NoopObservability, Observability
 from app.repositories import GPISRepository
-from app.routing import classify_question
+from app.routing import classify_question, requires_abstention
 from app.schemas import AnswerMode, ChatRequest, ChatResponse, Citation, QuestionRoute, RetrievedEvidence
 from app.services import ChatService, HybridRetriever
 
@@ -80,7 +82,42 @@ def _evidence_payload(evidence: list[RetrievedEvidence]) -> dict[str, Any]:
     }
 
 
-def build_agent_tools(repository: GPISRepository, retriever: HybridRetriever) -> list[StructuredTool]:
+def build_agent_tools(
+    repository: GPISRepository,
+    retriever: HybridRetriever,
+    observability: Observability | None = None,
+) -> list[StructuredTool]:
+    observer = observability or NoopObservability()
+
+    def traced_tool(name: str):
+        def decorate(function):
+            @wraps(function)
+            async def wrapped(*args, **kwargs):
+                with observer.span(
+                    f"gpis.agent.tool.{name}",
+                    "TOOL",
+                    {"gpis.tool.name": name, "gpis.tool.argument_names": sorted(kwargs)},
+                ) as span:
+                    result = await function(*args, **kwargs)
+                    try:
+                        payload = json.loads(result)
+                    except (TypeError, ValueError):
+                        payload = {}
+                    span.set_attributes(
+                        {
+                            "gpis.tool.error": payload.get("error"),
+                            "gpis.citation_ids": [
+                                item["evidence_id"] for item in payload.get("citations", [])
+                            ],
+                        }
+                    )
+                    return result
+
+            return wrapped
+
+        return decorate
+
+    @traced_tool("district_data")
     async def district_data(action: str, districts: list[str], category: str) -> str:
         """Read exact GPIS district data. Use for available districts, scores, rankings, trends, and comparisons."""
         selected = _selected_districts(districts)
@@ -121,6 +158,7 @@ def build_agent_tools(repository: GPISRepository, retriever: HybridRetriever) ->
         ]
         return json.dumps({"districts": compact, **_evidence_payload(evidence)}, default=str)
 
+    @traced_tool("evidence_search")
     async def evidence_search(
         query: str,
         districts: list[str],
@@ -139,6 +177,7 @@ def build_agent_tools(repository: GPISRepository, retriever: HybridRetriever) ->
             route = QuestionRoute.EVIDENCE
         return json.dumps(_evidence_payload(retriever.retrieve(request, route)), default=str)
 
+    @traced_tool("project_knowledge")
     async def project_knowledge(query: str) -> str:
         """Explain GPIS scope, architecture, data sources, score formulas, limitations, and supported capabilities."""
         route = classify_question(query)
@@ -196,12 +235,14 @@ class AgentChatService:
         model: Any,
         fallback: ChatService,
         checkpointer: InMemorySaver | None = None,
+        observability: Observability | None = None,
     ):
         self.repository = repository
         self.retriever = retriever
         self.model = model
         self.fallback = fallback
-        self.tools = build_agent_tools(repository, retriever)
+        self.observability = observability or NoopObservability()
+        self.tools = build_agent_tools(repository, retriever, self.observability)
         self.tool_model = model.bind_tools(self.tools, parallel_tool_calls=False)
         self.graph = self._build_graph(checkpointer or InMemorySaver())
 
@@ -218,9 +259,24 @@ class AgentChatService:
                 1 for message in current_turn if isinstance(message, AIMessage) and message.tool_calls
             )
             active_model = self.model if tool_rounds >= 2 else self.tool_model
-            response = await active_model.ainvoke(
-                [SystemMessage(content=SYSTEM_PROMPT + context), *state["messages"]]
-            )
+            with self.observability.span(
+                "gpis.agent.generate",
+                "LLM",
+                {
+                    "llm.provider": "groq",
+                    "gpis.agent.tool_round": tool_rounds,
+                    "gpis.agent.message_count": len(state["messages"]),
+                },
+            ) as span:
+                response = await active_model.ainvoke(
+                    [SystemMessage(content=SYSTEM_PROMPT + context), *state["messages"]]
+                )
+                span.set_attributes(
+                    {
+                        "gpis.agent.requested_tools": [call["name"] for call in response.tool_calls],
+                        "output.value": self._message_text(response.content),
+                    }
+                )
             return {"messages": [response]}
 
         builder = StateGraph(MessagesState)
@@ -237,11 +293,22 @@ class AgentChatService:
         session_id = request.session_id or str(uuid.uuid4())
         trace_id = str(uuid.uuid4())
         started = time.perf_counter()
+        if requires_abstention(request.question):
+            fallback = await self.fallback.answer(request)
+            return fallback.model_copy(update={"session_id": session_id, "tools_used": []})
         token = CURRENT_REQUEST.set(request)
+        graph_config = {
+            "configurable": {"thread_id": session_id},
+            "recursion_limit": 8,
+            "run_name": "gpis.agent.chat",
+            "tags": ["gpis", "phase-1", "langgraph-agent"],
+            "metadata": {"gpis_session_id": session_id},
+        }
+        tools_used: list[str] = []
         try:
             result = await self.graph.ainvoke(
                 {"messages": [HumanMessage(content=request.question)]},
-                config={"configurable": {"thread_id": session_id}, "recursion_limit": 8},
+                config=graph_config,
             )
             messages = result["messages"]
             answer_message = next(
@@ -259,11 +326,11 @@ class AgentChatService:
             marker_ids = set(CITATION_MARKER.findall(answer))
             if marker_ids - set(citation_map):
                 raise RuntimeError("The agent invented an evidence citation")
+            if tools_used and citation_map and not marker_ids:
+                raise RuntimeError("The agent omitted inline evidence citations")
             citations = [citation for key, citation in citation_map.items() if not marker_ids or key in marker_ids]
             route = self._route(request.question, tools_used)
             warnings = ChatService._standard_warnings(route, request.question)
-            if tools_used and not marker_ids and citations:
-                warnings.append("Evidence is shown below; the model did not place inline citation markers in its answer.")
             response = ChatResponse(
                 answer=answer,
                 mode=AnswerMode.GROQ,
@@ -290,11 +357,23 @@ class AgentChatService:
             return response
         except Exception as error:
             LOGGER.warning("LangGraph agent failed; using grounded fallback: %s", type(error).__name__)
+            if not tools_used:
+                try:
+                    snapshot = await self.graph.aget_state(graph_config)
+                    tools_used = list(
+                        dict.fromkeys(
+                            message.name
+                            for message in self._current_turn(snapshot.values.get("messages", []))
+                            if isinstance(message, ToolMessage) and message.name
+                        )
+                    )
+                except Exception:
+                    tools_used = []
             fallback = await self.fallback.answer(request)
             return fallback.model_copy(
                 update={
                     "session_id": session_id,
-                    "tools_used": [],
+                    "tools_used": tools_used,
                     "warnings": ["The agent was unavailable; the deterministic RAG fallback answered.", *fallback.warnings],
                 }
             )

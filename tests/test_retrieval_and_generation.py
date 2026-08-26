@@ -37,6 +37,21 @@ def test_evaluation_fixture_has_sixty_cases_and_expected_routes():
         assert classify_question(case["question"]).value == case["route"], case["id"]
 
 
+def test_agent_evaluation_fixture_covers_phase_one_scenarios():
+    cases = json.loads((ROOT / "tests/fixtures/agent_evaluation.json").read_text(encoding="utf-8"))
+    ids = {case["id"] for case in cases}
+
+    assert len(cases) == 10
+    assert {"greeting", "score-fact", "comparison", "memory-follow-up", "prompt-injection"} <= ids
+    for case in cases:
+        if case["abstained"]:
+            assert classify_question(case["question"]) == QuestionRoute.UNSUPPORTED, case["id"]
+
+
+def test_direct_score_question_routes_to_exact_fact():
+    assert classify_question("What is Multan's education score?") == QuestionRoute.EXACT_FACT
+
+
 def test_structured_fact_retrieval_uses_exact_observation():
     results = REPOSITORY.fact_search("What is female literacy?", ["multan"], 6)
     assert results[0].id == "fact-multan-literacy_female_pct"
@@ -113,6 +128,37 @@ async def test_groq_retries_temporary_failures_then_raises(monkeypatch, status_c
     provider = GroqProvider("key", "model", "https://example.test", timeout_seconds=0.01)
     with pytest.raises(RuntimeError):
         await provider.generate("question", REPOSITORY.fact_search("literacy", ["multan"], 1), "")
+    assert calls == 2
+
+
+@pytest.mark.asyncio
+async def test_groq_retries_timeout_then_raises(monkeypatch):
+    calls = 0
+
+    class FakeClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return None
+
+        async def post(self, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            import httpx
+
+            raise httpx.ReadTimeout("request timed out")
+
+    async def no_sleep(_delay):
+        return None
+
+    monkeypatch.setattr("app.llm.httpx.AsyncClient", lambda **kwargs: FakeClient())
+    monkeypatch.setattr("app.llm.asyncio.sleep", no_sleep)
+    provider = GroqProvider("key", "model", "https://example.test", timeout_seconds=0.01)
+
+    with pytest.raises(RuntimeError):
+        await provider.generate("question", REPOSITORY.fact_search("literacy", ["multan"], 1), "")
+
     assert calls == 2
 
 

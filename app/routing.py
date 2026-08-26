@@ -7,6 +7,7 @@ from app.schemas import QuestionRoute
 
 
 COMPARISON = {"compare", "comparison", "better", "best", "worse", "worst", "rank", "ranking", "position", "versus", "vs"}
+CONVERSATION = {"hello", "hey", "hi", "thank", "thanks"}
 TEMPORAL = {
     "change", "changed", "decline", "declined", "decrease", "decreased", "improve", "improved",
     "improvement", "previous", "trend", "year", "yearly",
@@ -26,26 +27,49 @@ UNSUPPORTED = {"weather", "recipe", "movie", "sport", "sports", "cricket", "stoc
 PERSON_BLAME = {"blame", "caused", "politician", "politicians", "representative", "representatives"}
 SCORE_MANIPULATION = {"override"}
 FUTURE_PREDICTION = {"forecast", "predict", "predicted", "prediction"}
+PROMPT_INJECTION_PHRASES = {
+    "developer message",
+    "ignore previous",
+    "ignore the system",
+    "reveal instructions",
+    "reveal the prompt",
+    "system message",
+    "system prompt",
+}
 EVIDENCE_WORDS = FACTS | {
     "access", "audit", "care", "development", "district", "evidence", "girls", "learning",
     "medical", "performance", "places", "record", "report", "source",
 }
 
 
+def requires_abstention(question: str) -> bool:
+    """Identify requests that must bypass the conversational agent and abstain."""
+    lowered = question.casefold()
+    tokens = set(tokenize(question))
+    return bool(
+        tokens & (PERSON_BLAME | SCORE_MANIPULATION | FUTURE_PREDICTION)
+        or (tokens & UNSUPPORTED and not tokens & EVIDENCE_WORDS)
+        or ("ignore" in tokens and bool(tokens & {"instructions", "previous", "system"}))
+        or "next year" in lowered
+        or any(phrase in lowered for phrase in PROMPT_INJECTION_PHRASES)
+    )
+
+
 def classify_question(question: str) -> QuestionRoute:
     tokens = set(tokenize(question))
-    if tokens & (PERSON_BLAME | SCORE_MANIPULATION):
+    if requires_abstention(question):
         return QuestionRoute.UNSUPPORTED
-    if tokens & FUTURE_PREDICTION or "next year" in question.casefold():
-        return QuestionRoute.UNSUPPORTED
-    if tokens & UNSUPPORTED and not tokens & EVIDENCE_WORDS:
-        return QuestionRoute.UNSUPPORTED
+    domain_tokens = EVIDENCE_WORDS | METHODOLOGY | PROJECT | COMPARISON | TEMPORAL
+    if tokens & CONVERSATION and not tokens & domain_tokens:
+        return QuestionRoute.CONVERSATION
     if tokens & TEMPORAL or "last year" in question.casefold() or "year over year" in question.casefold():
         return QuestionRoute.TEMPORAL_COMPARISON
     if tokens & COMPARISON:
         return QuestionRoute.COMPARISON
     if "score" in tokens and tokens & SCORE_REASON and not tokens & FORMULA_WORDS:
         return QuestionRoute.SCORE_EXPLANATION
+    if "score" in tokens and not tokens & (FORMULA_WORDS | PROJECT):
+        return QuestionRoute.EXACT_FACT
     if tokens & PROJECT:
         return QuestionRoute.PROJECT
     if tokens & METHODOLOGY:
