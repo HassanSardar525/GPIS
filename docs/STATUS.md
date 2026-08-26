@@ -1,10 +1,10 @@
 # Project status
 
-**Last updated:** 2026-08-26
+**Last updated:** 2026-08-27
 
-**Current milestone:** Phase 2 comparison and explanation answers
+**Current milestone:** Phase 3 evidence quality
 
-**State:** Implementation complete; integration verification pending
+**State:** Planned; official source acquisition and qualification are next
 
 The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 
@@ -43,7 +43,7 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 
 ## Next milestone
 
-Run Phase 2 comparison parity and the 12-scenario live-agent evaluation against PostgreSQL before deployment.
+Acquire and qualify the official 2023/2024 Punjab health editions, then record a metric-level compatibility matrix before changing the schema or scoring methodology. Phase 2 comparison parity and the 12-scenario live-agent evaluation against PostgreSQL remain a deployment prerequisite.
 
 ## Known limitations
 

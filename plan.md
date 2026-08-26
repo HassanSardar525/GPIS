@@ -70,10 +70,67 @@ LangChain and LangGraph are already implemented on the `feature/langgraph-rag-ag
 
 ## Phase 3 — Improve evidence quality
 
-- Add a second comparable period for education and health where definitions and geography match.
-- Add stronger health indicators such as beds, staffing, service activity, and outcomes when trustworthy sources exist.
-- Expand accountability beyond budget utilization using carefully normalized audit indicators.
-- Add score coverage, confidence, reporting period, and missing-data warnings.
+**Status:** Planned on 2026-08-27; source acquisition and qualification are the first implementation gate.
+
+### 3.1 — Qualify and register comparable sources
+
+- [ ] Acquire and checksum Punjab Health Statistics 2023 and 2024 from the official Bureau of Statistics Punjab publication flow.
+- [ ] Verify district geography, metric definitions, units, reporting periods, and table locators before accepting any two-period series.
+- [ ] Produce a metric-level compatibility matrix for facilities, beds, staffing, service activity, and outcomes; reject or label series whose definitions changed.
+- [ ] Evaluate Punjab Education Statistics or an earlier PBS source for a second education period without treating non-equivalent survey editions as a trend.
+- [ ] Confirm audit scope and expenditure denominators before using finding counts, categories, or questioned amounts in accountability scoring.
+- [ ] Register every accepted source with publisher, title, period, official URL, local file, SHA-256 checksum, and page/table locator.
+
+### 3.2 — Extend the evidence and score contracts
+
+- [ ] Add explicit observation comparability metadata, including definition/version, geography level, population basis, and comparability group.
+- [ ] Add score reporting period, confidence, missing-component warnings, and meaningful calculated coverage to the JSON and PostgreSQL contracts.
+- [ ] Define coverage as available eligible component weight divided by expected component weight; never infer coverage from a stored score or convert missing observations to zero.
+- [ ] Define confidence from documented evidence properties such as source authority, directness, recency, and cross-period comparability—not from model probability.
+- [ ] Add an Alembic migration and idempotent seed path that preserves all `prototype-v1` definitions and results while adding the new version.
+- [ ] Expose the same metadata through district, ranking, comparison, score-explanation, and chat responses on both repository backends.
+
+### 3.3 — Normalize reviewed observations
+
+- [ ] Ingest reviewed health facilities, beds, medical/paramedical staffing, and supported activity/outcome observations with their original units and periods.
+- [ ] Derive count-based health capacity metrics per 100,000 using an explicitly recorded population denominator and period.
+- [ ] Ingest only education observations that pass the compatibility matrix and keep snapshots separate from comparable trends.
+- [ ] Normalize audit indicators by confirmed scope or expenditure denominators; keep finding categories and severity flags visible and avoid corruption or guilt labels.
+- [ ] Generate evidence chunks from reviewed observations with resolvable source and locator metadata.
+- [ ] Add validation that rejects duplicate observation identities, unknown units, missing provenance, invalid ranges, and accidental zero-filling.
+
+### 3.4 — Introduce a versioned scoring methodology
+
+- [ ] Specify a new score version and publish exact components, directions, normalization cohorts, weights, minimum coverage, and confidence rules before calculation.
+- [ ] Replace the single facility-count health proxy with accepted capacity and, where defensible, activity/outcome components while keeping their interpretations separate.
+- [ ] Add normalized audit signals only after comparable denominators are available; otherwise retain them as evidence and warnings outside the score.
+- [ ] Define unranked behavior when minimum coverage is not met and prevent partial scores from appearing equivalent to complete scores.
+- [ ] Keep `prototype-v1` reproducible and require callers to select or receive the active score version explicitly.
+- [ ] Add manually calculated golden fixtures for full, partial, missing, tied, and non-comparable cases.
+
+### 3.5 — Explain evidence quality in existing flows
+
+- [ ] Show score version, reporting period, coverage, confidence, and missing-data warnings beside district and comparison results.
+- [ ] Support cited health and education period comparisons only for series marked comparable; otherwise return a specific unavailable explanation.
+- [ ] Update deterministic and Groq explanations to distinguish capacity, activity, outcome, and audit-risk evidence and to avoid causal claims.
+- [ ] Keep raw observations, derived metrics, score components, and narrative explanations traceable to the same canonical citations.
+
+### 3.6 — Verification and acceptance
+
+- [ ] Spot-check every imported metric against the official source table for all ten districts and both accepted periods.
+- [ ] Test formulas, coverage/confidence rules, missing-data behavior, version selection, source validation, and trend compatibility.
+- [ ] Prove JSON/PostgreSQL parity for observations, scores, rankings, warnings, comparisons, and citations after migration and reseeding.
+- [ ] Run Alembic upgrade tests from the current schema and verify `prototype-v1` scores remain byte-for-byte equivalent to the golden fixture.
+- [ ] Extend the RAG evaluation with new evidence and unsupported-trend cases without regressing Phase 1 or Phase 2 gates.
+- [ ] Run the full PostgreSQL integration and live-agent evaluation before activating the new score version.
+
+### Acceptance gate
+
+- Every scored input is backed by a reviewed official source, exact locator, period, unit, and comparability decision.
+- Every score reports version, period, coverage, confidence, and missing components; insufficiently covered districts are unranked.
+- Missing and non-comparable observations remain explicit and never become zero, a fabricated trend, or an unsupported explanation.
+- `prototype-v1` remains reproducible while the new version is identical across JSON and PostgreSQL backends.
+- Year-over-year answers are available only for metrics whose definition, geography, unit, and population basis have been verified as compatible.
 
 **Working result:** More defensible scores and meaningful year-over-year explanations.
 
