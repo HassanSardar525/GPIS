@@ -66,7 +66,11 @@ async def evaluate(enforce: bool) -> int:
         answer_started = time.perf_counter()
         response = await service.answer(request)
         answer_latencies.append((time.perf_counter() - answer_started) * 1000)
-        allowed_citations = retrieved_ids
+        comparison_ids = {
+            citation.evidence_id
+            for citation in (response.comparison.citations if response.comparison else [])
+        }
+        allowed_citations = retrieved_ids | comparison_ids
         response_citations = {citation.evidence_id for citation in response.citations}
         for citation in response.citations:
             citation_total += 1

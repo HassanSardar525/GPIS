@@ -26,36 +26,37 @@ LangChain and LangGraph are already implemented on the `feature/langgraph-rag-ag
 
 ## Phase 2 — Improve comparison and explanation answers
 
-**Status:** Planned.
+**Status:** Implementation complete on 2026-08-27; live PostgreSQL verification pending.
 
 ### 2.1 — Deterministic comparison contract
 
-- [ ] Add typed comparison models for category, district scores, ranks, component values, score/rank differences, available periods, yearly changes, and limitations.
-- [ ] Implement one pure comparison builder shared by JSON and PostgreSQL repositories; reject unknown districts, invalid categories, and non-comparable periods explicitly.
-- [ ] Return the structured result from `district_data(action="compare")` instead of relying on the LLM to derive differences from raw district records.
-- [ ] Add the optional structured comparison result to `ChatResponse` while preserving existing clients and deterministic fallback behavior.
+- [x] Add typed comparison models for category, district scores, ranks, component values, score/rank differences, available periods, yearly changes, and limitations.
+- [x] Implement one deterministic comparison builder shared by JSON and PostgreSQL repositories; label unknown, missing, and non-comparable states explicitly.
+- [x] Return the structured result from `district_data(action="compare")` instead of relying on the LLM to derive differences from raw district records.
+- [x] Add the optional structured comparison result to `ChatResponse` while preserving existing clients and deterministic fallback behavior.
 
 ### 2.2 — Grounded explanation
 
-- [ ] Give Groq the deterministic comparison result plus canonical score and trend citations.
-- [ ] Require explanations to identify measured strengths and weaknesses, label possible contributing factors as inference, and avoid causal or politician-attribution claims.
-- [ ] Validate that every score, rank, component difference, and yearly change stated by the model matches the structured result; fall back when it does not.
-- [ ] Produce a deterministic comparison summary when Groq is unavailable, rate-limited, or invalid.
+- [x] Give Groq the deterministic comparison result plus canonical score and trend citations.
+- [x] Require explanations to identify measured strengths and weaknesses, label possible contributing factors as inference, and avoid causal or politician-attribution claims.
+- [x] Validate that every score, rank, component difference, and yearly change stated by the model matches the structured result; fall back when it does not.
+- [x] Produce a deterministic comparison summary when Groq is unavailable, rate-limited, or invalid.
 
 ### 2.3 — Single-chat presentation
 
-- [ ] Render an optional comparison block inside the existing chat answer, not as a separate comparison form or page.
-- [ ] Show side-by-side district score/rank values, signed differences, component rows, and comparable yearly changes with clear unavailable states.
-- [ ] Keep citations and limitations adjacent to the comparison, with responsive and keyboard-accessible markup.
-- [ ] Preserve HTML escaping, safe source URLs, loading states, and the current mobile layout.
+- [x] Render an optional comparison block inside the existing chat answer, not as a separate comparison form or page.
+- [x] Show side-by-side district score/rank values, signed differences, component rows, and comparable yearly changes with clear unavailable states.
+- [x] Keep citations and limitations adjacent to the comparison, with responsive and keyboard-accessible markup.
+- [x] Preserve HTML escaping, safe source URLs, loading states, and the current mobile layout.
 
 ### 2.4 — Verification and acceptance
 
-- [ ] Add golden unit tests for pairwise score, rank, component, and trend differences, including ties and missing/non-comparable data.
-- [ ] Add JSON/PostgreSQL parity tests for the structured comparison contract.
-- [ ] Add agent tests for comparison tool selection, numeric consistency, inference language, citations, follow-ups, invalid districts, and provider fallback.
-- [ ] Add API and UI tests for the optional comparison payload and inline rendering.
-- [ ] Extend the fixed evaluation cases and require no regression in Phase 1 routing, citation, abstention, or latency gates.
+- [x] Add golden unit tests for pairwise score, rank, component, and trend differences, including ties and missing/non-comparable data.
+- [x] Add JSON/PostgreSQL parity tests for the structured comparison contract.
+- [x] Add agent tests for comparison tool selection, numeric consistency, inference language, citations, follow-ups, invalid districts, and provider fallback.
+- [x] Add API and UI tests for the optional comparison payload and inline rendering.
+- [x] Extend the fixed evaluation cases and require no regression in Phase 1 routing, citation, abstention, or latency gates.
+- [ ] Run the structured comparison parity test and live-agent evaluation against PostgreSQL before deployment.
 
 ### Acceptance gate
 

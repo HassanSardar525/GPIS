@@ -41,7 +41,7 @@ def test_agent_evaluation_fixture_covers_phase_one_scenarios():
     cases = json.loads((ROOT / "tests/fixtures/agent_evaluation.json").read_text(encoding="utf-8"))
     ids = {case["id"] for case in cases}
 
-    assert len(cases) == 10
+    assert len(cases) == 12
     assert {"greeting", "score-fact", "comparison", "memory-follow-up", "prompt-injection"} <= ids
     for case in cases:
         if case["abstained"]:

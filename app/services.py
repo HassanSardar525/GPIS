@@ -7,6 +7,13 @@ import time
 import uuid
 from collections import defaultdict
 
+from app.comparisons import (
+    build_comparison,
+    comparison_language_is_safe,
+    comparison_numbers_are_grounded,
+    format_comparison_summary,
+    requested_comparison_category,
+)
 from app.embeddings import Embedder
 from app.llm import LLMProvider, validate_generated_answer
 from app.observability import NoopObservability, Observability
@@ -17,6 +24,7 @@ from app.schemas import (
     ChatRequest,
     ChatResponse,
     Citation,
+    ComparisonResult,
     QuestionRoute,
     RetrievedEvidence,
 )
@@ -272,6 +280,7 @@ class ChatService:
             self._record_trace(request, response, [], started)
             return response
 
+        comparison = self._comparison(request, route)
         evidence = self.retriever.retrieve(request, route)
         if not evidence:
             response = ChatResponse(
@@ -286,7 +295,7 @@ class ChatService:
             self._record_trace(request, response, [], started)
             return response
 
-        structured_context = self._structured_context(request, route)
+        structured_context = self._structured_context(request, route, comparison)
         try:
             with self.observability.span(
                 "gpis.generate",
@@ -298,7 +307,13 @@ class ChatService:
                 },
             ) as generation_span:
                 generated = await self.provider.generate(request.question, evidence, structured_context)
-                valid = validate_generated_answer(generated, evidence)
+                valid = validate_generated_answer(generated, evidence) and (
+                    comparison is None
+                    or (
+                        comparison_numbers_are_grounded(generated.answer, comparison)
+                        and comparison_language_is_safe(generated.answer)
+                    )
+                )
                 generation_span.set_attributes(
                     {
                         "output.value": generated.answer,
@@ -312,10 +327,11 @@ class ChatService:
                         answer=generated.answer,
                         mode=AnswerMode.GROQ,
                         route=route,
-                        citations=self._citations(selected),
+                        citations=self._citations_with_comparison(selected, comparison),
                         warnings=generated.warnings + self._standard_warnings(route, request.question),
                         trace_id=trace_id,
                         abstained=False,
+                        comparison=comparison,
                     )
                     self._record_trace(request, response, evidence, started)
                     return response
@@ -327,18 +343,26 @@ class ChatService:
                 )
 
         response = ChatResponse(
-            answer=self._fallback_answer(request, route, evidence),
+            answer=self._fallback_answer(request, route, evidence, comparison),
             mode=AnswerMode.EXTRACTIVE,
             route=route,
-            citations=self._citations(evidence[:3]),
+            citations=self._citations_with_comparison(evidence[:3], comparison),
             warnings=["The LLM was unavailable or returned invalid citations."] + self._standard_warnings(route, request.question),
             trace_id=trace_id,
             abstained=False,
+            comparison=comparison,
         )
         self._record_trace(request, response, evidence, started)
         return response
 
-    def _structured_context(self, request: ChatRequest, route: QuestionRoute) -> str:
+    def _structured_context(
+        self,
+        request: ChatRequest,
+        route: QuestionRoute,
+        comparison: ComparisonResult | None = None,
+    ) -> str:
+        if comparison:
+            return f"DETERMINISTIC_COMPARISON={comparison.model_dump_json()}"
         selected = request.selected_districts()
         if route not in {
             QuestionRoute.EXACT_FACT,
@@ -382,7 +406,10 @@ class ChatService:
         request: ChatRequest,
         route: QuestionRoute,
         evidence: list[RetrievedEvidence],
+        comparison: ComparisonResult | None = None,
     ) -> str:
+        if comparison:
+            return format_comparison_summary(comparison)
         if route == QuestionRoute.METHODOLOGY:
             category = next(
                 (name for name in ("education", "health", "accountability", "overall") if name in request.question.casefold()),
@@ -412,6 +439,24 @@ class ChatService:
                 return " ".join(statements)
         return " ".join(f"{item.text} [{item.id}]" for item in evidence[:3])
 
+    def _comparison(self, request: ChatRequest, route: QuestionRoute) -> ComparisonResult | None:
+        selected = request.selected_districts()
+        if len(selected) != 2:
+            return None
+        if route == QuestionRoute.TEMPORAL_COMPARISON:
+            category = "accountability"
+        elif route == QuestionRoute.COMPARISON:
+            lowered = request.question.casefold()
+            structured_intent = request.category is not None or any(
+                word in lowered for word in ("score", "rank", "ranking", "position", "performance", "overall")
+            )
+            if not structured_intent:
+                return None
+            category = requested_comparison_category(request.question, request.category)
+        else:
+            return None
+        return build_comparison(self.repository, selected, category)
+
     @staticmethod
     def _citations(evidence: list[RetrievedEvidence]) -> list[Citation]:
         seen = set()
@@ -421,6 +466,17 @@ class ChatService:
                 citations.append(item.citation)
                 seen.add(item.id)
         return citations
+
+    @classmethod
+    def _citations_with_comparison(
+        cls,
+        evidence: list[RetrievedEvidence],
+        comparison: ComparisonResult | None,
+    ) -> list[Citation]:
+        citations = cls._citations(evidence)
+        if comparison:
+            citations.extend(comparison.citations)
+        return list({item.evidence_id: item for item in citations}.values())
 
     @staticmethod
     def _standard_warnings(route: QuestionRoute, question: str) -> list[str]:
@@ -460,6 +516,7 @@ class ChatService:
                     "citations": [item.evidence_id for item in response.citations],
                     "warnings": response.warnings,
                     "abstained": response.abstained,
+                    "comparison_category": response.comparison.category if response.comparison else None,
                     "retrieval": [
                         {
                             "id": item.id,

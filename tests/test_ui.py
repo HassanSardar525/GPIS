@@ -22,3 +22,18 @@ def test_chat_output_is_escaped_before_html_rendering():
     script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
     assert "escapeHtml(data.answer)" in script
     assert "safeUrl(citation.url)" in script
+
+
+def test_structured_comparison_renders_inside_existing_chat_panel():
+    html = (ROOT / "app/static/index.html").read_text(encoding="utf-8")
+    script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
+    styles = (ROOT / "app/static/styles.css").read_text(encoding="utf-8")
+
+    assert html.count('id="chat-form"') == 1
+    assert "function renderComparison(comparison)" in script
+    assert "renderComparison(data.comparison)" in script
+    assert "component.values[left.slug]" in script
+    assert "escapeHtml(component.label)" in script
+    assert "comparison.trends" in script
+    assert ".comparison-result" in styles
+    assert ".comparison-table-wrap { overflow-x: auto; }" in styles

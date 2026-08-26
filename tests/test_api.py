@@ -60,6 +60,24 @@ def test_chat_rejects_unknown_district_before_retrieval():
     assert response.json()["error"]["code"] == "district_not_found"
 
 
+def test_chat_comparison_contract_is_structured_and_backward_compatible():
+    response = CLIENT.post(
+        "/api/v1/chat",
+        json={
+            "question": "Compare the overall scores of Multan and Bahawalpur.",
+            "districts": ["multan", "bahawalpur"],
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body["answer"], str)
+    assert body["comparison"]["category"] == "overall"
+    assert body["comparison"]["score_delta"] == 43.3
+    assert body["comparison"]["rank_delta"] == -7
+    assert len(body["comparison"]["components"]) == 3
+
+
 def test_development_budget_trend_contract():
     response = CLIENT.get("/api/v1/districts/layyah/trends/development-budget")
     assert response.status_code == 200

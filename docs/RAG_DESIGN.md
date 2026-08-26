@@ -34,7 +34,9 @@ Maintain questions covering direct fact lookup, district comparison, score expla
 
 The fixed 60-question deterministic fixture measures route accuracy, answer accuracy, retrieval recall@5, citation precision, unsupported abstention, retrieval latency, and end-to-end answer latency. Run `python scripts/run_rag_evaluation.py --enforce` against PostgreSQL before changing routing, chunks, embeddings, or thresholds.
 
-The fixed 10-scenario live-agent fixture covers greetings, exact score lookup, comparisons, evidence search, methodology, temporal questions, follow-up memory, prompt injection, and score manipulation. With `GROQ_API_KEY` configured, run `python scripts/run_agent_evaluation.py --enforce` to measure answer accuracy, route accuracy, tool-selection accuracy, citation precision, abstention accuracy, and p50/p95 latency. Without a key, the command reports that the live-agent evaluation was skipped.
+The fixed 12-scenario live-agent fixture covers greetings, exact score lookup, structured score/component comparisons, evidence search, methodology, single- and two-district temporal questions, follow-up memory, prompt injection, and score manipulation. With `GROQ_API_KEY` configured, run `python scripts/run_agent_evaluation.py --enforce` to measure answer accuracy, route accuracy, tool-selection accuracy, citation precision, abstention accuracy, and p50/p95 latency. Without a key, the command reports that the live-agent evaluation was skipped.
+
+Pairwise score, rank, component, and supported trend comparisons are calculated in deterministic Python and returned as an optional structured `comparison` object on the chat response. The LLM may explain that object but numeric and district associations are validated before display; mismatches or unsafe causal language use the deterministic summary.
 
 ## Agent tracing
 

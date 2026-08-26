@@ -127,6 +127,43 @@ class TrendResponse(BaseModel):
     citation: Citation
 
 
+class ComparisonDistrict(BaseModel):
+    slug: str
+    name: str
+    score: float = Field(ge=0, le=100)
+    rank: int = Field(ge=1)
+
+
+class ComparisonComponent(BaseModel):
+    key: str
+    label: str
+    unit: str
+    values: dict[str, float]
+    delta: float = Field(description="Right district value minus left district value")
+
+
+class ComparisonTrend(BaseModel):
+    district_slug: str
+    district_name: str
+    metric: Literal["development_budget_utilization_pct"]
+    periods: list[TrendPeriod]
+    change_percentage_points: float
+    direction: Literal["increased", "decreased", "unchanged"]
+    warnings: list[str]
+    citation: Citation
+
+
+class ComparisonResult(BaseModel):
+    category: RankingCategory
+    districts: list[ComparisonDistrict] = Field(min_length=2, max_length=2)
+    score_delta: float = Field(description="Right district score minus left district score")
+    rank_delta: int = Field(description="Right district rank minus left district rank; a negative value is better")
+    components: list[ComparisonComponent]
+    trends: list[ComparisonTrend] = Field(default_factory=list)
+    citations: list[Citation] = Field(default_factory=list)
+    limitations: list[str] = Field(default_factory=list)
+
+
 class ChatRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -180,6 +217,7 @@ class ChatResponse(BaseModel):
     abstained: bool
     session_id: str | None = None
     tools_used: list[str] = Field(default_factory=list)
+    comparison: ComparisonResult | None = None
 
 
 class HealthResponse(BaseModel):

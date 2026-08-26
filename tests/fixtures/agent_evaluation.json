@@ -111,5 +111,33 @@
     "expected_citations": [],
     "answer_contains": [],
     "abstained": true
+  },
+  {
+    "id": "comparison-components",
+    "question": "Compare the education performance scores of Multan and Bahawalpur.",
+    "districts": ["multan", "bahawalpur"],
+    "session_id": "agent-eval-comparison-components",
+    "route": "comparison",
+    "expected_tools": ["district_data"],
+    "expected_citations": [
+      "score-multan-education-prototype-v1",
+      "score-bahawalpur-education-prototype-v1"
+    ],
+    "answer_contains": ["68.2", "62.7"],
+    "abstained": false
+  },
+  {
+    "id": "temporal-pair",
+    "question": "Compare last-year development utilization change in Multan and Bahawalpur.",
+    "districts": ["multan", "bahawalpur"],
+    "session_id": "agent-eval-temporal-pair",
+    "route": "temporal_comparison",
+    "expected_tools": ["district_data"],
+    "expected_citations": [
+      "multan-development-trend",
+      "bahawalpur-development-trend"
+    ],
+    "answer_contains": [],
+    "abstained": false
   }
 ]

@@ -115,6 +115,99 @@ async def test_agent_selects_district_tool_for_comparison():
     assert response.route == QuestionRoute.COMPARISON
     assert response.tools_used == ["district_data"]
     assert {item.evidence_id for item in response.citations} == {multan_id, bahawalpur_id}
+    assert response.comparison is not None
+    assert response.comparison.score_delta == 43.3
+    assert response.comparison.rank_delta == -7
+
+
+@pytest.mark.asyncio
+async def test_agent_numeric_comparison_mismatch_uses_canonical_fallback():
+    multan_id = "score-multan-overall-prototype-v1"
+    bahawalpur_id = "score-bahawalpur-overall-prototype-v1"
+    model = ScriptedModel(
+        [
+            AIMessage(
+                content="",
+                tool_calls=[
+                    {
+                        "name": "district_data",
+                        "args": {
+                            "action": "compare",
+                            "districts": ["multan", "bahawalpur"],
+                            "category": "overall",
+                        },
+                        "id": "call-bad-compare",
+                        "type": "tool_call",
+                    }
+                ],
+            ),
+            AIMessage(
+                content=(
+                    f"Multan scores 99.0 [{multan_id}], while Bahawalpur scores 84.3 "
+                    f"[{bahawalpur_id}]."
+                )
+            ),
+        ]
+    )
+
+    response = await service_for(model).answer(
+        ChatRequest(
+            question="Compare the overall scores of Multan and Bahawalpur.",
+            districts=["multan", "bahawalpur"],
+            session_id="session-bad-compare",
+        )
+    )
+
+    assert response.mode == "extractive"
+    assert response.tools_used == ["district_data"]
+    assert response.comparison is not None
+    assert response.comparison.districts[0].score == 41.0
+    assert "Multan scores 41.0" in response.answer
+    assert "99.0" not in response.answer
+
+
+@pytest.mark.asyncio
+async def test_agent_causal_comparison_claim_uses_safe_fallback():
+    multan_id = "score-multan-overall-prototype-v1"
+    bahawalpur_id = "score-bahawalpur-overall-prototype-v1"
+    model = ScriptedModel(
+        [
+            AIMessage(
+                content="",
+                tool_calls=[
+                    {
+                        "name": "district_data",
+                        "args": {
+                            "action": "compare",
+                            "districts": ["multan", "bahawalpur"],
+                            "category": "overall",
+                        },
+                        "id": "call-causal-compare",
+                        "type": "tool_call",
+                    }
+                ],
+            ),
+            AIMessage(
+                content=(
+                    f"A politician caused this result [{multan_id}]. Bahawalpur scores 84.3 "
+                    f"[{bahawalpur_id}]."
+                )
+            ),
+        ]
+    )
+
+    response = await service_for(model).answer(
+        ChatRequest(
+            question="Compare the overall scores of Multan and Bahawalpur.",
+            districts=["multan", "bahawalpur"],
+            session_id="session-causal-compare",
+        )
+    )
+
+    assert response.mode == "extractive"
+    assert response.comparison is not None
+    assert "politician caused" not in response.answer.casefold()
+    assert "does not establish causation" in response.comparison.limitations[0]
 
 
 @pytest.mark.asyncio

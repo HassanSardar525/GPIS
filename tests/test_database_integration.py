@@ -11,7 +11,9 @@ from app.database.models import EvidenceChunk, Observation, RetrievalTrace, Scor
 from app.database.repository import PostgresRepository
 from app.database.seed import embed_missing, seed_database
 from app.database.session import session_factory
+from app.comparisons import build_comparison
 from app.embeddings import DeterministicTestEmbedder
+from app.repositories import JsonRepository
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -75,6 +77,25 @@ def test_postgres_score_reasoning_and_global_project_evidence():
     assert "98.5" in score_evidence[0].text
     project_evidence = repository.keyword_search("RAG architecture", ["vehari"], None, None, 6)
     assert any(item.id == "gpis-rag-architecture" for item in project_evidence)
+
+
+def test_postgres_comparison_matches_json_contract():
+    postgres = PostgresRepository(DATABASE_URL, "prototype-v1")
+    json_repository = JsonRepository(ROOT / "data/curated/districts.json")
+
+    actual = build_comparison(postgres, ["multan", "bahawalpur"], "accountability")
+    expected = build_comparison(json_repository, ["multan", "bahawalpur"], "accountability")
+
+    assert actual.districts == expected.districts
+    assert actual.score_delta == expected.score_delta
+    assert actual.rank_delta == expected.rank_delta
+    assert actual.components == expected.components
+    assert [item.change_percentage_points for item in actual.trends] == [
+        item.change_percentage_points for item in expected.trends
+    ]
+    assert {item.evidence_id for item in actual.citations} == {
+        item.evidence_id for item in expected.citations
+    }
 
 
 def test_postgres_trace_persists_retrieval_details():

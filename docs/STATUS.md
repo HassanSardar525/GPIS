@@ -4,7 +4,7 @@
 
 **Current milestone:** Phase 2 comparison and explanation answers
 
-**State:** Planned
+**State:** Implementation complete; integration verification pending
 
 The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 
@@ -36,10 +36,14 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Added agent/tool/retrieval/generation spans plus LangSmith run metadata.
 - [x] Expanded hardening coverage to 53 passing tests and added deterministic and live-agent metric gates.
 - [x] Recorded and passed the first JSON-backed Phase 1 evaluation baseline.
+- [x] Added deterministic pairwise score, rank, component, and supported trend comparisons.
+- [x] Added numeric/district association and causal-language validation with grounded fallback.
+- [x] Added structured comparison responses and an inline responsive chat renderer.
+- [x] Expanded comparison coverage across unit, agent, API, UI, and PostgreSQL parity tests.
 
 ## Next milestone
 
-Implement deterministic structured comparison results and grounded explanation output in the single chat interface.
+Run Phase 2 comparison parity and the 12-scenario live-agent evaluation against PostgreSQL before deployment.
 
 ## Known limitations
 

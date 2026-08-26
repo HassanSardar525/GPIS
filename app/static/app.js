@@ -25,6 +25,62 @@ function safeUrl(value) {
   }
 }
 
+function comparisonValue(value, unit) {
+  const digits = Number.isInteger(Number(value)) ? 0 : 2;
+  const suffix = unit === '%' ? '%' : unit === 'count' ? '' : ` ${unit}`;
+  return `${number(value, digits)}${suffix}`;
+}
+
+function signedComparisonValue(value, unit) {
+  const prefix = Number(value) > 0 ? '+' : '';
+  return `${prefix}${comparisonValue(value, unit)}`;
+}
+
+function renderComparison(comparison) {
+  if (!comparison || comparison.districts?.length !== 2) return '';
+  const [left, right] = comparison.districts;
+  const components = comparison.components.map(component => `<tr>
+    <th scope="row">${escapeHtml(component.label)}<small>${escapeHtml(component.unit)}</small></th>
+    <td>${escapeHtml(comparisonValue(component.values[left.slug], component.unit))}</td>
+    <td>${escapeHtml(comparisonValue(component.values[right.slug], component.unit))}</td>
+    <td class="comparison-delta">${escapeHtml(signedComparisonValue(component.delta, component.unit))}</td>
+  </tr>`).join('');
+  const trends = comparison.trends?.length ? `<div class="comparison-trends">
+    <h4>Development-budget utilization trend</h4>
+    ${comparison.trends.map(trend => {
+      const [previous, current] = trend.periods;
+      return `<article>
+        <strong>${escapeHtml(trend.district_name)}</strong>
+        <span>${escapeHtml(previous.period)}: ${escapeHtml(comparisonValue(previous.utilization_pct, '%'))}</span>
+        <span>${escapeHtml(current.period)}: ${escapeHtml(comparisonValue(current.utilization_pct, '%'))}</span>
+        <b>${escapeHtml(signedComparisonValue(trend.change_percentage_points, 'pp'))}</b>
+      </article>`;
+    }).join('')}
+  </div>` : '';
+  const limitations = comparison.limitations?.length
+    ? `<ul class="comparison-limitations">${comparison.limitations.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+    : '';
+  return `<section class="comparison-result" aria-label="${escapeHtml(comparison.category)} district comparison">
+    <div class="comparison-heading">
+      <h3>${escapeHtml(comparison.category)} comparison</h3>
+      <span>Right − left score: ${escapeHtml(signedComparisonValue(comparison.score_delta, 'points'))}</span>
+    </div>
+    <div class="comparison-districts">
+      ${[left, right].map(district => `<article>
+        <span>${escapeHtml(district.name)}</span>
+        <strong>${escapeHtml(number(district.score, 1))}</strong>
+        <small>Rank ${escapeHtml(district.rank)}</small>
+      </article>`).join('')}
+    </div>
+    <div class="comparison-table-wrap"><table class="comparison-table">
+      <caption>Component values and ${escapeHtml(right.name)} minus ${escapeHtml(left.name)} differences</caption>
+      <thead><tr><th>Component</th><th>${escapeHtml(left.name)}</th><th>${escapeHtml(right.name)}</th><th>Difference</th></tr></thead>
+      <tbody>${components}</tbody>
+    </table></div>
+    ${trends}${limitations}
+  </section>`;
+}
+
 async function json(url, options) {
   const response = await fetch(url, options);
   const data = await response.json();
@@ -130,7 +186,8 @@ async function askQuestion(question, districts = [state.district.slug]) {
     ).join('');
     const warnings = data.warnings.map(warning => `<li>${escapeHtml(warning)}</li>`).join('');
     const tools = data.tools_used?.length ? `<span>tools: ${escapeHtml(data.tools_used.join(', '))}</span>` : '';
-    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${data.mode}">${escapeHtml(data.mode)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(data.trace_id.slice(0, 8))}</span></div><p>${escapeHtml(data.answer)}</p>${citations ? `<ol>${citations}</ol>` : ''}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
+    const comparison = renderComparison(data.comparison);
+    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${data.mode}">${escapeHtml(data.mode)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(data.trace_id.slice(0, 8))}</span></div><p>${escapeHtml(data.answer)}</p>${comparison}${citations ? `<ol>${citations}</ol>` : ''}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
   } catch (error) {
     answer.innerHTML = `<p>Evidence service unavailable: ${escapeHtml(error.message)}</p>`;
   } finally {

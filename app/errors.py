@@ -26,6 +26,11 @@ class TrendUnavailable(GPISException):
     status_code = 422
 
 
+class InvalidComparison(GPISException):
+    code = "invalid_comparison"
+    status_code = 422
+
+
 class RepositoryUnavailable(GPISException):
     code = "repository_unavailable"
     status_code = 503
