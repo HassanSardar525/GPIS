@@ -17,7 +17,17 @@ from app.errors import GPISException
 from app.llm import FailingProvider, GroqProvider
 from app.observability import Observability, build_observability
 from app.repositories import GPISRepository, JsonRepository
-from app.schemas import ChatRequest, ChatResponse, DistrictDetail, DistrictListResponse, HealthResponse, RankingResponse, TrendResponse
+from app.schemas import (
+    ChatRequest,
+    ChatResponse,
+    DistrictDetail,
+    DistrictListResponse,
+    FacilityKind,
+    HealthCapacityTrendResponse,
+    HealthResponse,
+    RankingResponse,
+    TrendResponse,
+)
 from app.services import ChatService, DistrictService, HybridRetriever
 
 
@@ -144,6 +154,15 @@ def create_app(
     @application.get("/api/v1/districts/{slug}/trends/development-budget", response_model=TrendResponse)
     def development_budget_trend(slug: str) -> TrendResponse:
         return TrendResponse.model_validate(district_service.development_trend(slug))
+
+    @application.get(
+        "/api/v1/districts/{slug}/trends/health-capacity",
+        response_model=HealthCapacityTrendResponse,
+    )
+    def health_capacity_trend(slug: str, facility: FacilityKind = Query()) -> HealthCapacityTrendResponse:
+        return HealthCapacityTrendResponse.model_validate(
+            district_service.health_capacity_trend(slug, facility)
+        )
 
     @application.post("/api/v1/chat", response_model=ChatResponse)
     async def chat(request: ChatRequest) -> ChatResponse:

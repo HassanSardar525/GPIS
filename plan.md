@@ -93,12 +93,13 @@ LangChain and LangGraph are already implemented on the `feature/langgraph-rag-ag
 
 ### 3.3 — Normalize reviewed observations
 
-- [ ] Ingest reviewed health facilities, beds, medical/paramedical staffing, and supported activity/outcome observations with their original units and periods.
+- [x] Ingest reviewed health-facility and bed observations with their original units and periods; keep staffing, activity, and outcomes excluded or pending until accepted.
+- [ ] Ingest district staffing, activity, or outcome observations only if they pass the compatibility review.
 - [ ] Derive count-based health capacity metrics per 100,000 using an explicitly recorded population denominator and period.
 - [ ] Ingest only education observations that pass the compatibility matrix and keep snapshots separate from comparable trends.
 - [ ] Normalize audit indicators by confirmed scope or expenditure denominators; keep finding categories and severity flags visible and avoid corruption or guilt labels.
-- [ ] Generate evidence chunks from reviewed observations with resolvable source and locator metadata.
-- [ ] Add validation that rejects duplicate observation identities, unknown units, missing provenance, invalid ranges, and accidental zero-filling.
+- [x] Generate evidence chunks from reviewed observations with resolvable source and locator metadata.
+- [x] Add validation that rejects duplicate periods/districts, incomplete metric contracts, unknown sources, invalid ranges, and accidental zero-filling.
 
 ### 3.4 — Introduce a versioned scoring methodology
 
@@ -112,7 +113,8 @@ LangChain and LangGraph are already implemented on the `feature/langgraph-rag-ag
 ### 3.5 — Explain evidence quality in existing flows
 
 - [ ] Show score version, reporting period, coverage, confidence, and missing-data warnings beside district and comparison results.
-- [ ] Support cited health and education period comparisons only for series marked comparable; otherwise return a specific unavailable explanation.
+- [x] Support cited health-capacity period comparisons only for the reviewed Table 3 comparability group, with null changes and source warnings preserved.
+- [ ] Support education period comparisons only after an education series is marked comparable.
 - [ ] Update deterministic and Groq explanations to distinguish capacity, activity, outcome, and audit-risk evidence and to avoid causal claims.
 - [ ] Keep raw observations, derived metrics, score components, and narrative explanations traceable to the same canonical citations.
 

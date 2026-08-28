@@ -3,7 +3,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from app.evidence_quality import HealthCapacityDataset, health_capacity_change, load_health_capacity
+from app.evidence_quality import (
+    HealthCapacityDataset,
+    format_health_capacity_period,
+    health_capacity_change,
+    load_health_capacity,
+)
 from app.schemas import ScoreResult
 
 
@@ -121,3 +126,14 @@ def test_score_quality_metadata_is_backward_compatible_and_explicit():
     assert legacy.confidence is None
     assert legacy.missing_components == []
     assert reviewed.warnings == ["relative facility-count proxy"]
+
+
+def test_capacity_evidence_formatter_keeps_printed_dashes_explicit():
+    dataset = load_health_capacity(DATA_PATH)
+    rajanpur = next(item for item in dataset.districts if item.slug == "rajanpur")
+
+    text = format_health_capacity_period(rajanpur.name, rajanpur.periods[-1])
+
+    assert "Rajanpur public health capacity at 2023-12-31" in text
+    assert "MCH centers: not reported institutions, 4 beds" in text
+    assert "not converted to zero" in text

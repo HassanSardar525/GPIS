@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Protocol
 
 from app.errors import DistrictNotFound, InvalidCategory, TrendUnavailable
+from app.evidence_quality import EXPECTED_FACILITY_KINDS, health_capacity_change, load_health_capacity
 from app.facts import format_fact, requested_metrics
 from app.retrieval import EvidenceRetriever
 from app.schemas import Citation, RetrievedEvidence
@@ -45,6 +46,7 @@ class GPISRepository(Protocol):
         limit: int,
     ) -> list[RetrievedEvidence]: ...
     def development_trend(self, slug: str) -> dict: ...
+    def health_capacity_trend(self, slug: str, facility: str) -> dict: ...
     def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]: ...
     def score_search(
         self, query: str, district_slugs: list[str], category: str | None, limit: int
@@ -65,6 +67,8 @@ class JsonRepository:
         self.retriever = EvidenceRetriever(
             self.districts, self.data["sources"], self.data.get("project_evidence", [])
         )
+        health_path = path.with_name("health_capacity_periods.json")
+        self.health_capacity = load_health_capacity(health_path) if health_path.is_file() else None
 
     def _methodology_citation(self, evidence_id: str, locator: str) -> dict:
         source = self.data["sources"]["gpis_methodology_v1"]
@@ -137,6 +141,47 @@ class JsonRepository:
                 "url": source["url"],
                 "locator": evidence["locator"],
             },
+        }
+
+    def health_capacity_trend(self, slug: str, facility: str) -> dict:
+        if facility not in EXPECTED_FACILITY_KINDS:
+            raise InvalidCategory(f"Unknown health facility category: {facility}")
+        if not self.health_capacity:
+            raise TrendUnavailable("Reviewed health-capacity periods are unavailable")
+        try:
+            change = health_capacity_change(self.health_capacity, slug, facility)
+        except KeyError as error:
+            raise DistrictNotFound(f"District '{slug}' was not found") from error
+        periods = []
+        for key in ("previous", "current"):
+            item = change[key]
+            source = self.health_capacity.sources[item["source_id"]]
+            periods.append(
+                {
+                    "snapshot_date": item["snapshot_date"],
+                    "count": item["count"],
+                    "beds": item["beds"],
+                    "citation": {
+                        "evidence_id": f"{slug}-health-capacity-{item['snapshot_date']}",
+                        "source_id": item["source_id"],
+                        "publisher": source.publisher,
+                        "title": source.title,
+                        "period": source.period_label,
+                        "url": source.official_url,
+                        "locator": item["locator"],
+                    },
+                }
+            )
+        return {
+            "district_slug": change["district_slug"],
+            "district_name": change["district_name"],
+            "facility": facility,
+            "comparability_group": change["comparability_group"],
+            "periods": periods,
+            "count_change": change["count_change"],
+            "bed_change": change["bed_change"],
+            "warnings": change["warnings"],
+            "limitations": self.health_capacity.comparability.limitations,
         }
 
     def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]:

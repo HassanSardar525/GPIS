@@ -58,6 +58,9 @@ class DistrictService:
     def development_trend(self, slug: str) -> dict:
         return self.repository.development_trend(slug)
 
+    def health_capacity_trend(self, slug: str, facility: str) -> dict:
+        return self.repository.health_capacity_trend(slug, facility)
+
 
 class HybridRetriever:
     def __init__(

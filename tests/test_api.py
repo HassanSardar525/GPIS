@@ -85,3 +85,20 @@ def test_development_budget_trend_contract():
     assert body["metric"] == "development_budget_utilization_pct"
     assert body["change_percentage_points"] == 65.72
     assert body["citation"]["evidence_id"] == "layyah-development-trend"
+
+
+def test_health_capacity_trend_contract_preserves_periods_and_citations():
+    response = CLIENT.get("/api/v1/districts/multan/trends/health-capacity?facility=hospitals")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["facility"] == "hospitals"
+    assert body["periods"][0]["snapshot_date"] == "2023-01-01"
+    assert body["periods"][1]["snapshot_date"] == "2023-12-31"
+    assert body["count_change"] == -2
+    assert body["bed_change"] == 1470
+    assert body["periods"][0]["citation"]["evidence_id"] == "multan-health-capacity-2023-01-01"
+
+
+def test_health_capacity_trend_rejects_unknown_facility():
+    response = CLIENT.get("/api/v1/districts/multan/trends/health-capacity?facility=doctors")
+    assert response.status_code == 422

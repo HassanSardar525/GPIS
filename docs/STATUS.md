@@ -46,10 +46,12 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Classified district staffing and outcomes as unsupported and patient activity as pending review rather than forcing them into scoring.
 - [x] Added an additive Alembic migration for observation comparability and score reporting-period, confidence, missing-component, and warning metadata.
 - [x] Kept `prototype-v1` scores unchanged while seeding explicit periods and proxy warnings; confidence remains unassessed rather than fabricated.
+- [x] Normalized 183 non-null health-capacity cells into a dedicated PostgreSQL comparability group and generated 20 cited evidence chunks.
+- [x] Added a typed `/api/v1/districts/{slug}/trends/health-capacity` route with JSON/PostgreSQL parity coverage.
 
 ## Next milestone
 
-Normalize the reviewed health-capacity snapshots into repository observations and expose score reporting period, coverage, confidence, and warnings consistently through JSON and PostgreSQL responses. Phase 2 comparison parity and the 12-scenario live-agent evaluation against PostgreSQL remain a deployment prerequisite.
+Expose score reporting period, coverage, confidence, and warnings consistently through district, ranking, comparison, score-explanation, and chat responses. Phase 2/3 repository parity and live-agent evaluation against PostgreSQL remain deployment prerequisites.
 
 ## Known limitations
 

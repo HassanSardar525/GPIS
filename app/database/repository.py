@@ -10,6 +10,7 @@ from sqlalchemy.orm import joinedload
 from app.database.models import DatasetMetadata, District, EvidenceChunk, Observation, RetrievalTrace, ScoreResult, Source
 from app.database.session import session_factory
 from app.errors import DistrictNotFound, InvalidCategory, TrendUnavailable
+from app.evidence_quality import EXPECTED_FACILITY_KINDS
 from app.facts import format_fact, requested_metrics
 from app.schemas import Citation, RetrievedEvidence
 from app.score_explanations import format_score_explanation, requested_score_category
@@ -121,6 +122,73 @@ class PostgresRepository:
                     "url": source.url,
                     "locator": evidence_chunk.locator,
                 },
+            }
+
+    def health_capacity_trend(self, slug: str, facility: str) -> dict:
+        if facility not in EXPECTED_FACILITY_KINDS:
+            raise InvalidCategory(f"Unknown health facility category: {facility}")
+        metric_keys = {f"phs_{facility}_count", f"phs_{facility}_beds"}
+        with self.sessions() as session:
+            district = session.scalar(select(District).where(District.slug == slug))
+            if not district:
+                raise DistrictNotFound(f"District '{slug}' was not found")
+            observations = session.scalars(
+                select(Observation).where(
+                    Observation.district_id == district.id,
+                    Observation.metric_key.in_(metric_keys),
+                    Observation.comparability_group == "phs-table-3-public-capacity-v1",
+                )
+            ).all()
+            chunks = session.scalars(
+                select(EvidenceChunk)
+                .options(joinedload(EvidenceChunk.source))
+                .where(
+                    EvidenceChunk.district_id == district.id,
+                    EvidenceChunk.id.like(f"{slug}-health-capacity-%"),
+                )
+                .order_by(EvidenceChunk.period)
+            ).all()
+            if len(chunks) < 2:
+                raise TrendUnavailable(f"Comparable health-capacity periods are unavailable for {district.name}")
+            values = {(row.period, row.metric_key): row for row in observations}
+            warnings = list(
+                dict.fromkeys(flag for row in observations for flag in (row.quality_flags or []))
+            )
+            periods = []
+            for chunk in chunks:
+                count = values.get((chunk.period, f"phs_{facility}_count"))
+                beds = values.get((chunk.period, f"phs_{facility}_beds"))
+                periods.append(
+                    {
+                        "snapshot_date": chunk.period,
+                        "count": int(count.value) if count else None,
+                        "beds": int(beds.value) if beds else None,
+                        "citation": {
+                            "evidence_id": chunk.id,
+                            "source_id": chunk.source.id,
+                            "publisher": chunk.source.publisher,
+                            "title": chunk.source.title,
+                            "period": chunk.source.period,
+                            "url": chunk.source.url,
+                            "locator": chunk.locator,
+                        },
+                    }
+                )
+
+            def difference(left, right):
+                return None if left is None or right is None else right - left
+
+            metadata = session.get(DatasetMetadata, "health_capacity_comparability")
+            return {
+                "district_slug": district.slug,
+                "district_name": district.name,
+                "facility": facility,
+                "comparability_group": "phs-table-3-public-capacity-v1",
+                "periods": periods,
+                "count_change": difference(periods[0]["count"], periods[-1]["count"]),
+                "bed_change": difference(periods[0]["beds"], periods[-1]["beds"]),
+                "warnings": warnings,
+                "limitations": metadata.value.get("limitations", []) if metadata else [],
             }
 
     def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]:

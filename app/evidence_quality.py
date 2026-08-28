@@ -32,6 +32,17 @@ EXPECTED_FACILITY_KINDS = {
     "trauma_centers",
 }
 
+FACILITY_LABELS = {
+    "hospitals": "hospitals",
+    "dispensaries": "dispensaries",
+    "rhcs": "RHCs",
+    "bhus": "BHUs",
+    "tb_clinics": "TB clinics",
+    "sh_centers": "sub-health centers",
+    "mch_centers": "MCH centers",
+    "trauma_centers": "trauma centers",
+}
+
 
 class ReviewedSource(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -203,3 +214,21 @@ def health_capacity_change(
         "bed_change": change(previous_value.beds, current_value.beds),
         "warnings": warnings,
     }
+
+
+def format_health_capacity_period(
+    district_name: str,
+    period: HealthCapacityPeriod,
+) -> str:
+    """Format one reviewed table row without inventing values for printed dashes."""
+    parts = []
+    for facility, observation in period.facilities.items():
+        count = "not reported" if observation.count is None else f"{observation.count:,}"
+        beds = "not reported" if observation.beds is None else f"{observation.beds:,}"
+        parts.append(f"{FACILITY_LABELS[facility]}: {count} institutions, {beds} beds")
+    return (
+        f"Punjab Health Statistics Table 3 reports {district_name} public health capacity "
+        f"at {period.snapshot_date.isoformat()}: "
+        + "; ".join(parts)
+        + ". Printed dashes are retained as not reported, not converted to zero."
+    )

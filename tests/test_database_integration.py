@@ -27,7 +27,7 @@ def test_migration_and_seed_are_idempotent():
     first = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     second = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     assert first == second
-    assert second == {"districts": 10, "observations": 190, "evidence_chunks": 47, "score_results": 40}
+    assert second == {"districts": 10, "observations": 373, "evidence_chunks": 67, "score_results": 40}
 
 
 def test_provenance_is_complete_after_seed():
@@ -54,6 +54,25 @@ def test_provenance_is_complete_after_seed():
         assert health_score.confidence is None
         assert health_score.missing_components == []
         assert "relative facility-count proxy" in health_score.warnings[0]
+        assert session.scalar(
+            select(func.count())
+            .select_from(Observation)
+            .where(Observation.comparability_group == "phs-table-3-public-capacity-v1")
+        ) == 183
+        assert session.scalar(
+            select(func.count())
+            .select_from(EvidenceChunk)
+            .where(EvidenceChunk.id.like("%-health-capacity-%"))
+        ) == 20
+        anomaly = session.scalar(
+            select(Observation).where(
+                Observation.metric_key == "phs_mch_centers_beds",
+                Observation.period == "2023-12-31",
+                Observation.quality_flags != [],
+            )
+        )
+        assert anomaly.value == 4
+        assert "count is not inferred" in anomaly.quality_flags[0]
 
 
 def test_pgvector_round_trip_and_embedding_seed_are_idempotent():
@@ -84,6 +103,18 @@ def test_postgres_development_trend_uses_canonical_evidence():
     trend = repository.development_trend("rahim-yar-khan")
     assert trend["change_percentage_points"] == 54.23
     assert trend["citation"]["evidence_id"] == "ryk-development-trend"
+
+
+def test_postgres_health_capacity_trend_matches_json_contract():
+    postgres = PostgresRepository(DATABASE_URL, "prototype-v1")
+    json_repository = JsonRepository(ROOT / "data/curated/districts.json")
+
+    assert postgres.health_capacity_trend("multan", "hospitals") == json_repository.health_capacity_trend(
+        "multan", "hospitals"
+    )
+    assert postgres.health_capacity_trend("rajanpur", "mch_centers") == json_repository.health_capacity_trend(
+        "rajanpur", "mch_centers"
+    )
 
 
 def test_postgres_score_reasoning_and_global_project_evidence():

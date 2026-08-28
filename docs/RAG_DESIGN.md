@@ -38,6 +38,8 @@ The fixed 12-scenario live-agent fixture covers greetings, exact score lookup, s
 
 Pairwise score, rank, component, and supported trend comparisons are calculated in deterministic Python and returned as an optional structured `comparison` object on the chat response. The LLM may explain that object but numeric and district associations are validated before display; mismatches or unsafe causal language use the deterministic summary.
 
+The reviewed Punjab Health Statistics Table 3 capacity series is exposed deterministically at `/api/v1/districts/{slug}/trends/health-capacity?facility={facility}`. It returns two snapshot values, count/bed changes only when both cells are reported, one canonical citation per period, source anomalies, and evidence limitations. This route does not change `prototype-v1` scores and is not yet selected automatically by chat routing.
+
 ## Agent tracing
 
 LangGraph emits its graph and node runs to LangSmith when the standard environment variables are enabled:

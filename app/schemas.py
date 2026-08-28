@@ -10,6 +10,16 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Category = Literal["education", "health", "accountability"]
 RankingCategory = Literal["overall", "education", "health", "accountability"]
+FacilityKind = Literal[
+    "hospitals",
+    "dispensaries",
+    "rhcs",
+    "bhus",
+    "tb_clinics",
+    "sh_centers",
+    "mch_centers",
+    "trauma_centers",
+]
 
 
 class AnswerMode(StrEnum):
@@ -129,6 +139,25 @@ class TrendResponse(BaseModel):
     direction: Literal["increased", "decreased", "unchanged"]
     warnings: list[str]
     citation: Citation
+
+
+class HealthCapacityPeriodResponse(BaseModel):
+    snapshot_date: str
+    count: int | None
+    beds: int | None
+    citation: Citation
+
+
+class HealthCapacityTrendResponse(BaseModel):
+    district_slug: str
+    district_name: str
+    facility: FacilityKind
+    comparability_group: str
+    periods: list[HealthCapacityPeriodResponse] = Field(min_length=2)
+    count_change: int | None
+    bed_change: int | None
+    warnings: list[str] = Field(default_factory=list)
+    limitations: list[str] = Field(default_factory=list)
 
 
 class ComparisonDistrict(BaseModel):
