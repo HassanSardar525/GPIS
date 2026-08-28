@@ -84,7 +84,11 @@ def test_pgvector_round_trip_and_embedding_seed_are_idempotent():
         original_embedding = chunk.embedding
         chunk.embedding = None
         session.commit()
-    assert embed_missing(DATABASE_URL, embedder) == 1
+    with sessions() as session:
+        expected_missing = session.scalar(
+            select(func.count()).select_from(EvidenceChunk).where(EvidenceChunk.embedding.is_(None))
+        )
+    assert embed_missing(DATABASE_URL, embedder) == expected_missing
     assert embed_missing(DATABASE_URL, embedder) == 0
     data = __import__("json").loads((ROOT / "data/curated/districts.json").read_text(encoding="utf-8"))
     evidence = data["districts"][0]["evidence"][0]

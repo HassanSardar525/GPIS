@@ -48,6 +48,7 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Kept `prototype-v1` scores unchanged while seeding explicit periods and proxy warnings; confidence remains unassessed rather than fabricated.
 - [x] Normalized 183 non-null health-capacity cells into a dedicated PostgreSQL comparability group and generated 20 cited evidence chunks.
 - [x] Added a typed `/api/v1/districts/{slug}/trends/health-capacity` route with JSON/PostgreSQL parity coverage.
+- [x] Passed the Phase 3 Alembic upgrade, idempotent seed, pgvector, trace, comparison, and health-capacity parity tests against local PostgreSQL.
 
 ## Next milestone
 

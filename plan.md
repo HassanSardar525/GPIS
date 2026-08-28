@@ -120,6 +120,7 @@ LangChain and LangGraph are already implemented on the `feature/langgraph-rag-ag
 
 ### 3.6 — Verification and acceptance
 
+- [x] Run the Phase 3 migration, idempotent seed, pgvector round trip, and health-capacity JSON/PostgreSQL parity tests locally.
 - [ ] Spot-check every imported metric against the official source table for all ten districts and both accepted periods.
 - [ ] Test formulas, coverage/confidence rules, missing-data behavior, version selection, source validation, and trend compatibility.
 - [ ] Prove JSON/PostgreSQL parity for observations, scores, rankings, warnings, comparisons, and citations after migration and reseeding.
