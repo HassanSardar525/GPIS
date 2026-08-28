@@ -35,6 +35,20 @@ FORMULAS = {
     },
 }
 
+SCORE_PERIODS = {
+    "education": "Census 2023",
+    "health": "Census 2023 population and Audit Year 2024-25 facility listing",
+    "accountability": "FY 2023-24",
+    "overall": "Mixed: Census 2023, FY 2023-24, and Audit Year 2024-25",
+}
+
+SCORE_WARNINGS = {
+    "education": [],
+    "health": ["prototype-v1 health is a relative facility-count proxy, not a quality or outcome score"],
+    "accountability": ["prototype-v1 accountability measures budget utilization, not integrity or impact"],
+    "overall": ["prototype-v1 combines indicators with different reporting periods and provisional proxies"],
+}
+
 
 def _upsert(session, model, values: dict, keys: list[str]) -> None:
     statement = insert(model).values(**values)
@@ -94,6 +108,15 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                         "period": period,
                         "source_id": source_id,
                         "locator": evidence["locator"],
+                        "definition_version": "prototype-v1",
+                        "geography_level": "district",
+                        "population_basis": (
+                            "Census 2023 district population"
+                            if category in {"context", "health"}
+                            else None
+                        ),
+                        "comparability_group": None,
+                        "quality_flags": [],
                     },
                     ["district_id", "metric_key", "period"],
                 )
@@ -114,6 +137,11 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                             "period": period,
                             "source_id": temporal_evidence["source_id"],
                             "locator": temporal_evidence["locator"],
+                            "definition_version": "agp-development-utilization-v1",
+                            "geography_level": "district",
+                            "population_basis": None,
+                            "comparability_group": "agp-development-utilization-fy-v1",
+                            "quality_flags": [],
                         },
                         ["district_id", "metric_key", "period"],
                     )
@@ -197,6 +225,10 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                         "score": score,
                         "components": components[category],
                         "coverage": 1,
+                        "reporting_period": SCORE_PERIODS[category],
+                        "confidence": None,
+                        "missing_components": [],
+                        "warnings": SCORE_WARNINGS[category],
                         "calculated_at": now,
                     },
                     ["district_id", "version", "category"],

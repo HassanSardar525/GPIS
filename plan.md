@@ -70,24 +70,25 @@ LangChain and LangGraph are already implemented on the `feature/langgraph-rag-ag
 
 ## Phase 3 — Improve evidence quality
 
-**Status:** Planned on 2026-08-27; source acquisition and qualification are the first implementation gate.
+**Status:** In progress since 2026-08-27; the first reviewed two-period health-capacity contract is implemented.
 
 ### 3.1 — Qualify and register comparable sources
 
-- [ ] Acquire and checksum Punjab Health Statistics 2023 and 2024 from the official Bureau of Statistics Punjab publication flow.
-- [ ] Verify district geography, metric definitions, units, reporting periods, and table locators before accepting any two-period series.
-- [ ] Produce a metric-level compatibility matrix for facilities, beds, staffing, service activity, and outcomes; reject or label series whose definitions changed.
+- [x] Acquire and checksum Punjab Health Statistics 2023 and 2024 from the official Bureau of Statistics Punjab publication flow.
+- [x] Verify district geography, metric definitions, units, reporting periods, and table locators before accepting any two-period series.
+- [x] Produce a metric-level compatibility matrix for facilities, beds, staffing, service activity, and outcomes; reject or label series whose definitions changed.
 - [ ] Evaluate Punjab Education Statistics or an earlier PBS source for a second education period without treating non-equivalent survey editions as a trend.
 - [ ] Confirm audit scope and expenditure denominators before using finding counts, categories, or questioned amounts in accountability scoring.
-- [ ] Register every accepted source with publisher, title, period, official URL, local file, SHA-256 checksum, and page/table locator.
+- [x] Register every accepted source with publisher, title, period, official URL, local file, SHA-256 checksum, and page/table locator.
 
 ### 3.2 — Extend the evidence and score contracts
 
-- [ ] Add explicit observation comparability metadata, including definition/version, geography level, population basis, and comparability group.
+- [x] Add explicit observation comparability metadata, including definition/version, geography level, population basis, and comparability group.
 - [ ] Add score reporting period, confidence, missing-component warnings, and meaningful calculated coverage to the JSON and PostgreSQL contracts.
 - [ ] Define coverage as available eligible component weight divided by expected component weight; never infer coverage from a stored score or convert missing observations to zero.
 - [ ] Define confidence from documented evidence properties such as source authority, directness, recency, and cross-period comparability—not from model probability.
-- [ ] Add an Alembic migration and idempotent seed path that preserves all `prototype-v1` definitions and results while adding the new version.
+- [x] Add an Alembic migration and idempotent seed metadata that preserves all `prototype-v1` definitions and results.
+- [ ] Add the new score version only after its formula, coverage threshold, and confidence rules pass review.
 - [ ] Expose the same metadata through district, ranking, comparison, score-explanation, and chat responses on both repository backends.
 
 ### 3.3 — Normalize reviewed observations

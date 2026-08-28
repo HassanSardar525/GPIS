@@ -54,6 +54,11 @@ class Observation(Base):
     period: Mapped[str] = mapped_column(String(100), index=True)
     source_id: Mapped[str] = mapped_column(ForeignKey("sources.id"))
     locator: Mapped[str] = mapped_column(Text)
+    definition_version: Mapped[str] = mapped_column(String(80), default="prototype-v1")
+    geography_level: Mapped[str] = mapped_column(String(40), default="district")
+    population_basis: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    comparability_group: Mapped[str | None] = mapped_column(String(120), index=True, nullable=True)
+    quality_flags: Mapped[list] = mapped_column(JSONB, default=list)
     district: Mapped[District] = relationship(back_populates="observations")
     source: Mapped[Source] = relationship()
 
@@ -105,6 +110,10 @@ class ScoreResult(Base):
     score: Mapped[Decimal] = mapped_column(Numeric(6, 2))
     components: Mapped[dict] = mapped_column(JSONB)
     coverage: Mapped[Decimal] = mapped_column(Numeric(5, 4))
+    reporting_period: Mapped[str] = mapped_column(String(160), default="mixed-current-period")
+    confidence: Mapped[Decimal | None] = mapped_column(Numeric(5, 4), nullable=True)
+    missing_components: Mapped[list] = mapped_column(JSONB, default=list)
+    warnings: Mapped[list] = mapped_column(JSONB, default=list)
     calculated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     district: Mapped[District] = relationship()
 

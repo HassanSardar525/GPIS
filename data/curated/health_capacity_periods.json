@@ -1,0 +1,477 @@
+{
+  "version": "phs-table-3-review-v1",
+  "sources": {
+    "punjab_health_statistics_2023": {
+      "publisher": "Bureau of Statistics, Planning & Development Board, Government of the Punjab",
+      "title": "Punjab Health Statistics 2023",
+      "edition": 2023,
+      "snapshot_date": "2023-01-01",
+      "period_label": "As on 01-01-2023",
+      "official_url": "https://bos.punjab.gov.pk/system/files/PHS2023.pdf",
+      "acquisition_url": "https://opendata.com.pk/dataset/ec61d652-5c1e-43c6-8ac2-33872085df3f/resource/9c70debb-100b-41e1-8e05-7bded9b5686e/download/punjab-health-statistics.rar",
+      "local_file": "data/raw/punjab_health_statistics_2023.pdf",
+      "sha256": "8c7c99b08bd0adfafc3afd324e1551797cbfc6ecd78dd920f7cf177db03aa6e8",
+      "retrieval_date": "2026-08-27",
+      "verification": [
+        "The cover identifies the Bureau of Statistics, Planning & Development Board, Government of the Punjab.",
+        "The mirror file length matches the official file Content-Length of 24791134 bytes.",
+        "The first 2899968 bytes downloaded from the official URL match the mirror file byte-for-byte; the government server timed out before the full verification copy completed."
+      ]
+    },
+    "punjab_health_statistics_2024": {
+      "publisher": "Bureau of Statistics, Planning & Development Board, Government of the Punjab",
+      "title": "Punjab Health Statistics 2024",
+      "edition": 2024,
+      "snapshot_date": "2023-12-31",
+      "period_label": "Upto 31-12-2023",
+      "official_url": "https://bos.punjab.gov.pk/sites/bos.punjab.gov.pk/files/PHS2024.pdf",
+      "acquisition_url": "https://bos.punjab.gov.pk/sites/bos.punjab.gov.pk/files/PHS2024.pdf",
+      "local_file": "data/raw/punjab_health_statistics_2024.pdf",
+      "sha256": "d8bee7c31bf48c35371f6a389ddaa7f527fca3f9b6a19ddfd034fd5abf370d32",
+      "retrieval_date": "2026-08-27",
+      "verification": [
+        "Downloaded directly from the official Bureau of Statistics file path.",
+        "The official and mirror copies are byte-identical and have the same SHA-256 checksum."
+      ]
+    }
+  },
+  "comparability": {
+    "group": "phs-table-3-public-capacity-v1",
+    "status": "comparable_with_limitations",
+    "table_title": "Health Institutions by Division, District & Tehsil, The Punjab",
+    "geography_level": "district",
+    "unit": "count",
+    "confirmed_dimensions": [
+      "The two Table 3 editions use the same district and tehsil geography for the ten pilot districts.",
+      "The two tables use the same eight facility categories and separate institution and bed columns.",
+      "The two tables cite the same six contributing government agencies.",
+      "The snapshots are explicitly dated 01-01-2023 and 31-12-2023."
+    ],
+    "symbol_policy": "A printed dash is preserved as null because the source defines it as nil or insignificant; it is never silently converted to numeric zero.",
+    "metric_assessments": {
+      "facility_counts": {
+        "status": "accepted",
+        "reason": "District rows, categories, units, contributing agencies, and snapshot dates match across both Table 3 editions."
+      },
+      "facility_beds": {
+        "status": "accepted_with_limitations",
+        "reason": "The bed columns are structurally comparable, but source anomalies are retained and warned about instead of corrected."
+      },
+      "registered_personnel": {
+        "status": "excluded",
+        "reason": "Tables 5 and 6 report Punjab-wide registered personnel rather than district rows, so they cannot support district scoring."
+      },
+      "patient_activity": {
+        "status": "pending_review",
+        "reason": "Both editions contain district patient tables, but the 2023 period label is not a clear annual interval and must be resolved before temporal use."
+      },
+      "health_outcomes": {
+        "status": "excluded",
+        "reason": "The editions do not provide a general, comparable district outcome series suitable for the health score."
+      }
+    },
+    "limitations": [
+      "These values measure reported public-service capacity, not accessibility, quality, health outcomes, or causal government performance.",
+      "The 2023 explanatory note appears to contain a stale reference to Punjab Health Statistics 2021; acceptance relies on the specific Table 3 title, dates, columns, and sources.",
+      "The publication symbol '-' is defined as nil or insignificant and is represented as null.",
+      "Counts can change because of reporting or administrative revisions as well as real capacity changes.",
+      "The 2023 full file was recovered from a secondary mirror after the official site stopped listing the edition; its official URL, size, prefix bytes, cover, and table content were independently verified."
+    ]
+  },
+  "districts": [
+    {
+      "slug": "bahawalpur",
+      "name": "Bahawalpur",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, Bahawalpur District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 12, "beds": 2467},
+            "dispensaries": {"count": 70, "beds": 4},
+            "rhcs": {"count": 13, "beds": 240},
+            "bhus": {"count": 77, "beds": 150},
+            "tb_clinics": {"count": 1, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 10, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, Bahawalpur District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 12, "beds": 2467},
+            "dispensaries": {"count": 70, "beds": 4},
+            "rhcs": {"count": 13, "beds": 240},
+            "bhus": {"count": 78, "beds": 150},
+            "tb_clinics": {"count": 2, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 10, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "rahim-yar-khan",
+      "name": "Rahim Yar Khan",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, R.Y.Khan District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 6, "beds": 1193},
+            "dispensaries": {"count": 65, "beds": null},
+            "rhcs": {"count": 22, "beds": 376},
+            "bhus": {"count": 107, "beds": 206},
+            "tb_clinics": {"count": 2, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 7, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, R.Y.Khan District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 6, "beds": 1343},
+            "dispensaries": {"count": 65, "beds": null},
+            "rhcs": {"count": 20, "beds": 380},
+            "bhus": {"count": 109, "beds": 212},
+            "tb_clinics": {"count": 2, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 8, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "dera-ghazi-khan",
+      "name": "Dera Ghazi Khan",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, D.G.Khan District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 7, "beds": 1206},
+            "dispensaries": {"count": 23, "beds": null},
+            "rhcs": {"count": 10, "beds": 180},
+            "bhus": {"count": 55, "beds": 106},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 5, "beds": null},
+            "trauma_centers": {"count": 2, "beds": 65}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, D.G.Khan District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 7, "beds": 1171},
+            "dispensaries": {"count": 23, "beds": 2},
+            "rhcs": {"count": 10, "beds": 180},
+            "bhus": {"count": 55, "beds": 106},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 5, "beds": null},
+            "trauma_centers": {"count": 2, "beds": 60}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "layyah",
+      "name": "Layyah",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, Layyah District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 8, "beds": 632},
+            "dispensaries": {"count": 34, "beds": null},
+            "rhcs": {"count": 6, "beds": 120},
+            "bhus": {"count": 36, "beds": 72},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": 13, "beds": null},
+            "mch_centers": {"count": 2, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, Layyah District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 8, "beds": 777},
+            "dispensaries": {"count": 34, "beds": null},
+            "rhcs": {"count": 6, "beds": 120},
+            "bhus": {"count": 36, "beds": 72},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": 13, "beds": null},
+            "mch_centers": {"count": 2, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "muzaffargarh",
+      "name": "Muzaffargarh",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, Muzaffargarh District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 6, "beds": 696},
+            "dispensaries": {"count": 45, "beds": null},
+            "rhcs": {"count": 14, "beds": 260},
+            "bhus": {"count": 76, "beds": 132},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 4, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, Muzaffargarh District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 6, "beds": 695},
+            "dispensaries": {"count": 43, "beds": null},
+            "rhcs": {"count": 14, "beds": 260},
+            "bhus": {"count": 76, "beds": 144},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 5, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "rajanpur",
+      "name": "Rajanpur",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, Rajanpur District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 5, "beds": 448},
+            "dispensaries": {"count": 13, "beds": null},
+            "rhcs": {"count": 7, "beds": 145},
+            "bhus": {"count": 32, "beds": 64},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 1, "beds": 4},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, Rajanpur District row, printed page 4",
+          "pdf_page": 19,
+          "facilities": {
+            "hospitals": {"count": 5, "beds": 450},
+            "dispensaries": {"count": 14, "beds": null},
+            "rhcs": {"count": 7, "beds": 140},
+            "bhus": {"count": 32, "beds": 64},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": null, "beds": 4},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "khanewal",
+      "name": "Khanewal",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, Khanewal District row, printed page 6",
+          "pdf_page": 21,
+          "facilities": {
+            "hospitals": {"count": 7, "beds": 473},
+            "dispensaries": {"count": 11, "beds": null},
+            "rhcs": {"count": 10, "beds": 180},
+            "bhus": {"count": 81, "beds": 162},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 4, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, Khanewal District row, printed page 6",
+          "pdf_page": 21,
+          "facilities": {
+            "hospitals": {"count": 7, "beds": 470},
+            "dispensaries": {"count": 9, "beds": null},
+            "rhcs": {"count": 9, "beds": 180},
+            "bhus": {"count": 81, "beds": 162},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 4, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "lodhran",
+      "name": "Lodhran",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, Lodhran District row, printed page 7",
+          "pdf_page": 22,
+          "facilities": {
+            "hospitals": {"count": 5, "beds": 343},
+            "dispensaries": {"count": 17, "beds": 12},
+            "rhcs": {"count": 5, "beds": 80},
+            "bhus": {"count": 48, "beds": 96},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 1, "beds": 2},
+            "trauma_centers": {"count": 1, "beds": 10}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, Lodhran District row, printed page 7",
+          "pdf_page": 22,
+          "facilities": {
+            "hospitals": {"count": 5, "beds": 408},
+            "dispensaries": {"count": 15, "beds": 12},
+            "rhcs": {"count": 5, "beds": 100},
+            "bhus": {"count": 48, "beds": 96},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 1, "beds": 2},
+            "trauma_centers": {"count": 1, "beds": 10}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "multan",
+      "name": "Multan",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, Multan District row, printed page 7",
+          "pdf_page": 22,
+          "facilities": {
+            "hospitals": {"count": 22, "beds": 2905},
+            "dispensaries": {"count": 47, "beds": null},
+            "rhcs": {"count": 8, "beds": 160},
+            "bhus": {"count": 84, "beds": 164},
+            "tb_clinics": {"count": 2, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 20, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, Multan District row, printed page 7",
+          "pdf_page": 22,
+          "facilities": {
+            "hospitals": {"count": 20, "beds": 4375},
+            "dispensaries": {"count": 47, "beds": null},
+            "rhcs": {"count": 11, "beds": 200},
+            "bhus": {"count": 84, "beds": 164},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 20, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        }
+      ]
+    },
+    {
+      "slug": "vehari",
+      "name": "Vehari",
+      "periods": [
+        {
+          "source_id": "punjab_health_statistics_2023",
+          "snapshot_date": "2023-01-01",
+          "locator": "Table 3, Vehari District row, printed page 7",
+          "pdf_page": 22,
+          "facilities": {
+            "hospitals": {"count": 4, "beds": 613},
+            "dispensaries": {"count": 37, "beds": null},
+            "rhcs": {"count": 14, "beds": 280},
+            "bhus": {"count": 75, "beds": 148},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 8, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        },
+        {
+          "source_id": "punjab_health_statistics_2024",
+          "snapshot_date": "2023-12-31",
+          "locator": "Table 3, Vehari District row, printed page 7",
+          "pdf_page": 22,
+          "facilities": {
+            "hospitals": {"count": 4, "beds": 612},
+            "dispensaries": {"count": 38, "beds": null},
+            "rhcs": {"count": 14, "beds": 280},
+            "bhus": {"count": 81, "beds": 160},
+            "tb_clinics": {"count": null, "beds": null},
+            "sh_centers": {"count": null, "beds": null},
+            "mch_centers": {"count": 8, "beds": null},
+            "trauma_centers": {"count": null, "beds": null}
+          }
+        }
+      ]
+    }
+  ],
+  "anomalies": [
+    {
+      "district_slug": "rajanpur",
+      "snapshot_date": "2023-12-31",
+      "metric": "mch_centers.beds",
+      "note": "The source prints four MCH beds but a dash for the MCH institution count; both cells are preserved exactly and the count is not inferred."
+    },
+    {
+      "district_slug": "dera-ghazi-khan",
+      "snapshot_date": "2023-01-01",
+      "metric": "dispensaries.beds",
+      "note": "The 2023 source prints a dash for dispensary beds while the 2024 source prints two; the earlier dash remains null rather than zero."
+    }
+  ]
+}

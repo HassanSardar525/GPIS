@@ -36,6 +36,24 @@ def test_provenance_is_complete_after_seed():
         assert session.scalar(select(func.count()).select_from(Observation).where(Observation.source_id.is_(None))) == 0
         assert session.scalar(select(func.count()).select_from(EvidenceChunk).where(EvidenceChunk.locator == "")) == 0
         assert session.scalar(select(func.count()).select_from(ScoreResult).where(ScoreResult.coverage < 1)) == 0
+        assert session.scalar(
+            select(func.count()).select_from(Observation).where(Observation.definition_version == "")
+        ) == 0
+        assert session.scalar(
+            select(func.count()).select_from(Observation).where(Observation.geography_level != "district")
+        ) == 0
+        assert session.scalar(
+            select(func.count()).select_from(ScoreResult).where(ScoreResult.reporting_period == "")
+        ) == 0
+        health_score = session.scalar(
+            select(ScoreResult).where(
+                ScoreResult.version == "prototype-v1",
+                ScoreResult.category == "health",
+            )
+        )
+        assert health_score.confidence is None
+        assert health_score.missing_components == []
+        assert "relative facility-count proxy" in health_score.warnings[0]
 
 
 def test_pgvector_round_trip_and_embedding_seed_are_idempotent():

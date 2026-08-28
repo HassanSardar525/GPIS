@@ -13,6 +13,14 @@ Each district record contains raw metrics, evidence passages, and source metadat
 
 Missing values must remain missing. They must never be converted to zero.
 
+## Evidence-quality metadata
+
+Reviewed observations can now record a definition version, geography level, population basis, comparability group, and quality flags. Score results can record a reporting period, coverage, confidence, missing components, and warnings.
+
+These fields are additive for `prototype-v1`: its numeric scores and golden fixtures remain unchanged. Current `prototype-v1` coverage is 1.0 because every component required by that version is present, but this does not mean the proxy is comprehensive or high-confidence. Confidence remains null until a documented evidence-quality rule is approved; the application must not invent a probability.
+
+The reviewed Punjab Health Statistics Table 3 contract is stored separately in `data/curated/health_capacity_periods.json` until its observations, coverage behavior, and new score version pass JSON/PostgreSQL parity tests.
+
 ## Education score
 
 Current components:

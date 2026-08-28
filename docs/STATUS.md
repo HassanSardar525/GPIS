@@ -4,7 +4,7 @@
 
 **Current milestone:** Phase 3 evidence quality
 
-**State:** Planned; official source acquisition and qualification are next
+**State:** In progress; the first reviewed two-period health-capacity evidence contract is implemented
 
 The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 
@@ -40,14 +40,20 @@ The active expansion is tracked in [RAG_ROADMAP.md](RAG_ROADMAP.md).
 - [x] Added numeric/district association and causal-language validation with grounded fallback.
 - [x] Added structured comparison responses and an inline responsive chat renderer.
 - [x] Expanded comparison coverage across unit, agent, API, UI, and PostgreSQL parity tests.
+- [x] Acquired and verified Punjab Health Statistics 2023/2024 with stable hashes and official source paths.
+- [x] Curated two comparable Table 3 health-capacity snapshots for all ten pilot districts with exact page/table locators.
+- [x] Added a typed evidence-quality contract that preserves printed dashes as null and exposes reviewed source anomalies.
+- [x] Classified district staffing and outcomes as unsupported and patient activity as pending review rather than forcing them into scoring.
+- [x] Added an additive Alembic migration for observation comparability and score reporting-period, confidence, missing-component, and warning metadata.
+- [x] Kept `prototype-v1` scores unchanged while seeding explicit periods and proxy warnings; confidence remains unassessed rather than fabricated.
 
 ## Next milestone
 
-Acquire and qualify the official 2023/2024 Punjab health editions, then record a metric-level compatibility matrix before changing the schema or scoring methodology. Phase 2 comparison parity and the 12-scenario live-agent evaluation against PostgreSQL remain a deployment prerequisite.
+Normalize the reviewed health-capacity snapshots into repository observations and expose score reporting period, coverage, confidence, and warnings consistently through JSON and PostgreSQL responses. Phase 2 comparison parity and the 12-scenario live-agent evaluation against PostgreSQL remain a deployment prerequisite.
 
 ## Known limitations
 
-- Ten districts are covered; only development-budget utilization has two comparable periods.
+- Ten districts are covered; development-budget utilization and reviewed public health-capacity counts now have two comparable periods, but only the former is exposed through the application.
 - Health and accountability are provisional proxies.
 - Raw source acquisition is manual.
 - Groq remains optional; the extractive fallback keeps the application functional without it.

@@ -11,7 +11,7 @@ Items are ordered by current priority. Move an item into `STATUS.md` when active
 
 ## P1 - Improve evidence and scoring
 
-- [ ] Acquire Punjab Health Statistics for staffing, beds, and activity indicators.
+- [x] Acquire Punjab Health Statistics and qualify district-level beds, staffing, and activity coverage.
 - [ ] Add a second comparable period where definitions match.
 - [ ] Replace the health proxy with a multi-component capacity/outcome score.
 - [ ] Expand accountability beyond utilization using carefully normalized audit indicators.

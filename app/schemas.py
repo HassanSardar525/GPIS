@@ -67,6 +67,10 @@ class ScoreResult(BaseModel):
     version: str
     components: dict[str, float]
     coverage: float = Field(ge=0, le=1)
+    reporting_period: str = "mixed-current-period"
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    missing_components: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
     calculated_at: str | None = None
 
 

@@ -23,6 +23,12 @@ percentage-point change = current utilization - previous utilization
 
 This first trend is narrower than the accountability composite. It must be labelled **development-budget utilization**, not overall development, impact, corruption, or politician performance.
 
+Punjab Health Statistics 2023 Table 3 (snapshot 01-01-2023) and Punjab Health Statistics 2024 Table 3 (snapshot 31-12-2023) use the same district/tehsil layout, eight facility categories, institution/bed columns, and six contributing agencies. The reviewed contract in `data/curated/health_capacity_periods.json` records both snapshots for all ten pilot districts.
+
+This series supports changes in reported public health-facility and bed capacity only. Printed dashes remain null because the publication defines them as "nil or insignificant." Source anomalies are preserved with warnings rather than corrected or inferred.
+
+The editions do not provide comparable district staffing or general health-outcome series suitable for scoring. District patient-activity tables remain pending because the earlier edition does not state a sufficiently clear annual interval for a temporal comparison.
+
 ## Unsupported temporal claims
 
-The current source set does not contain comparable two-period inputs for literacy, health-facility availability, the full accountability composite, or the overall GPIS score. Those changes must remain unavailable until equivalent official sources are added.
+The current source set does not contain comparable two-period inputs for literacy, district staffing, general health outcomes, the full accountability composite, or the overall GPIS score. Those changes must remain unavailable until equivalent official sources are added. The reviewed health-capacity series is not yet part of an active score version.
