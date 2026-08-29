@@ -216,6 +216,41 @@ def health_capacity_change(
     }
 
 
+def health_capacity_rates(
+    dataset: HealthCapacityDataset,
+    population_by_slug: dict[str, int],
+    population_period: str = "Census 2023",
+) -> list[dict]:
+    """Normalize reviewed count observations per 100,000 with explicit denominators."""
+    normalized = []
+    for district in dataset.districts:
+        population = population_by_slug.get(district.slug)
+        if not population or population <= 0:
+            raise ValueError(f"Missing positive population denominator for {district.slug}")
+        for period in district.periods:
+            for facility, observation in period.facilities.items():
+                for measure in ("count", "beds"):
+                    value = getattr(observation, measure)
+                    normalized.append(
+                        {
+                            "district_slug": district.slug,
+                            "facility": facility,
+                            "measure": measure,
+                            "period": period.snapshot_date.isoformat(),
+                            "value": value,
+                            "value_per_100k": (
+                                None if value is None else round(value / population * 100_000, 6)
+                            ),
+                            "population_denominator": population,
+                            "population_period": population_period,
+                            "source_id": period.source_id,
+                            "locator": period.locator,
+                            "comparability_group": dataset.comparability.group,
+                        }
+                    )
+    return normalized
+
+
 def format_health_capacity_period(
     district_name: str,
     period: HealthCapacityPeriod,

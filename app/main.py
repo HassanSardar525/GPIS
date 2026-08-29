@@ -39,7 +39,7 @@ def build_repository(settings: Settings) -> GPISRepository:
         from app.database.repository import PostgresRepository
 
         return PostgresRepository(settings.database_url, settings.score_version)
-    return JsonRepository(settings.curated_data_path)
+    return JsonRepository(settings.curated_data_path, settings.score_version)
 
 
 def build_chat_service(

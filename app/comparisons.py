@@ -93,6 +93,7 @@ def build_comparison(repository, district_slugs: list[str], category: RankingCat
             name=record["name"],
             score=float(record["derived"]["scores"][category]),
             rank=int(record["rankings"][category]["rank"]),
+            score_detail=record["score_details"][category],
         )
         for record in records
     ]
@@ -119,6 +120,8 @@ def build_comparison(repository, district_slugs: list[str], category: RankingCat
     limitations = [
         "The comparison describes available district indicators and does not establish causation by any person."
     ]
+    for district in districts:
+        limitations.extend(district.score_detail.warnings)
     if category == "accountability":
         for slug in selected:
             try:
@@ -164,6 +167,11 @@ def format_comparison_summary(comparison: ComparisonResult) -> str:
         f"For {comparison.category}, {left.name} scores {left.score:.1f} at rank {left.rank}, while "
         f"{right.name} scores {right.score:.1f} at rank {right.rank}; {score_statement}. {score_markers}"
     ).strip()
+    answer += (
+        f" Both results use {left.score_detail.version}; {left.name} covers "
+        f"{left.score_detail.coverage:.0%} of expected components and {right.name} covers "
+        f"{right.score_detail.coverage:.0%}."
+    )
     if comparison.trends:
         trend_parts = []
         for trend in comparison.trends:

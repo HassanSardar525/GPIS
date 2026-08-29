@@ -1,0 +1,47 @@
+{
+  "version": "evidence-v2-gate-v1",
+  "candidate_score_version": "evidence-v2",
+  "minimum_coverage": 0.75,
+  "decisions": [
+    {
+      "id": "education-second-period",
+      "domain": "education",
+      "status": "not_qualified",
+      "required_for_activation": true,
+      "decision": "The curated evidence contains Census 2023 district literacy only. No acquired Punjab Education Statistics or earlier PBS edition has verified equivalent indicators, district geography, units, and methodology, so no education trend is created.",
+      "warning": "evidence-v2 education trend is unavailable because a comparable second education period has not been qualified"
+    },
+    {
+      "id": "health-capacity",
+      "domain": "health",
+      "status": "qualified_with_limitations",
+      "required_for_activation": true,
+      "decision": "Punjab Health Statistics 2023 and 2024 Table 3 facility and bed counts are accepted for the reviewed district capacity comparability group with preserved source anomalies.",
+      "warning": "health capacity does not measure service activity, accessibility, quality, or outcomes"
+    },
+    {
+      "id": "health-activity",
+      "domain": "health",
+      "status": "not_qualified",
+      "required_for_activation": true,
+      "decision": "District patient tables exist, but the earlier edition's interval has not been resolved sufficiently for comparable annual activity scoring.",
+      "warning": "evidence-v2 health activity is excluded until its reporting interval and denominator are verified"
+    },
+    {
+      "id": "health-outcomes",
+      "domain": "health",
+      "status": "not_qualified",
+      "required_for_activation": true,
+      "decision": "The reviewed editions do not contain a general district outcome series with stable definitions for the pilot cohort.",
+      "warning": "evidence-v2 health outcomes are unavailable from the reviewed sources"
+    },
+    {
+      "id": "audit-denominator",
+      "domain": "accountability",
+      "status": "not_qualified",
+      "required_for_activation": true,
+      "decision": "The audit report supports budget utilization and formation-scope facts, but finding counts and questioned amounts do not have one verified district expenditure denominator matching their scope.",
+      "warning": "audit findings remain evidence outside the score because an exact comparable expenditure denominator is unavailable"
+    }
+  ]
+}

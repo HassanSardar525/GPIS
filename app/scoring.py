@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from app.errors import MissingScoreInputs
+from app.score_quality import deterministic_calculated_at, prototype_score_details
 
 
 HEALTH_FIELDS = (
@@ -68,7 +69,7 @@ def accountability_score(district: dict) -> float:
     return _round((overall_utilization + development_utilization) / 2)
 
 
-def score_districts(districts: list[dict]) -> list[dict]:
+def score_districts(districts: list[dict], generated_on: str = "2026-08-20") -> list[dict]:
     """Return enriched districts; health is min-max relative to this cohort."""
     if not districts:
         return []
@@ -87,6 +88,32 @@ def score_districts(districts: list[dict]) -> list[dict]:
             "accountability": accountability_score(district),
         }
         scores["overall"] = _round(sum(scores.values()) / len(scores))
+        components = {
+            "education": {
+                "literacy_total_pct": district["education"]["literacy_total_pct"],
+                "literacy_female_pct": district["education"]["literacy_female_pct"],
+                "gender_parity": 100 - abs(
+                    district["education"]["literacy_male_pct"]
+                    - district["education"]["literacy_female_pct"]
+                ),
+            },
+            "health": {
+                "facility_count": facility_count(district),
+                "facilities_per_100k": round(rate, 2),
+                "cohort_min": round(low, 2),
+                "cohort_max": round(high, 2),
+            },
+            "accountability": {
+                "overall_budget_utilization_pct": 100
+                - district["accountability"]["overall_budget_lapse_pct"],
+                "development_budget_utilization_pct": 100
+                - district["accountability"]["development_budget_lapse_pct"],
+            },
+            "overall": {name: scores[name] for name in ("education", "health", "accountability")},
+        }
+        score_details = prototype_score_details(
+            scores, components, deterministic_calculated_at(generated_on)
+        )
         enriched.append(
             {
                 **district,
@@ -94,6 +121,7 @@ def score_districts(districts: list[dict]) -> list[dict]:
                     "facility_count": facility_count(district),
                     "facilities_per_100k": round(rate, 2),
                     "scores": scores,
+                    "score_details": score_details,
                 },
             }
         )
@@ -114,6 +142,7 @@ def rankings(districts: list[dict], category: str) -> list[dict]:
             "slug": district["slug"],
             "name": district["name"],
             "score": district["derived"]["scores"][category],
+            "score_detail": district["derived"]["score_details"][category],
         }
         for rank, district in enumerate(ordered, start=1)
     ]

@@ -79,6 +79,7 @@ class ScoreResult(BaseModel):
     coverage: float = Field(ge=0, le=1)
     reporting_period: str = "mixed-current-period"
     confidence: float | None = Field(default=None, ge=0, le=1)
+    confidence_factors: dict[str, float] = Field(default_factory=dict)
     missing_components: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     calculated_at: str | None = None
@@ -89,12 +90,14 @@ class RankingEntry(BaseModel):
     slug: str
     name: str
     score: float = Field(ge=0, le=100)
+    score_detail: ScoreResult
 
 
 class DistrictSummary(BaseModel):
     slug: str
     name: str
     scores: ScoreSet
+    score_details: dict[RankingCategory, ScoreResult]
 
 
 class DistrictListResponse(BaseModel):
@@ -112,6 +115,7 @@ class DistrictDetail(BaseModel):
     health: dict[str, float | int]
     accountability: dict[str, float | int]
     derived: dict[str, Any]
+    score_details: dict[RankingCategory, ScoreResult]
     evidence: list[dict[str, Any]]
     rankings: dict[RankingCategory, RankingEntry]
     sources: dict[str, dict[str, Any]]
@@ -165,6 +169,7 @@ class ComparisonDistrict(BaseModel):
     name: str
     score: float = Field(ge=0, le=100)
     rank: int = Field(ge=1)
+    score_detail: ScoreResult
 
 
 class ComparisonComponent(BaseModel):

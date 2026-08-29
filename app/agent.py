@@ -179,6 +179,7 @@ def build_agent_tools(
                 "name": item["name"],
                 "population_2023": item["population_2023"],
                 "scores": item["derived"]["scores"],
+                "score_details": item["score_details"],
                 "rankings": item["rankings"],
             }
             for item in records
@@ -372,7 +373,7 @@ class AgentChatService:
                     }.values()
                 )
             route = self._route(request.question, tools_used)
-            warnings = ChatService._standard_warnings(route, request.question)
+            warnings = self.fallback._response_warnings(request, route, comparison)
             response = ChatResponse(
                 answer=answer,
                 mode=AnswerMode.GROQ,

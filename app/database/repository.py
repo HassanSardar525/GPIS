@@ -15,6 +15,7 @@ from app.facts import format_fact, requested_metrics
 from app.schemas import Citation, RetrievedEvidence
 from app.score_explanations import format_score_explanation, requested_score_category
 from app.temporal import development_budget_trend
+from app.score_quality import PROTOTYPE_VERSION
 
 
 RANKING_CATEGORIES = {"overall", "education", "health", "accountability"}
@@ -25,10 +26,32 @@ CURRENT_METRICS = {
 }
 
 
+def _score_detail(row: ScoreResult) -> dict:
+    return {
+        "category": row.category,
+        "score": float(row.score),
+        "version": row.version,
+        "components": {key: float(value) for key, value in row.components.items()},
+        "coverage": float(row.coverage),
+        "reporting_period": row.reporting_period,
+        "confidence": float(row.confidence) if row.confidence is not None else None,
+        "confidence_factors": {
+            key: float(value) for key, value in (row.confidence_factors or {}).items()
+        },
+        "missing_components": list(row.missing_components or []),
+        "warnings": list(row.warnings or []),
+        "calculated_at": row.calculated_at.isoformat() if row.calculated_at else None,
+    }
+
+
 class PostgresRepository:
     name = "postgres"
 
     def __init__(self, database_url: str, score_version: str):
+        if score_version != PROTOTYPE_VERSION:
+            raise ValueError(
+                f"Score version '{score_version}' is not active; evidence-v2 remains staged"
+            )
         self.database_url = database_url
         self.score_version = score_version
         self.sessions = session_factory(database_url)
@@ -46,21 +69,29 @@ class PostgresRepository:
             rows = session.scalars(select(DatasetMetadata)).all()
             return {row.key: row.value for row in rows}
 
-    def _scores(self, session) -> dict[int, dict[str, float]]:
+    def _scores(self, session) -> dict[int, dict[str, dict]]:
         rows = session.scalars(
             select(ScoreResult).where(ScoreResult.version == self.score_version)
         ).all()
-        scores: defaultdict[int, dict[str, float]] = defaultdict(dict)
+        scores: defaultdict[int, dict[str, dict]] = defaultdict(dict)
         for row in rows:
-            scores[row.district_id][row.category] = float(row.score)
+            scores[row.district_id][row.category] = _score_detail(row)
         return scores
 
     def list_districts(self) -> list[dict]:
         with self.sessions() as session:
             districts = session.scalars(select(District).order_by(District.name)).all()
-            scores = self._scores(session)
+            details = self._scores(session)
             return [
-                {"slug": district.slug, "name": district.name, "scores": scores[district.id]}
+                {
+                    "slug": district.slug,
+                    "name": district.name,
+                    "scores": {
+                        category: detail["score"]
+                        for category, detail in details[district.id].items()
+                    },
+                    "score_details": details[district.id],
+                }
                 for district in districts
             ]
 
@@ -69,14 +100,20 @@ class PostgresRepository:
             raise InvalidCategory(f"Unknown ranking category: {category}")
         with self.sessions() as session:
             rows = session.execute(
-                select(District.slug, District.name, ScoreResult.score)
+                select(District, ScoreResult)
                 .join(ScoreResult, ScoreResult.district_id == District.id)
                 .where(ScoreResult.version == self.score_version, ScoreResult.category == category)
                 .order_by(ScoreResult.score.desc(), District.name)
             ).all()
             return [
-                {"rank": rank, "slug": row.slug, "name": row.name, "score": float(row.score)}
-                for rank, row in enumerate(rows, start=1)
+                {
+                    "rank": rank,
+                    "slug": district.slug,
+                    "name": district.name,
+                    "score": float(score.score),
+                    "score_detail": _score_detail(score),
+                }
+                for rank, (district, score) in enumerate(rows, start=1)
             ]
 
     def development_trend(self, slug: str) -> dict:
@@ -259,6 +296,7 @@ class PostgresRepository:
                             score_category,
                             float(score.score),
                             {key: float(value) for key, value in score.components.items()},
+                            _score_detail(score),
                         ),
                         source_id=source.id,
                         locator=locator,
@@ -304,6 +342,7 @@ class PostgresRepository:
                     value = float(observation.value)
                     categories[observation.category][observation.metric_key] = int(value) if value.is_integer() else value
             scores = {row.category: float(row.score) for row in score_rows}
+            score_details = {row.category: _score_detail(row) for row in score_rows}
             sources = {
                 row.source.id: {
                     "publisher": row.source.publisher,
@@ -344,6 +383,7 @@ class PostgresRepository:
                 "population_2023": district.population_2023,
                 **categories,
                 "derived": derived,
+                "score_details": score_details,
                 "evidence": evidence,
                 "rankings": rankings,
                 "sources": sources,

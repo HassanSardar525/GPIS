@@ -62,7 +62,17 @@ def classify_question(question: str) -> QuestionRoute:
     domain_tokens = EVIDENCE_WORDS | METHODOLOGY | PROJECT | COMPARISON | TEMPORAL
     if tokens & CONVERSATION and not tokens & domain_tokens:
         return QuestionRoute.CONVERSATION
-    if tokens & TEMPORAL or "last year" in question.casefold() or "year over year" in question.casefold():
+    temporal = bool(
+        tokens & TEMPORAL
+        or "last year" in question.casefold()
+        or "year over year" in question.casefold()
+    )
+    unsupported_trend_domains = {
+        "children", "education", "female", "literacy", "male", "outcome", "outcomes", "school"
+    }
+    if temporal and tokens & unsupported_trend_domains:
+        return QuestionRoute.UNSUPPORTED
+    if temporal:
         return QuestionRoute.TEMPORAL_COMPARISON
     if tokens & COMPARISON:
         return QuestionRoute.COMPARISON

@@ -112,6 +112,7 @@ class ScoreResult(Base):
     coverage: Mapped[Decimal] = mapped_column(Numeric(5, 4))
     reporting_period: Mapped[str] = mapped_column(String(160), default="mixed-current-period")
     confidence: Mapped[Decimal | None] = mapped_column(Numeric(5, 4), nullable=True)
+    confidence_factors: Mapped[dict] = mapped_column(JSONB, default=dict)
     missing_components: Mapped[list] = mapped_column(JSONB, default=list)
     warnings: Mapped[list] = mapped_column(JSONB, default=list)
     calculated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

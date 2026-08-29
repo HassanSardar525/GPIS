@@ -37,3 +37,18 @@ def test_structured_comparison_renders_inside_existing_chat_panel():
     assert "comparison.trends" in script
     assert ".comparison-result" in styles
     assert ".comparison-table-wrap { overflow-x: auto; }" in styles
+
+
+def test_score_quality_metadata_is_rendered_and_escaped():
+    html = (ROOT / "app/static/index.html").read_text(encoding="utf-8")
+    script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
+    styles = (ROOT / "app/static/styles.css").read_text(encoding="utf-8")
+
+    assert 'id="overall-quality"' in html
+    assert "function renderScoreQuality(detail)" in script
+    assert "escapeHtml(detail.version)" in script
+    assert "escapeHtml(detail.reporting_period)" in script
+    assert "detail.warnings.map(item => `<li>${escapeHtml(item)}</li>`)" in script
+    assert "data.score_details.education" in script
+    assert "district.score_detail" in script
+    assert ".score-quality" in styles

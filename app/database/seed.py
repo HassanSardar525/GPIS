@@ -13,8 +13,9 @@ from sqlalchemy.orm import joinedload
 from app.database.models import DatasetMetadata, District, EvidenceChunk, Observation, ScoreDefinition, ScoreResult, Source
 from app.database.session import session_factory
 from app.embeddings import Embedder
-from app.evidence_quality import format_health_capacity_period, load_health_capacity
-from app.scoring import HEALTH_FIELDS, score_districts
+from app.evidence_quality import format_health_capacity_period, health_capacity_rates, load_health_capacity
+from app.score_quality import EVIDENCE_V2_FORMULAS, load_qualification_registry
+from app.scoring import score_districts
 
 
 FORMULAS = {
@@ -36,21 +37,6 @@ FORMULAS = {
     },
 }
 
-SCORE_PERIODS = {
-    "education": "Census 2023",
-    "health": "Census 2023 population and Audit Year 2024-25 facility listing",
-    "accountability": "FY 2023-24",
-    "overall": "Mixed: Census 2023, FY 2023-24, and Audit Year 2024-25",
-}
-
-SCORE_WARNINGS = {
-    "education": [],
-    "health": ["prototype-v1 health is a relative facility-count proxy, not a quality or outcome score"],
-    "accountability": ["prototype-v1 accountability measures budget utilization, not integrity or impact"],
-    "overall": ["prototype-v1 combines indicators with different reporting periods and provisional proxies"],
-}
-
-
 def _upsert(session, model, values: dict, keys: list[str]) -> None:
     statement = insert(model).values(**values)
     updates = {key: getattr(statement.excluded, key) for key in values if key not in keys}
@@ -69,7 +55,8 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
     data = json.loads(data_path.read_text(encoding="utf-8"))
     health_path = data_path.with_name("health_capacity_periods.json")
     health_capacity = load_health_capacity(health_path) if health_path.is_file() else None
-    scored = score_districts(data["districts"])
+    qualification = load_qualification_registry(data_path.with_name("evidence_qualification.json"))
+    scored = score_districts(data["districts"], data["metadata"]["generated_on"])
     sessions = session_factory(database_url)
     with sessions.begin() as session:
         for source_id, source in data["sources"].items():
@@ -92,6 +79,18 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                 )
         for key, value in data["metadata"].items():
             _upsert(session, DatasetMetadata, {"key": key, "value": value}, ["key"])
+        _upsert(
+            session,
+            DatasetMetadata,
+            {"key": "active_score_version", "value": score_version},
+            ["key"],
+        )
+        _upsert(
+            session,
+            DatasetMetadata,
+            {"key": "evidence_v2_gate", "value": qualification},
+            ["key"],
+        )
 
         for district in scored:
             _upsert(
@@ -276,6 +275,34 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                         ["id"],
                     )
 
+            populations = {district["slug"]: district["population_2023"] for district in scored}
+            for rate in health_capacity_rates(health_capacity, populations):
+                if rate["value_per_100k"] is None:
+                    continue
+                _upsert(
+                    session,
+                    Observation,
+                    {
+                        "district_id": district_ids[rate["district_slug"]],
+                        "metric_key": f"phs_{rate['facility']}_{rate['measure']}_per_100k",
+                        "category": "health",
+                        "value": rate["value_per_100k"],
+                        "unit": "per_100k",
+                        "period": rate["period"],
+                        "source_id": rate["source_id"],
+                        "locator": rate["locator"],
+                        "definition_version": health_capacity.version,
+                        "geography_level": "district",
+                        "population_basis": (
+                            f"{rate['population_period']} district population: "
+                            f"{rate['population_denominator']}"
+                        ),
+                        "comparability_group": rate["comparability_group"],
+                        "quality_flags": [],
+                    },
+                    ["district_id", "metric_key", "period"],
+                )
+
         for category, formula in FORMULAS.items():
             _upsert(
                 session,
@@ -283,35 +310,18 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                 {"version": score_version, "category": category, "formula": formula, "active": True},
                 ["version", "category"],
             )
+        for category, formula in EVIDENCE_V2_FORMULAS.items():
+            _upsert(
+                session,
+                ScoreDefinition,
+                {"version": "evidence-v2", "category": category, "formula": formula, "active": False},
+                ["version", "category"],
+            )
 
-        now = datetime.now(timezone.utc)
-        rates = {district["slug"]: district["derived"]["facilities_per_100k"] for district in scored}
+        now = datetime.fromisoformat(data["metadata"]["generated_on"]).replace(tzinfo=timezone.utc)
         for district in scored:
-            metrics = district["education"]
-            gender_parity = 100 - abs(metrics["literacy_male_pct"] - metrics["literacy_female_pct"])
-            accountability = district["accountability"]
-            components = {
-                "education": {
-                    "literacy_total_pct": metrics["literacy_total_pct"],
-                    "literacy_female_pct": metrics["literacy_female_pct"],
-                    "gender_parity": gender_parity,
-                },
-                "health": {
-                    "facility_count": sum(district["health"][field] for field in HEALTH_FIELDS),
-                    "facilities_per_100k": rates[district["slug"]],
-                    "cohort_min": min(rates.values()),
-                    "cohort_max": max(rates.values()),
-                },
-                "accountability": {
-                    "overall_budget_utilization_pct": 100 - accountability["overall_budget_lapse_pct"],
-                    "development_budget_utilization_pct": 100 - accountability["development_budget_lapse_pct"],
-                },
-                "overall": {
-                    key: district["derived"]["scores"][key]
-                    for key in ("education", "health", "accountability")
-                },
-            }
             for category, score in district["derived"]["scores"].items():
+                detail = district["derived"]["score_details"][category]
                 _upsert(
                     session,
                     ScoreResult,
@@ -320,12 +330,13 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                         "version": score_version,
                         "category": category,
                         "score": score,
-                        "components": components[category],
-                        "coverage": 1,
-                        "reporting_period": SCORE_PERIODS[category],
-                        "confidence": None,
-                        "missing_components": [],
-                        "warnings": SCORE_WARNINGS[category],
+                        "components": detail["components"],
+                        "coverage": detail["coverage"],
+                        "reporting_period": detail["reporting_period"],
+                        "confidence": detail["confidence"],
+                        "confidence_factors": detail["confidence_factors"],
+                        "missing_components": detail["missing_components"],
+                        "warnings": detail["warnings"],
                         "calculated_at": now,
                     },
                     ["district_id", "version", "category"],

@@ -58,5 +58,8 @@
   {"id":"reason-05","question":"Why did Lodhran receive its overall score?","districts":["lodhran"],"route":"score_explanation","expected":["score-lodhran-overall-prototype-v1"]},
   {"id":"project-05","question":"Can the GPIS RAG pipeline alter stored scores?","districts":[],"route":"project","expected":["gpis-rag-architecture"]},
   {"id":"method-07","question":"What formula calculates development-budget utilization?","districts":[],"route":"methodology","expected":["gpis-method-temporal"]},
-  {"id":"unsupported-04","question":"Can you predict next year's district score?","districts":["multan"],"route":"unsupported","expected":[]}
+  {"id":"unsupported-04","question":"Can you predict next year's district score?","districts":["multan"],"route":"unsupported","expected":[]},
+  {"id":"quality-01","question":"Why did Multan receive its health score and how reliable is its evidence?","districts":["multan"],"route":"score_explanation","expected":["score-multan-health-prototype-v1"]},
+  {"id":"unsupported-trend-01","question":"How did Multan literacy change from the previous year?","districts":["multan"],"route":"unsupported","expected":[]},
+  {"id":"unsupported-trend-02","question":"How did district health outcomes change year over year?","districts":["multan"],"route":"unsupported","expected":[]}
 ]

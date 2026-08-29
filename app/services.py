@@ -331,7 +331,8 @@ class ChatService:
                         mode=AnswerMode.GROQ,
                         route=route,
                         citations=self._citations_with_comparison(selected, comparison),
-                        warnings=generated.warnings + self._standard_warnings(route, request.question),
+                        warnings=generated.warnings
+                        + self._response_warnings(request, route, comparison),
                         trace_id=trace_id,
                         abstained=False,
                         comparison=comparison,
@@ -350,7 +351,8 @@ class ChatService:
             mode=AnswerMode.EXTRACTIVE,
             route=route,
             citations=self._citations_with_comparison(evidence[:3], comparison),
-            warnings=["The LLM was unavailable or returned invalid citations."] + self._standard_warnings(route, request.question),
+            warnings=["The LLM was unavailable or returned invalid citations."]
+            + self._response_warnings(request, route, comparison),
             trace_id=trace_id,
             abstained=False,
             comparison=comparison,
@@ -400,7 +402,8 @@ class ChatService:
             lines.append(
                 f"{district['name']}: population={district['population_2023']}; "
                 f"education_score={scores['education']}; health_score={scores['health']}; "
-                f"accountability_score={scores['accountability']}; overall_score={scores['overall']}"
+                f"accountability_score={scores['accountability']}; overall_score={scores['overall']}; "
+                f"score_details={district['score_details']}"
             )
         return "\n".join(lines)
 
@@ -493,6 +496,32 @@ class ChatService:
         if "corruption" in question.casefold():
             warnings.append("An audit observation is not, by itself, proof of corruption or fraud.")
         return warnings
+
+    def _response_warnings(
+        self,
+        request: ChatRequest,
+        route: QuestionRoute,
+        comparison: ComparisonResult | None,
+    ) -> list[str]:
+        warnings = self._standard_warnings(route, request.question)
+        if comparison:
+            for district in comparison.districts:
+                warnings.extend(district.score_detail.warnings)
+        elif route in {QuestionRoute.SCORE_EXPLANATION, QuestionRoute.METHODOLOGY} or any(
+            word in request.question.casefold() for word in ("score", "rank", "ranking")
+        ):
+            category = requested_score_category(request.question, request.category)
+            selected = request.selected_districts()
+            if selected:
+                for slug in selected:
+                    warnings.extend(
+                        self.repository.get_district(slug)["score_details"][category]["warnings"]
+                    )
+            else:
+                ranked = self.repository.rankings(category)
+                if ranked:
+                    warnings.extend(ranked[0]["score_detail"]["warnings"])
+        return list(dict.fromkeys(warnings))
 
     def _record_trace(
         self,

@@ -7,12 +7,15 @@ from app.evidence_quality import (
     HealthCapacityDataset,
     format_health_capacity_period,
     health_capacity_change,
+    health_capacity_rates,
     load_health_capacity,
 )
+from app.score_quality import load_qualification_registry
 from app.schemas import ScoreResult
 
 
 DATA_PATH = Path("data/curated/health_capacity_periods.json")
+QUALIFICATION_PATH = Path("data/curated/evidence_qualification.json")
 
 
 def test_reviewed_health_capacity_dataset_is_complete_and_valid():
@@ -137,3 +140,44 @@ def test_capacity_evidence_formatter_keeps_printed_dashes_explicit():
     assert "Rajanpur public health capacity at 2023-12-31" in text
     assert "MCH centers: not reported institutions, 4 beds" in text
     assert "not converted to zero" in text
+
+
+def test_reviewed_capacity_rates_record_denominator_period_and_nulls():
+    dataset = load_health_capacity(DATA_PATH)
+    populations = {district.slug: 1_000_000 for district in dataset.districts}
+    rates = health_capacity_rates(dataset, populations)
+
+    multan = next(
+        item
+        for item in rates
+        if item["district_slug"] == "multan"
+        and item["period"] == "2023-01-01"
+        and item["facility"] == "hospitals"
+        and item["measure"] == "count"
+    )
+    missing = next(
+        item
+        for item in rates
+        if item["district_slug"] == "dera-ghazi-khan"
+        and item["period"] == "2023-01-01"
+        and item["facility"] == "dispensaries"
+        and item["measure"] == "beds"
+    )
+    assert multan["value"] == 22
+    assert multan["value_per_100k"] == 2.2
+    assert multan["population_denominator"] == 1_000_000
+    assert multan["population_period"] == "Census 2023"
+    assert missing["value"] is None
+    assert missing["value_per_100k"] is None
+
+
+def test_evidence_v2_activation_gate_preserves_rejected_inputs():
+    registry = load_qualification_registry(QUALIFICATION_PATH)
+    decisions = {item["id"]: item for item in registry["decisions"]}
+
+    assert registry["activation_ready"] is False
+    assert decisions["health-capacity"]["status"] == "qualified_with_limitations"
+    assert decisions["education-second-period"]["status"] == "not_qualified"
+    assert decisions["health-activity"]["status"] == "not_qualified"
+    assert decisions["health-outcomes"]["status"] == "not_qualified"
+    assert decisions["audit-denominator"]["status"] == "not_qualified"

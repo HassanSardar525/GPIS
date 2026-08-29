@@ -14,6 +14,7 @@ from app.schemas import Citation, RetrievedEvidence
 from app.scoring import rankings as calculate_rankings
 from app.scoring import score_districts
 from app.score_explanations import format_score_explanation, requested_score_category
+from app.score_quality import PROTOTYPE_VERSION, load_qualification_registry
 from app.temporal import development_budget_trend
 
 
@@ -59,16 +60,25 @@ class JsonRepository:
 
     name = "json"
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, score_version: str = PROTOTYPE_VERSION):
+        if score_version != PROTOTYPE_VERSION:
+            raise ValueError(
+                f"Score version '{score_version}' is not active; evidence-v2 remains staged"
+            )
         self.path = path
         self.data = json.loads(path.read_text(encoding="utf-8"))
-        self.districts = score_districts(self.data["districts"])
+        self.score_version = score_version
+        self.districts = score_districts(
+            self.data["districts"], self.data["metadata"]["generated_on"]
+        )
         self.by_slug = {district["slug"]: district for district in self.districts}
         self.retriever = EvidenceRetriever(
             self.districts, self.data["sources"], self.data.get("project_evidence", [])
         )
         health_path = path.with_name("health_capacity_periods.json")
         self.health_capacity = load_health_capacity(health_path) if health_path.is_file() else None
+        qualification_path = path.with_name("evidence_qualification.json")
+        self.qualification = load_qualification_registry(qualification_path)
 
     def _methodology_citation(self, evidence_id: str, locator: str) -> dict:
         source = self.data["sources"]["gpis_methodology_v1"]
@@ -86,7 +96,11 @@ class JsonRepository:
         return self.path.is_file()
 
     def metadata(self) -> dict:
-        return self.data["metadata"]
+        return {
+            **self.data["metadata"],
+            "active_score_version": self.score_version,
+            "evidence_v2_gate": self.qualification,
+        }
 
     def list_districts(self) -> list[dict]:
         return [
@@ -94,8 +108,9 @@ class JsonRepository:
                 "slug": district["slug"],
                 "name": district["name"],
                 "scores": district["derived"]["scores"],
+                "score_details": district["derived"]["score_details"],
             }
-            for district in self.districts
+            for district in sorted(self.districts, key=lambda item: item["name"])
         ]
 
     def get_district(self, slug: str) -> dict:
@@ -104,6 +119,7 @@ class JsonRepository:
             raise DistrictNotFound(f"District '{slug}' was not found")
         return {
             **district,
+            "score_details": district["derived"]["score_details"],
             "rankings": {
                 category: next(
                     item for item in self.rankings(category) if item["slug"] == district["slug"]
@@ -111,7 +127,7 @@ class JsonRepository:
                 for category in RANKING_CATEGORIES
             },
             "sources": self.data["sources"],
-            "metadata": self.data["metadata"],
+            "metadata": self.metadata(),
         }
 
     def rankings(self, category: str) -> list[dict]:
@@ -253,6 +269,7 @@ class JsonRepository:
                 },
                 "overall": {name: scores[name] for name in ("education", "health", "accountability")},
             }[score_category]
+            detail = district["derived"]["score_details"][score_category]
             evidence_id = f"score-{slug}-{score_category}-prototype-v1"
             citation = self._methodology_citation(evidence_id, f"{score_category.title()} formula and stored components")
             results.append(
@@ -262,7 +279,7 @@ class JsonRepository:
                     district_name=district["name"],
                     category=score_category,
                     text=format_score_explanation(
-                        district["name"], score_category, scores[score_category], components
+                        district["name"], score_category, scores[score_category], components, detail
                     ),
                     source_id=citation["source_id"],
                     locator=citation["locator"],

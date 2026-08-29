@@ -1,10 +1,12 @@
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.main import create_app
 from app.repositories import JsonRepository
+from app.database.repository import PostgresRepository
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +27,26 @@ def test_district_list_contract_is_versioned():
     response = CLIENT.get("/api/v1/districts")
     assert response.status_code == 200
     assert len(response.json()["districts"]) == 10
+    body = response.json()
+    detail = body["districts"][0]["score_details"]["health"]
+    assert detail["version"] == "prototype-v1"
+    assert detail["coverage"] == 1.0
+    assert detail["confidence"] == 0.8125
+    assert detail["reporting_period"]
+    assert "directness" in detail["confidence_factors"]
+    assert body["metadata"]["active_score_version"] == "prototype-v1"
+    assert body["metadata"]["evidence_v2_gate"]["activation_ready"] is False
+
+
+def test_district_and_ranking_preserve_numeric_scores_and_add_details():
+    district = CLIENT.get("/api/v1/districts/multan").json()
+    ranking = CLIENT.get("/api/v1/rankings?category=health").json()["rankings"][0]
+
+    assert isinstance(district["derived"]["scores"]["health"], float)
+    assert district["score_details"]["health"]["score"] == district["derived"]["scores"]["health"]
+    assert district["score_details"]["health"]["calculated_at"] == "2026-08-20T00:00:00+00:00"
+    assert ranking["score_detail"]["score"] == ranking["score"]
+    assert ranking["score_detail"]["warnings"]
 
 
 def test_invalid_district_returns_structured_error():
@@ -32,6 +54,13 @@ def test_invalid_district_returns_structured_error():
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "district_not_found"
     assert response.json()["error"]["request_id"]
+
+
+def test_evidence_v2_cannot_be_selected_before_activation_gate_passes():
+    with pytest.raises(ValueError, match="remains staged"):
+        JsonRepository(SETTINGS.curated_data_path, "evidence-v2")
+    with pytest.raises(ValueError, match="remains staged"):
+        PostgresRepository("postgresql+psycopg://unused", "evidence-v2")
 
 
 def test_invalid_ranking_category_returns_structured_error():
@@ -76,6 +105,8 @@ def test_chat_comparison_contract_is_structured_and_backward_compatible():
     assert body["comparison"]["score_delta"] == 43.3
     assert body["comparison"]["rank_delta"] == -7
     assert len(body["comparison"]["components"]) == 3
+    assert body["comparison"]["districts"][0]["score_detail"]["version"] == "prototype-v1"
+    assert any("different reporting periods" in item for item in body["warnings"])
 
 
 def test_development_budget_trend_contract():

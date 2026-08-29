@@ -36,6 +36,20 @@ function signedComparisonValue(value, unit) {
   return `${prefix}${comparisonValue(value, unit)}`;
 }
 
+function renderScoreQuality(detail) {
+  if (!detail) return '';
+  const confidence = detail.confidence == null ? 'unassessed' : number(detail.confidence, 2);
+  const warnings = detail.warnings?.length
+    ? `<ul>${detail.warnings.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+    : '';
+  return `<div class="score-quality">
+    <span>${escapeHtml(detail.version)}</span>
+    <span>${escapeHtml(detail.reporting_period)}</span>
+    <span>Coverage ${escapeHtml(number(detail.coverage * 100, 0))}% · confidence ${escapeHtml(confidence)}</span>
+    ${warnings}
+  </div>`;
+}
+
 function renderComparison(comparison) {
   if (!comparison || comparison.districts?.length !== 2) return '';
   const [left, right] = comparison.districts;
@@ -70,6 +84,7 @@ function renderComparison(comparison) {
         <span>${escapeHtml(district.name)}</span>
         <strong>${escapeHtml(number(district.score, 1))}</strong>
         <small>Rank ${escapeHtml(district.rank)}</small>
+        ${renderScoreQuality(district.score_detail)}
       </article>`).join('')}
     </div>
     <div class="comparison-table-wrap"><table class="comparison-table">
@@ -88,9 +103,10 @@ async function json(url, options) {
   return data;
 }
 
-function card(category, title, score, rank, metrics, sourceUrl) {
+function card(category, title, score, rank, detail, metrics, sourceUrl) {
   return `<article class="score-card">
     <div class="score-top"><div><h3>${escapeHtml(title)}</h3><span class="rank">Rank ${rank.rank} of ${state.districts.length}</span></div><button class="score-number" type="button" data-score-category="${category}" title="Ask why this score was given">${score}</button></div>
+    ${renderScoreQuality(detail)}
     <ul class="metric-list">${metrics.map(([label, value]) => `<li><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`).join('')}</ul>
     <a class="source-link" href="${safeUrl(sourceUrl)}" target="_blank" rel="noreferrer">View official source ↗</a>
   </article>`;
@@ -103,22 +119,23 @@ function renderDistrict(data) {
   document.querySelector('#population').textContent = `Population ${number(data.population_2023)} · Census 2023`;
   document.querySelector('#overall-score').textContent = data.derived.scores.overall;
   document.querySelector('#overall-rank').textContent = `Rank ${data.rankings.overall.rank} of ${state.districts.length}`;
+  document.querySelector('#overall-quality').innerHTML = renderScoreQuality(data.score_details.overall);
 
   const education = data.education;
   const health = data.health;
   const accountability = data.accountability;
   document.querySelector('#scorecards').innerHTML = [
-    card('education', 'Education', data.derived.scores.education, data.rankings.education, [
+    card('education', 'Education', data.derived.scores.education, data.rankings.education, data.score_details.education, [
       ['Total literacy', `${number(education.literacy_total_pct, 1)}%`],
       ['Female literacy', `${number(education.literacy_female_pct, 1)}%`],
       ['Out-of-school age 5–16', number(education.out_of_school_children_5_16)],
     ], data.sources.pbs_table_12.url),
-    card('health', 'Health access proxy', data.derived.scores.health, data.rankings.health, [
+    card('health', 'Health access proxy', data.derived.scores.health, data.rankings.health, data.score_details.health, [
       ['Listed public facilities', number(data.derived.facility_count)],
       ['Facilities per 100k', number(data.derived.facilities_per_100k, 2)],
       ['BHUs / RHCs', `${number(health.bhus)} / ${number(health.rhcs)}`],
     ], data.sources.agp_dha.url),
-    card('accountability', 'Financial management proxy', data.derived.scores.accountability, data.rankings.accountability, [
+    card('accountability', 'Financial management proxy', data.derived.scores.accountability, data.rankings.accountability, data.score_details.accountability, [
       ['Overall budget utilized', `${number(100 - accountability.overall_budget_lapse_pct, 1)}%`],
       ['Development budget utilized', `${number(100 - accountability.development_budget_lapse_pct, 1)}%`],
       ['Formations audited', `${accountability.audited_formations} of ${accountability.total_formations}`],
@@ -165,7 +182,7 @@ async function loadRankings() {
     <li class="${state.district?.slug === item.slug ? 'active' : ''}">
       <strong>${item.rank}</strong>
       <span>${escapeHtml(item.name)}<span class="bar-track"><span class="bar" style="display:block;width:${item.score}%"></span></span></span>
-      <strong>${item.score}</strong>
+      <strong title="${escapeHtml(`${item.score_detail.version}; ${item.score_detail.reporting_period}; coverage ${number(item.score_detail.coverage * 100, 0)}%`)}">${item.score}</strong>
     </li>`).join('');
 }
 

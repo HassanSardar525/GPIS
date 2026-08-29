@@ -1,0 +1,29 @@
+{
+  "health": {
+    "full": {
+      "inputs": {"capacity": 80.0, "activity": 60.0, "outcomes": 70.0},
+      "score": 72.5,
+      "coverage": 1.0,
+      "ranked": true,
+      "missing_components": []
+    },
+    "partial_at_threshold": {
+      "inputs": {"capacity": 80.0, "activity": 60.0, "outcomes": null},
+      "score": 55.0,
+      "coverage": 0.75,
+      "ranked": true,
+      "missing_components": ["outcomes"]
+    },
+    "below_threshold": {
+      "inputs": {"capacity": 80.0, "activity": null, "outcomes": null},
+      "score": null,
+      "coverage": 0.5,
+      "ranked": false,
+      "missing_components": ["activity", "outcomes"]
+    }
+  },
+  "ranking": {
+    "tied_names_in_order": ["Alpha", "Beta"],
+    "non_comparable_rank": null
+  }
+}

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import func, select, update
 
-from app.database.models import EvidenceChunk, Observation, RetrievalTrace, ScoreResult
+from app.database.models import EvidenceChunk, Observation, RetrievalTrace, ScoreDefinition, ScoreResult
 from app.database.repository import PostgresRepository
 from app.database.seed import embed_missing, seed_database
 from app.database.session import session_factory
@@ -27,7 +27,7 @@ def test_migration_and_seed_are_idempotent():
     first = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     second = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     assert first == second
-    assert second == {"districts": 10, "observations": 373, "evidence_chunks": 67, "score_results": 40}
+    assert second == {"districts": 10, "observations": 556, "evidence_chunks": 67, "score_results": 40}
 
 
 def test_provenance_is_complete_after_seed():
@@ -51,14 +51,15 @@ def test_provenance_is_complete_after_seed():
                 ScoreResult.category == "health",
             )
         )
-        assert health_score.confidence is None
+        assert float(health_score.confidence) == 0.8125
+        assert float(health_score.confidence_factors["directness"]) == 0.5
         assert health_score.missing_components == []
-        assert "relative facility-count proxy" in health_score.warnings[0]
+        assert "relative facility-count capacity proxy" in health_score.warnings[0]
         assert session.scalar(
             select(func.count())
             .select_from(Observation)
             .where(Observation.comparability_group == "phs-table-3-public-capacity-v1")
-        ) == 183
+        ) == 366
         assert session.scalar(
             select(func.count())
             .select_from(EvidenceChunk)
@@ -73,6 +74,26 @@ def test_provenance_is_complete_after_seed():
         )
         assert anomaly.value == 4
         assert "count is not inferred" in anomaly.quality_flags[0]
+        normalized = session.scalar(
+            select(Observation).where(
+                Observation.metric_key == "phs_hospitals_count_per_100k",
+                Observation.period == "2023-01-01",
+            )
+        )
+        assert normalized.unit == "per_100k"
+        assert "Census 2023 district population" in normalized.population_basis
+        staged = session.scalar(
+            select(ScoreDefinition).where(
+                ScoreDefinition.version == "evidence-v2",
+                ScoreDefinition.category == "health",
+            )
+        )
+        assert staged.active is False
+        assert staged.formula["components"] == {
+            "capacity": 0.5,
+            "activity": 0.25,
+            "outcomes": 0.25,
+        }
 
 
 def test_pgvector_round_trip_and_embedding_seed_are_idempotent():
@@ -149,6 +170,19 @@ def test_postgres_comparison_matches_json_contract():
     assert {item.evidence_id for item in actual.citations} == {
         item.evidence_id for item in expected.citations
     }
+
+
+def test_postgres_score_quality_contract_matches_json_backend():
+    postgres = PostgresRepository(DATABASE_URL, "prototype-v1")
+    json_repository = JsonRepository(ROOT / "data/curated/districts.json")
+
+    assert postgres.list_districts() == json_repository.list_districts()
+    assert postgres.rankings("health") == json_repository.rankings("health")
+    postgres_detail = postgres.get_district("multan")
+    json_detail = json_repository.get_district("multan")
+    assert postgres_detail["score_details"] == json_detail["score_details"]
+    assert postgres_detail["metadata"]["active_score_version"] == "prototype-v1"
+    assert postgres_detail["metadata"]["evidence_v2_gate"]["activation_ready"] is False
 
 
 def test_postgres_trace_persists_retrieval_details():
