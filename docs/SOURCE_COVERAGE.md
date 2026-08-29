@@ -29,6 +29,14 @@ This series supports changes in reported public health-facility and bed capacity
 
 The editions do not provide comparable district staffing or general health-outcome series suitable for scoring. District patient-activity tables remain pending because the earlier edition does not state a sufficiently clear annual interval for a temporal comparison.
 
+All ten pilot district rows on registered Table 3 pages 4, 6, and 7 were checked against both official editions. Facility and bed values, printed dashes, and the retained Rajanpur MCH anomaly match the curated contract.
+
+## Candidate evidence decisions
+
+No earlier education source is accepted as a trend because the current repository contains only Census 2023 district literacy and no acquired edition has verified equivalent indicators, geography, units, and methodology.
+
+The audit report supports budget-utilization and audited-formation facts. Finding counts and questioned amounts remain outside scoring because their scope does not have one exact, comparable district expenditure denominator. These and the health activity/outcome exclusions are recorded in `data/curated/evidence_qualification.json`; consequently `evidence-v2` remains inactive.
+
 ## Unsupported temporal claims
 
-The current source set does not contain comparable two-period inputs for literacy, district staffing, general health outcomes, the full accountability composite, or the overall GPIS score. Those changes must remain unavailable until equivalent official sources are added. The reviewed health-capacity series is not yet part of an active score version.
+The current source set does not contain comparable two-period inputs for literacy, district staffing, general health outcomes, the full accountability composite, or the overall GPIS score. Those changes remain unavailable until equivalent official sources are added. The reviewed health-capacity series is evidence and normalized capacity data, but it is not part of the active score version.
