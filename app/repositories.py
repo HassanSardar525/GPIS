@@ -156,6 +156,7 @@ class JsonRepository:
                 "period": source["period"],
                 "url": source["url"],
                 "locator": evidence["locator"],
+                "passage": evidence["text"],
             },
         }
 

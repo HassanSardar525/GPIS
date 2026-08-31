@@ -115,7 +115,9 @@ def build_comparison(repository, district_slugs: list[str], category: RankingCat
     score_evidence = repository.score_search(
         f"compare {category} score components", selected, category, 2
     )
-    citations = [item.citation for item in score_evidence]
+    citations = [
+        item.citation.model_copy(update={"passage": item.text}) for item in score_evidence
+    ]
     trends = []
     limitations = [
         "The comparison describes available district indicators and does not establish causation by any person."
@@ -140,7 +142,9 @@ def build_comparison(repository, district_slugs: list[str], category: RankingCat
 
     unique_citations: dict[str, Citation] = {}
     for citation in citations:
-        unique_citations[citation.evidence_id] = citation
+        existing = unique_citations.get(citation.evidence_id)
+        if existing is None or (existing.passage is None and citation.passage is not None):
+            unique_citations[citation.evidence_id] = citation
     return ComparisonResult(
         category=category,
         districts=districts,

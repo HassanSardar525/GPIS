@@ -159,6 +159,7 @@ async def test_deterministic_chat_returns_structured_comparison_and_summary():
         "score-multan-overall-prototype-v1",
         "score-bahawalpur-overall-prototype-v1",
     }
+    assert all(item.passage for item in response.citations)
 
 
 @pytest.mark.asyncio
@@ -193,6 +194,7 @@ async def test_two_district_temporal_question_includes_structured_trends():
         "multan-development-trend",
         "bahawalpur-development-trend",
     }
+    assert all(item.citation.passage for item in response.comparison.trends)
 
 
 @pytest.mark.asyncio

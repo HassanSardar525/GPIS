@@ -5,7 +5,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 Category = Literal["education", "health", "accountability"]
@@ -62,6 +62,7 @@ class Citation(BaseModel):
     period: str
     url: str
     locator: str
+    passage: str | None = None
 
 
 class ScoreSet(BaseModel):
@@ -243,6 +244,13 @@ class RetrievedEvidence(BaseModel):
     semantic_similarity: float | None = None
     rrf_score: float = 0
     citation: Citation
+
+    @model_validator(mode="after")
+    def attach_canonical_passage(self) -> RetrievedEvidence:
+        """Keep public citation previews tied to the exact retrieved record."""
+        if self.citation.passage != self.text:
+            self.citation = self.citation.model_copy(update={"passage": self.text})
+        return self
 
 
 class ChatResponse(BaseModel):

@@ -80,7 +80,11 @@ def test_chat_compatibility_alias_and_citations():
     assert response.status_code == 200
     body = response.json()
     assert body["mode"] == "extractive"
-    assert body["citations"][0]["evidence_id"] == "fact-multan-literacy_total_pct"
+    citation = body["citations"][0]
+    assert citation["evidence_id"] == "fact-multan-literacy_total_pct"
+    assert {"source_id", "publisher", "title", "period", "url", "locator"} <= citation.keys()
+    assert "Total literacy for Multan is 61.41%." == citation["passage"]
+    assert "local_file" not in citation
 
 
 def test_chat_rejects_unknown_district_before_retrieval():
@@ -116,6 +120,7 @@ def test_development_budget_trend_contract():
     assert body["metric"] == "development_budget_utilization_pct"
     assert body["change_percentage_points"] == 65.72
     assert body["citation"]["evidence_id"] == "layyah-development-trend"
+    assert body["citation"]["passage"]
 
 
 def test_health_capacity_trend_contract_preserves_periods_and_citations():

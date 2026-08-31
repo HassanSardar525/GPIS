@@ -469,7 +469,7 @@ class ChatService:
         citations = []
         for item in evidence:
             if item.id not in seen:
-                citations.append(item.citation)
+                citations.append(item.citation.model_copy(update={"passage": item.text}))
                 seen.add(item.id)
         return citations
 
@@ -482,7 +482,12 @@ class ChatService:
         citations = cls._citations(evidence)
         if comparison:
             citations.extend(comparison.citations)
-        return list({item.evidence_id: item for item in citations}.values())
+        unique: dict[str, Citation] = {}
+        for citation in citations:
+            existing = unique.get(citation.evidence_id)
+            if existing is None or (existing.passage is None and citation.passage is not None):
+                unique[citation.evidence_id] = citation
+        return list(unique.values())
 
     @staticmethod
     def _standard_warnings(route: QuestionRoute, question: str) -> list[str]:

@@ -56,6 +56,7 @@ def test_structured_fact_retrieval_uses_exact_observation():
     results = REPOSITORY.fact_search("What is female literacy?", ["multan"], 6)
     assert results[0].id == "fact-multan-literacy_female_pct"
     assert "55.27%" in results[0].text
+    assert results[0].citation.passage == results[0].text
 
 
 def test_hybrid_retrieval_is_district_scoped_and_deduplicated():

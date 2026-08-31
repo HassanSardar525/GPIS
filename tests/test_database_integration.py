@@ -170,6 +170,11 @@ def test_postgres_comparison_matches_json_contract():
     assert {item.evidence_id for item in actual.citations} == {
         item.evidence_id for item in expected.citations
     }
+    assert {
+        item.evidence_id: item.passage for item in actual.citations
+    } == {
+        item.evidence_id: item.passage for item in expected.citations
+    }
 
 
 def test_postgres_score_quality_contract_matches_json_backend():

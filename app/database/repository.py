@@ -158,6 +158,7 @@ class PostgresRepository:
                     "period": source.period,
                     "url": source.url,
                     "locator": evidence_chunk.locator,
+                    "passage": evidence_chunk.text,
                 },
             }
 
