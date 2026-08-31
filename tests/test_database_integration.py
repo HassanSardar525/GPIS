@@ -2,18 +2,27 @@ import os
 import subprocess
 import sys
 import uuid
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
+from langchain_core.messages import AIMessage, HumanMessage
+from langgraph.graph import END, START, MessagesState, StateGraph
 from sqlalchemy import func, select, update
 
-from app.database.models import EvidenceChunk, Observation, RetrievalTrace, ScoreDefinition, ScoreResult
+from app.database.models import ChatSession, EvidenceChunk, Observation, RetrievalTrace, ScoreDefinition, ScoreResult
 from app.database.repository import PostgresRepository
 from app.database.seed import embed_missing, seed_database
 from app.database.session import session_factory
+from app.config import Settings
 from app.comparisons import build_comparison
 from app.embeddings import DeterministicTestEmbedder
+from app.llm import FailingProvider
+from app.main import create_app
 from app.repositories import JsonRepository
+from app.session_store import PostgresCheckpointRuntime, PostgresSessionStore, utcnow
+from app.services import ChatService, HybridRetriever
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -196,19 +205,138 @@ def test_postgres_trace_persists_retrieval_details():
     repository.record_trace(
         {
             "id": trace_id,
-            "question": "trace test",
+            "question": "sensitive question must not persist",
             "filters": {"districts": ["multan"]},
             "route": "exact_fact",
             "retrieved_ids": ["fact-multan-literacy_total_pct"],
             "mode": "extractive",
             "latency_ms": 1.25,
-            "details": {"retrieval": [{"id": "fact-multan-literacy_total_pct", "keyword_rank": 1}]},
+            "details": {
+                "retrieval": [{"id": "fact-multan-literacy_total_pct", "keyword_rank": 1}],
+                "prompt": "sensitive prompt",
+                "answer": "sensitive answer",
+            },
         }
     )
     sessions = session_factory(DATABASE_URL)
     with sessions() as session:
         stored = session.get(RetrievalTrace, trace_id)
         assert stored.details["retrieval"][0]["keyword_rank"] == 1
+        assert stored.question == ""
+        assert "prompt" not in stored.details and "answer" not in stored.details
+        assert stored.provider_status == "unknown"
     with sessions.begin() as session:
         stored = session.get(RetrievalTrace, trace_id)
         session.delete(stored)
+
+
+def _checkpoint_graph(checkpointer):
+    async def respond(_state):
+        return {"messages": [AIMessage(content="acknowledged")]}
+
+    builder = StateGraph(MessagesState)
+    builder.add_node("respond", respond)
+    builder.add_edge(START, "respond")
+    builder.add_edge("respond", END)
+    return builder.compile(checkpointer=checkpointer)
+
+
+@pytest.mark.asyncio
+async def test_postgres_checkpoint_survives_recreation_and_session_deletion():
+    session_id = f"session-persist-{uuid.uuid4()}"
+    trace_id = str(uuid.uuid4())
+    config = {"configurable": {"thread_id": session_id}}
+
+    first_runtime = PostgresCheckpointRuntime(DATABASE_URL)
+    await first_runtime.start()
+    first_store = PostgresSessionStore(DATABASE_URL, ttl_hours=24)
+    first_store.attach_checkpointer(first_runtime.checkpointer)
+    first_store.ensure_active(session_id)
+    await _checkpoint_graph(first_runtime.checkpointer).ainvoke(
+        {"messages": [HumanMessage(content="remember this turn")]}, config=config
+    )
+    first_store.touch(session_id)
+    await first_runtime.close()
+
+    second_runtime = PostgresCheckpointRuntime(DATABASE_URL)
+    await second_runtime.start()
+    second_store = PostgresSessionStore(DATABASE_URL, ttl_hours=24)
+    second_store.attach_checkpointer(second_runtime.checkpointer)
+    snapshot = await _checkpoint_graph(second_runtime.checkpointer).aget_state(config)
+    assert any(message.content == "remember this turn" for message in snapshot.values["messages"])
+    assert second_store.get(session_id)["message_count"] == 1
+    PostgresRepository(DATABASE_URL, "prototype-v1").record_trace(
+        {
+            "id": trace_id,
+            "question": "must not persist",
+            "session_id": session_id,
+            "filters": {"districts": ["multan"]},
+            "route": "conversation",
+            "retrieved_ids": [],
+            "mode": "extractive",
+            "latency_ms": 1,
+            "details": {"provider": "test"},
+        }
+    )
+
+    await second_store.delete(session_id)
+    assert await second_runtime.checkpointer.aget_tuple(config) is None
+    with session_factory(DATABASE_URL)() as database:
+        assert database.get(ChatSession, session_id) is None
+        assert database.get(RetrievalTrace, trace_id) is None
+    await second_runtime.close()
+
+
+@pytest.mark.asyncio
+async def test_postgres_expired_cleanup_is_idempotent():
+    session_id = f"session-expired-{uuid.uuid4()}"
+    runtime = PostgresCheckpointRuntime(DATABASE_URL)
+    await runtime.start()
+    store = PostgresSessionStore(DATABASE_URL, ttl_hours=24)
+    store.attach_checkpointer(runtime.checkpointer)
+    store.ensure_active(session_id)
+    with session_factory(DATABASE_URL).begin() as database:
+        database.get(ChatSession, session_id).expires_at = utcnow() - timedelta(seconds=1)
+
+    assert await store.cleanup_expired() == 1
+    assert await store.cleanup_expired() == 0
+    await runtime.close()
+
+
+def test_postgres_session_metadata_survives_api_recreation():
+    session_id = f"session-api-restart-{uuid.uuid4()}"
+    settings = Settings(repository="postgres", database_url=DATABASE_URL, groq_api_key=None)
+
+    def application():
+        repository = PostgresRepository(DATABASE_URL, "prototype-v1")
+        chat = ChatService(repository, HybridRetriever(repository, None), FailingProvider())
+        return create_app(settings=settings, repository=repository, chat_service=chat)
+
+    with TestClient(application()) as client:
+        response = client.post(
+            "/api/v1/chat",
+            json={"question": "Hello", "session_id": session_id},
+        )
+        assert response.status_code == 200
+
+    with TestClient(application()) as client:
+        status = client.get(f"/api/v1/sessions/{session_id}")
+        assert status.status_code == 200
+        assert status.json()["message_count"] == 1
+        assert client.delete(f"/api/v1/sessions/{session_id}").status_code == 200
+
+
+def test_phase_five_migration_downgrade_and_upgrade():
+    environment = {**os.environ, "GPIS_DATABASE_URL": DATABASE_URL}
+    subprocess.run(
+        [sys.executable, "-m", "alembic", "downgrade", "0005_confidence_factors"],
+        cwd=ROOT,
+        env=environment,
+        check=True,
+    )
+    subprocess.run(
+        [sys.executable, "-m", "alembic", "upgrade", "head"],
+        cwd=ROOT,
+        env=environment,
+        check=True,
+    )

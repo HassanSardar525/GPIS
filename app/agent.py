@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import time
 import uuid
 from contextvars import ContextVar
 from functools import wraps
 from typing import Any, Literal
+
+os.environ.setdefault("LANGGRAPH_STRICT_MSGPACK", "true")
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import StructuredTool
@@ -265,7 +268,7 @@ class AgentChatService:
         retriever: HybridRetriever,
         model: Any,
         fallback: ChatService,
-        checkpointer: InMemorySaver | None = None,
+        checkpointer: Any | None = None,
         observability: Observability | None = None,
     ):
         self.repository = repository
@@ -275,9 +278,10 @@ class AgentChatService:
         self.observability = observability or NoopObservability()
         self.tools = build_agent_tools(repository, retriever, self.observability)
         self.tool_model = model.bind_tools(self.tools, parallel_tool_calls=False)
-        self.graph = self._build_graph(checkpointer or InMemorySaver())
+        self.checkpointer = checkpointer or InMemorySaver()
+        self.graph = self._build_graph(self.checkpointer)
 
-    def _build_graph(self, checkpointer: InMemorySaver):
+    def _build_graph(self, checkpointer: Any):
         async def call_model(state: MessagesState):
             request = CURRENT_REQUEST.get()
             selected = request.selected_districts() if request else []
@@ -305,7 +309,7 @@ class AgentChatService:
                 span.set_attributes(
                     {
                         "gpis.agent.requested_tools": [call["name"] for call in response.tool_calls],
-                        "output.value": self._message_text(response.content),
+                        "gpis.agent.output_length": len(self._message_text(response.content)),
                     }
                 )
             return {"messages": [response]}
@@ -389,12 +393,16 @@ class AgentChatService:
             self.repository.record_trace(
                 {
                     "id": trace_id,
-                    "question": request.question,
+                    "question": "",
+                    "session_id": session_id,
                     "filters": {"districts": request.selected_districts(), "category": request.category, "period": request.period},
                     "route": route.value,
                     "retrieved_ids": [citation.evidence_id for citation in citations],
                     "mode": response.mode.value,
                     "latency_ms": round((time.perf_counter() - started) * 1000, 2),
+                    "outcome": "success",
+                    "provider_status": "generated",
+                    "failure_category": None,
                     "details": {
                         "provider": "langgraph-groq",
                         "session_id": session_id,

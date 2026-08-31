@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from contextlib import contextmanager
 from typing import Any, Iterator, Protocol
 
@@ -52,10 +53,13 @@ class _OpenTelemetrySpan:
         self._span = span
 
     def set_attributes(self, attributes: dict[str, Any]) -> None:
-        for key, value in attributes.items():
-            converted = _attribute_value(value)
-            if converted is not None:
-                self._span.set_attribute(key, converted)
+        try:
+            for key, value in attributes.items():
+                converted = _attribute_value(value)
+                if converted is not None:
+                    self._span.set_attribute(key, converted)
+        except Exception as error:
+            LOGGER.warning("Tracing attribute export unavailable: %s", type(error).__name__)
 
 
 class PhoenixObservability:
@@ -72,8 +76,26 @@ class PhoenixObservability:
             for key, raw in initial.items()
             if (value := _attribute_value(raw)) is not None
         }
-        with self.tracer.start_as_current_span(name, attributes=converted) as active:
+        try:
+            context = self.tracer.start_as_current_span(name, attributes=converted)
+            active = context.__enter__()
+        except Exception as error:
+            LOGGER.warning("Tracing span unavailable: %s", type(error).__name__)
+            yield _NoopSpan()
+            return
+        try:
             yield _OpenTelemetrySpan(active)
+        except BaseException:
+            try:
+                context.__exit__(*sys.exc_info())
+            except Exception as error:
+                LOGGER.warning("Tracing span close unavailable: %s", type(error).__name__)
+            raise
+        else:
+            try:
+                context.__exit__(None, None, None)
+            except Exception as error:
+                LOGGER.warning("Tracing span close unavailable: %s", type(error).__name__)
 
 
 def build_observability(settings) -> Observability:

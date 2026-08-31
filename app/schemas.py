@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from enum import StrEnum
 from typing import Any, Literal
 
@@ -211,7 +212,12 @@ class ChatRequest(BaseModel):
     district: str | None = Field(default=None, description="Compatibility alias for one selected district")
     category: Category | None = None
     period: str | None = Field(default=None, max_length=80)
-    session_id: str | None = Field(default=None, min_length=8, max_length=100)
+    session_id: str | None = Field(
+        default=None,
+        min_length=8,
+        max_length=100,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]+$",
+    )
 
     @field_validator("question")
     @classmethod
@@ -264,6 +270,20 @@ class ChatResponse(BaseModel):
     session_id: str | None = None
     tools_used: list[str] = Field(default_factory=list)
     comparison: ComparisonResult | None = None
+
+
+class SessionResponse(BaseModel):
+    session_id: str
+    created_at: datetime
+    last_activity_at: datetime
+    expires_at: datetime
+    message_count: int = Field(ge=0)
+    status: Literal["active", "expired"]
+
+
+class SessionDeleteResponse(BaseModel):
+    session_id: str
+    deleted: Literal[True] = True
 
 
 class HealthResponse(BaseModel):

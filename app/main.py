@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import uuid
+from contextlib import asynccontextmanager
+from typing import Any
 
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Path as ApiPath, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -26,8 +28,11 @@ from app.schemas import (
     HealthCapacityTrendResponse,
     HealthResponse,
     RankingResponse,
+    SessionDeleteResponse,
+    SessionResponse,
     TrendResponse,
 )
+from app.session_store import InMemorySessionStore, PostgresCheckpointRuntime, PostgresSessionStore
 from app.services import ChatService, DistrictService, HybridRetriever
 
 
@@ -43,7 +48,10 @@ def build_repository(settings: Settings) -> GPISRepository:
 
 
 def build_chat_service(
-    settings: Settings, repository: GPISRepository, observability: Observability | None = None
+    settings: Settings,
+    repository: GPISRepository,
+    observability: Observability | None = None,
+    checkpointer: Any | None = None,
 ) -> ChatService:
     observability = observability or build_observability(settings)
     embedder = MiniLMEmbedder(settings.embedding_model) if repository.name == "postgres" else None
@@ -69,7 +77,14 @@ def build_chat_service(
         timeout=settings.groq_timeout_seconds,
         max_retries=1,
     )
-    return AgentChatService(repository, retriever, model, fallback, observability=observability)
+    return AgentChatService(
+        repository,
+        retriever,
+        model,
+        fallback,
+        checkpointer=checkpointer,
+        observability=observability,
+    )
 
 
 def create_app(
@@ -81,7 +96,37 @@ def create_app(
     repository = repository or build_repository(settings)
     observability = build_observability(settings)
     district_service = DistrictService(repository)
-    chat_service = chat_service or build_chat_service(settings, repository, observability)
+    checkpoint_runtime = (
+        PostgresCheckpointRuntime(settings.database_url)
+        if repository.name == "postgres" and settings.database_url
+        else None
+    )
+    session_store = (
+        PostgresSessionStore(settings.database_url, settings.session_ttl_hours)
+        if repository.name == "postgres" and settings.database_url
+        else InMemorySessionStore(settings.session_ttl_hours)
+    )
+    supplied_chat_service = chat_service
+    if not checkpoint_runtime:
+        chat_service = chat_service or build_chat_service(settings, repository, observability)
+        session_store.attach_checkpointer(getattr(chat_service, "checkpointer", None))
+
+    @asynccontextmanager
+    async def lifespan(_application: FastAPI):
+        if checkpoint_runtime:
+            await checkpoint_runtime.start()
+            _application.state.chat_service = supplied_chat_service or build_chat_service(
+                settings,
+                repository,
+                observability,
+                checkpointer=checkpoint_runtime.checkpointer,
+            )
+            session_store.attach_checkpointer(checkpoint_runtime.checkpointer)
+        try:
+            yield
+        finally:
+            if checkpoint_runtime:
+                await checkpoint_runtime.close()
 
     application = FastAPI(
         title="Government Performance Intelligence System",
@@ -89,11 +134,13 @@ def create_app(
         docs_url="/api/docs",
         redoc_url="/api/redoc",
         openapi_url="/api/openapi.json",
+        lifespan=lifespan,
     )
     application.state.settings = settings
     application.state.repository = repository
     application.state.chat_service = chat_service
     application.state.observability = observability
+    application.state.session_store = session_store
 
     @application.middleware("http")
     async def request_context(request: Request, call_next):
@@ -166,7 +213,25 @@ def create_app(
 
     @application.post("/api/v1/chat", response_model=ChatResponse)
     async def chat(request: ChatRequest) -> ChatResponse:
-        return await chat_service.answer(request)
+        session_id = request.session_id or str(uuid.uuid4())
+        request = request.model_copy(update={"session_id": session_id})
+        session_store.ensure_active(session_id)
+        response = await application.state.chat_service.answer(request)
+        session_store.touch(session_id)
+        return response.model_copy(update={"session_id": session_id})
+
+    @application.get("/api/v1/sessions/{session_id}", response_model=SessionResponse)
+    def session_status(
+        session_id: str = ApiPath(min_length=8, max_length=100, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]+$")
+    ) -> SessionResponse:
+        return SessionResponse.model_validate(session_store.get(session_id))
+
+    @application.delete("/api/v1/sessions/{session_id}", response_model=SessionDeleteResponse)
+    async def delete_session(
+        session_id: str = ApiPath(min_length=8, max_length=100, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]+$")
+    ) -> SessionDeleteResponse:
+        await session_store.delete(session_id)
+        return SessionDeleteResponse(session_id=session_id)
 
     @application.get("/", include_in_schema=False)
     def index():

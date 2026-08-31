@@ -31,6 +31,16 @@ def _bool(name: str, default: bool = False) -> bool:
     raise ValueError(f"{name} must be true or false")
 
 
+def _int(name: str, default: int) -> int:
+    try:
+        value = int(os.getenv(name, default))
+    except ValueError as error:
+        raise ValueError(f"{name} must be an integer") from error
+    if value <= 0:
+        raise ValueError(f"{name} must be greater than zero")
+    return value
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     environment: str = "development"
@@ -47,6 +57,7 @@ class Settings:
     phoenix_enabled: bool = False
     phoenix_endpoint: str | None = None
     phoenix_project_name: str = "gpis-local"
+    session_ttl_hours: int = 24
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -72,4 +83,5 @@ class Settings:
             phoenix_enabled=_bool("PHOENIX_ENABLED", False),
             phoenix_endpoint=os.getenv("PHOENIX_COLLECTOR_ENDPOINT") or None,
             phoenix_project_name=os.getenv("PHOENIX_PROJECT_NAME", defaults.phoenix_project_name),
+            session_ttl_hours=_int("GPIS_SESSION_TTL_HOURS", defaults.session_ttl_hours),
         )

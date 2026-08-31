@@ -498,5 +498,33 @@ class PostgresRepository:
             return results
 
     def record_trace(self, trace: dict) -> None:
+        details = trace.get("details") or {}
+        safe_details = {
+            "provider": details.get("provider", "unknown"),
+            "tools_used": list(details.get("tools_used") or []),
+            "citations": list(details.get("citations") or []),
+            "warning_count": int(details.get("warning_count", 0)),
+            "abstained": bool(details.get("abstained", False)),
+            "comparison_category": details.get("comparison_category"),
+            "retrieval": list(details.get("retrieval") or []),
+        }
+        payload = {
+            "id": trace["id"],
+            "question": "",
+            "session_id": trace.get("session_id"),
+            "filters": {
+                key: trace.get("filters", {}).get(key)
+                for key in ("districts", "category", "period")
+                if trace.get("filters", {}).get(key) is not None
+            },
+            "route": trace["route"],
+            "retrieved_ids": list(trace.get("retrieved_ids") or []),
+            "mode": trace["mode"],
+            "latency_ms": trace["latency_ms"],
+            "details": safe_details,
+            "outcome": trace.get("outcome", "success"),
+            "provider_status": trace.get("provider_status", "unknown"),
+            "failure_category": trace.get("failure_category"),
+        }
         with self.sessions.begin() as session:
-            session.add(RetrievalTrace(**trace))
+            session.add(RetrievalTrace(**payload))

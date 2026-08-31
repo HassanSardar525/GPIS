@@ -6,12 +6,23 @@ from langchain_core.messages import AIMessage
 
 from app.agent import AgentChatService
 from app.llm import FailingProvider
+from app.observability import PhoenixObservability
 from app.repositories import JsonRepository
 from app.schemas import ChatRequest
 from app.services import ChatService, HybridRetriever
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_phoenix_runtime_failure_degrades_to_noop():
+    class FailingTracer:
+        def start_as_current_span(self, *args, **kwargs):
+            raise RuntimeError("collector unavailable")
+
+    observer = PhoenixObservability(FailingTracer())
+    with observer.span("test", "CHAIN", {"safe": True}) as span:
+        span.set_attributes({"still.safe": True})
 
 
 class CapturedSpan:
@@ -51,6 +62,9 @@ async def test_chat_captures_parent_retrieval_and_generation_spans():
     assert by_name["gpis.chat"].attributes["gpis.answer_mode"] == "extractive"
     assert by_name["gpis.retrieve"].attributes["retrieval.document_ids"][0].startswith("fact-multan-")
     assert by_name["gpis.generate"].attributes["llm.provider"] == "unavailable"
+    assert all("input.value" not in span.attributes for span in observer.spans)
+    assert all("output.value" not in span.attributes for span in observer.spans)
+    assert all("What is Multan literacy?" not in str(span.attributes) for span in observer.spans)
 
 
 @pytest.mark.asyncio
@@ -115,3 +129,5 @@ async def test_agent_captures_generation_tool_and_retrieval_spans():
     tool_span = next(span for span in observer.spans if span.name == "gpis.agent.tool.evidence_search")
     assert "fact-multan-literacy_total_pct" in tool_span.attributes["gpis.citation_ids"]
     assert response.tools_used == ["evidence_search"]
+    assert all("input.value" not in span.attributes for span in observer.spans)
+    assert all("output.value" not in span.attributes for span in observer.spans)

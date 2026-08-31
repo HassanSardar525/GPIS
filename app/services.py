@@ -82,7 +82,7 @@ class HybridRetriever:
             "gpis.retrieve",
             "RETRIEVER",
             {
-                "input.value": request.question,
+                "gpis.question_length": len(request.question),
                 "gpis.route": route.value,
                 "gpis.districts": request.selected_districts(),
                 "gpis.category": request.category,
@@ -223,8 +223,9 @@ class ChatService:
             "gpis.chat",
             "CHAIN",
             {
-                "input.value": request.question,
-                "session.id": trace_id,
+                "session.id": request.session_id or "anonymous",
+                "gpis.trace_id": trace_id,
+                "gpis.question_length": len(request.question),
                 "gpis.route": route.value,
                 "gpis.districts": request.selected_districts(),
                 "gpis.category": request.category,
@@ -234,7 +235,6 @@ class ChatService:
             response = await self._answer(request, route, trace_id, started)
             span.set_attributes(
                 {
-                    "output.value": response.answer,
                     "gpis.answer_mode": response.mode.value,
                     "gpis.abstained": response.abstained,
                     "gpis.citation_ids": [item.evidence_id for item in response.citations],
@@ -304,8 +304,8 @@ class ChatService:
                 "gpis.generate",
                 "LLM",
                 {
-                    "input.value": request.question,
                     "llm.provider": self.provider.name,
+                    "gpis.question_length": len(request.question),
                     "gpis.evidence_ids": [item.id for item in evidence],
                 },
             ) as generation_span:
@@ -319,7 +319,6 @@ class ChatService:
                 )
                 generation_span.set_attributes(
                     {
-                        "output.value": generated.answer,
                         "gpis.generated_evidence_ids": generated.evidence_ids,
                         "gpis.citation_validation": valid,
                     }
@@ -538,7 +537,8 @@ class ChatService:
         self.repository.record_trace(
             {
                 "id": response.trace_id,
-                "question": request.question,
+                "question": "",
+                "session_id": request.session_id,
                 "filters": {
                     "districts": request.selected_districts(),
                     "category": request.category,
@@ -548,10 +548,21 @@ class ChatService:
                 "retrieved_ids": [item.id for item in evidence],
                 "mode": response.mode.value,
                 "latency_ms": round((time.perf_counter() - started) * 1000, 2),
+                "outcome": "abstained" if response.abstained else "success",
+                "provider_status": "generated" if response.mode == AnswerMode.GROQ else "fallback",
+                "failure_category": (
+                    "unsupported_question"
+                    if response.route == QuestionRoute.UNSUPPORTED
+                    else "no_evidence"
+                    if response.abstained
+                    else "provider_fallback"
+                    if response.mode == AnswerMode.EXTRACTIVE and self.provider.name != "unavailable"
+                    else None
+                ),
                 "details": {
                     "provider": self.provider.name,
                     "citations": [item.evidence_id for item in response.citations],
-                    "warnings": response.warnings,
+                    "warning_count": len(response.warnings),
                     "abstained": response.abstained,
                     "comparison_category": response.comparison.category if response.comparison else None,
                     "retrieval": [

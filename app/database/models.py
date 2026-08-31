@@ -126,15 +126,32 @@ class DatasetMetadata(Base):
     value: Mapped[dict | str | int | float | bool] = mapped_column(JSONB)
 
 
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id: Mapped[str] = mapped_column(String(100), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    last_activity_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    message_count: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(20), default="active", index=True)
+
+
 class RetrievalTrace(Base):
     __tablename__ = "retrieval_traces"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
-    question: Mapped[str] = mapped_column(Text)
+    question: Mapped[str] = mapped_column(Text, default="")
+    session_id: Mapped[str | None] = mapped_column(
+        ForeignKey("chat_sessions.id", ondelete="CASCADE"), nullable=True, index=True
+    )
     filters: Mapped[dict] = mapped_column(JSONB)
     route: Mapped[str] = mapped_column(String(40), index=True)
     retrieved_ids: Mapped[list] = mapped_column(JSONB)
     mode: Mapped[str] = mapped_column(String(40), index=True)
     latency_ms: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     details: Mapped[dict] = mapped_column(JSONB, default=dict)
+    outcome: Mapped[str] = mapped_column(String(30), default="success", index=True)
+    provider_status: Mapped[str] = mapped_column(String(40), default="unknown", index=True)
+    failure_category: Mapped[str | None] = mapped_column(String(60), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

@@ -87,6 +87,34 @@ def test_chat_compatibility_alias_and_citations():
     assert "local_file" not in citation
 
 
+def test_session_lifecycle_contract_and_deletion():
+    session_id = "session-api-lifecycle"
+    response = CLIENT.post(
+        "/api/v1/chat",
+        json={"question": "Hello", "session_id": session_id},
+    )
+    assert response.status_code == 200
+    assert response.json()["session_id"] == session_id
+
+    status = CLIENT.get(f"/api/v1/sessions/{session_id}")
+    assert status.status_code == 200
+    assert status.json()["message_count"] == 1
+    assert status.json()["status"] == "active"
+
+    deleted = CLIENT.delete(f"/api/v1/sessions/{session_id}")
+    assert deleted.status_code == 200
+    assert deleted.json() == {"session_id": session_id, "deleted": True}
+    assert CLIENT.get(f"/api/v1/sessions/{session_id}").status_code == 404
+
+
+def test_session_identifier_rejects_unsafe_characters():
+    response = CLIENT.post(
+        "/api/v1/chat",
+        json={"question": "Hello", "session_id": "unsafe session/id"},
+    )
+    assert response.status_code == 422
+
+
 def test_chat_rejects_unknown_district_before_retrieval():
     response = CLIENT.post("/api/v1/chat", json={"question": "What is literacy?", "districts": ["unknown"]})
     assert response.status_code == 404

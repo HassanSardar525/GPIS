@@ -34,3 +34,13 @@ class InvalidComparison(GPISException):
 class RepositoryUnavailable(GPISException):
     code = "repository_unavailable"
     status_code = 503
+
+
+class SessionNotFound(GPISException):
+    code = "session_not_found"
+    status_code = 404
+
+
+class SessionExpired(GPISException):
+    code = "session_expired"
+    status_code = 410
