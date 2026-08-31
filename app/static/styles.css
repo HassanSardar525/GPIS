@@ -75,7 +75,9 @@ select, input { width: 100%; padding: 14px 16px; border: 1px solid var(--line); 
 .chat-panel .eyebrow { color: #8ed1b5; }
 .chat-heading { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
 .chat-heading h2 { margin-bottom: 8px; }
+.chat-actions { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; justify-content: end; }
 .secondary-button { min-height: 40px; padding: 8px 13px; border: 1px solid rgba(255,255,255,.32); color: white; background: transparent; font-size: .75rem; white-space: nowrap; }
+.danger-button { min-height: 40px; padding: 8px 13px; border: 1px solid #d7a099; color: #ffe4df; background: rgba(167,68,56,.22); font-size: .75rem; white-space: nowrap; }
 .memory-note { margin: 0 0 14px; color: #b8cbc2; font-size: .75rem; line-height: 1.45; }
 .chat-answer { min-height: 154px; padding: 18px; border-radius: 12px; background: rgba(255,255,255,.07); color: #e1ebe6; line-height: 1.55; font-size: .92rem; }
 .chat-answer a { color: #f4c976; }
@@ -155,7 +157,7 @@ footer { padding: 28px; border-top: 1px solid var(--line); text-align: center; c
   main { width: min(100% - 20px, 1180px); }
   .panel, .score-card { padding: 18px; }
   .chat-heading { align-items: stretch; flex-direction: column; }
-  .secondary-button { align-self: start; }
+  .chat-actions { justify-content: start; }
   #chat-form { grid-template-columns: 1fr; }
   #chat-form button { min-height: 46px; }
   .comparison-districts { grid-template-columns: 1fr; }

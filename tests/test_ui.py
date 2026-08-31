@@ -43,16 +43,21 @@ def test_source_previews_are_inside_the_existing_chat_panel():
     assert ".citation-preview" in styles
 
 
-def test_new_chat_explains_and_resets_temporary_memory():
+def test_session_controls_explain_persistence_new_chat_and_deletion():
     html = (ROOT / "app/static/index.html").read_text(encoding="utf-8")
     script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
 
     assert 'id="new-chat"' in html
+    assert 'id="delete-chat"' in html
     assert 'id="memory-note"' in html
-    assert "may reset after a page or server restart" in html
-    assert "function startNewChat()" in script
+    assert "survives page and API restarts" in html
+    assert "function startNewChat(message = initialChatMessage)" in script
+    assert "function deleteCurrentChat()" in script
     assert "state.chatRequest += 1" in script
-    assert "state.sessionId = window.crypto?.randomUUID?.()" in script
+    assert "window.localStorage.getItem('gpis.sessionId')" in script
+    assert "window.localStorage.setItem('gpis.sessionId', sessionId)" in script
+    assert "/api/v1/sessions/${encodeURIComponent(state.sessionId)}" in script
+    assert "error.code === 'session_expired'" in script
     assert "document.querySelector('#chat-question').value = ''" in script
 
 

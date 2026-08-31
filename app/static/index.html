@@ -79,9 +79,12 @@
             <p class="eyebrow">Citation-grounded assistant</p>
             <h2 id="chat-title">Ask about the evidence</h2>
           </div>
-          <button id="new-chat" class="secondary-button" type="button">New Chat</button>
+          <div class="chat-actions">
+            <button id="new-chat" class="secondary-button" type="button">New Chat</button>
+            <button id="delete-chat" class="danger-button" type="button" disabled>Delete conversation</button>
+          </div>
         </div>
-        <p id="memory-note" class="memory-note">Memory lasts for this browser conversation and may reset after a page or server restart. New Chat starts a separate conversation.</p>
+        <p id="memory-note" class="memory-note">This conversation survives page and API restarts until it expires or you delete it. New Chat starts a separate conversation without deleting this one.</p>
         <div id="chat-answer" class="chat-answer" role="status" aria-live="polite" aria-busy="false" tabindex="-1">
           Try: “Why did this district receive its health score?” or “How did budget utilization change?”
         </div>

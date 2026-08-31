@@ -1,8 +1,22 @@
+function createSessionId() {
+  return window.crypto?.randomUUID?.() || `session-${Date.now()}`;
+}
+
+function savedSessionId() {
+  try { return window.localStorage.getItem('gpis.sessionId'); } catch { return null; }
+}
+
+function saveSessionId(sessionId) {
+  try { window.localStorage.setItem('gpis.sessionId', sessionId); } catch { /* storage is optional */ }
+}
+
+const restoredSessionId = savedSessionId();
 const state = {
   district: null,
   districts: [],
   trend: null,
-  sessionId: window.crypto?.randomUUID?.() || `session-${Date.now()}`,
+  sessionId: restoredSessionId || createSessionId(),
+  sessionStarted: Boolean(restoredSessionId),
   districtRequest: 0,
   rankingRequest: 0,
   chatRequest: 0,
@@ -74,6 +88,7 @@ function setChatControlsDisabled(disabled) {
   document.querySelector('#chat-submit').disabled = disabled;
   document.querySelectorAll('.chat-prompts button').forEach(button => { button.disabled = disabled; });
   document.querySelectorAll('[data-score-category]').forEach(button => { button.disabled = disabled; });
+  document.querySelector('#delete-chat').disabled = disabled || !state.sessionStarted;
 }
 
 function showDistrictError(error) {
@@ -89,16 +104,32 @@ function showRankingError(error) {
   setBusy(list, false);
 }
 
-function startNewChat() {
+function startNewChat(message = initialChatMessage) {
   state.chatRequest += 1;
-  state.sessionId = window.crypto?.randomUUID?.() || `session-${Date.now()}`;
+  state.sessionId = createSessionId();
+  state.sessionStarted = false;
+  saveSessionId(state.sessionId);
   state.lastQuestion = null;
   state.lastDistricts = [];
   setChatControlsDisabled(false);
   const answer = document.querySelector('#chat-answer');
-  setBusy(answer, false, initialChatMessage);
+  setBusy(answer, false, message);
   document.querySelector('#chat-question').value = '';
   document.querySelector('#chat-question').focus();
+}
+
+async function deleteCurrentChat() {
+  if (!state.sessionStarted) return;
+  if (!window.confirm('Delete this conversation and its stored history?')) return;
+  const button = document.querySelector('#delete-chat');
+  button.disabled = true;
+  try {
+    await json(`/api/v1/sessions/${encodeURIComponent(state.sessionId)}`, { method: 'DELETE' });
+    startNewChat('Conversation deleted. A new empty chat is ready.');
+  } catch (error) {
+    document.querySelector('#chat-answer').innerHTML = `<div class="state-error" role="alert"><p>Could not delete this conversation: ${escapeHtml(error.message)}</p><button type="button" data-action="retry-delete">Retry deletion</button></div>`;
+    button.disabled = false;
+  }
 }
 
 function comparisonValue(value, unit) {
@@ -175,7 +206,11 @@ function renderComparison(comparison) {
 async function json(url, options) {
   const response = await fetch(url, options);
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message || data.error || 'Request failed');
+  if (!response.ok) {
+    const error = new Error(data.error?.message || data.error || 'Request failed');
+    error.code = data.error?.code;
+    throw error;
+  }
   return data;
 }
 
@@ -307,6 +342,8 @@ async function askQuestion(question, districts = [state.district.slug]) {
     });
     if (requestId !== state.chatRequest) return;
     state.sessionId = data.session_id || state.sessionId;
+    state.sessionStarted = true;
+    saveSessionId(state.sessionId);
     const warnings = data.warnings.map(warning => `<li>${escapeHtml(warning)}</li>`).join('');
     const tools = data.tools_used?.length ? `<span>tools: ${escapeHtml(data.tools_used.join(', '))}</span>` : '';
     const comparison = renderComparison(data.comparison);
@@ -316,7 +353,9 @@ async function askQuestion(question, districts = [state.district.slug]) {
     answer.focus({ preventScroll: true });
   } catch (error) {
     if (requestId !== state.chatRequest) return;
-    answer.innerHTML = `<div class="state-error" role="alert"><p>Evidence service unavailable: ${escapeHtml(error.message)}</p><button type="button" data-action="retry-chat">Retry question</button></div>`;
+    answer.innerHTML = error.code === 'session_expired'
+      ? '<div class="state-error" role="alert"><p>This conversation expired and cannot be resumed.</p><button type="button" data-action="new-chat">Start a new chat</button></div>'
+      : `<div class="state-error" role="alert"><p>Evidence service unavailable: ${escapeHtml(error.message)}</p><button type="button" data-action="retry-chat">Retry question</button></div>`;
     setBusy(answer, false);
   } finally {
     if (requestId === state.chatRequest) setChatControlsDisabled(false);
@@ -359,7 +398,8 @@ document.querySelector('#chat-form').addEventListener('submit', async event => {
   if (question) await askQuestion(question);
 });
 
-document.querySelector('#new-chat').addEventListener('click', startNewChat);
+document.querySelector('#new-chat').addEventListener('click', () => startNewChat());
+document.querySelector('#delete-chat').addEventListener('click', deleteCurrentChat);
 
 document.addEventListener('click', event => {
   const action = event.target.closest('[data-action]')?.dataset.action;
@@ -371,6 +411,10 @@ document.addEventListener('click', event => {
     loadRankings().catch(showRankingError);
   } else if (action === 'retry-init') {
     init().catch(showInitError);
+  } else if (action === 'retry-delete') {
+    deleteCurrentChat();
+  } else if (action === 'new-chat') {
+    startNewChat();
   }
 });
 
@@ -388,4 +432,5 @@ function showInitError(error) {
   setBusy(notice, false);
 }
 
+setChatControlsDisabled(false);
 init().catch(showInitError);
