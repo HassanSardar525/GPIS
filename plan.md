@@ -157,12 +157,20 @@ The external live Groq evaluator was not rerun during Phase 4 because it sends p
 
 **Working result:** Non-technical users can understand an answer and verify its evidence easily.
 
-## Phase 5 — Persist sessions and add observability
+## Phase 5 — Persist sessions and add observability ✅
 
-- Replace in-memory LangGraph checkpoints with PostgreSQL-backed session storage.
-- Add session expiry and deletion controls.
-- Store privacy-safe tool, retrieval, citation, latency, and failure metrics.
-- Keep Phoenix optional and ensure the application works when tracing is unavailable.
+**Status:** Completed 2026-08-31. PostgreSQL deployments use durable LangGraph checkpoints; JSON deployments retain the controlled in-memory fallback.
+
+- [x] Replace in-memory LangGraph checkpoints with the official asynchronous PostgreSQL checkpointer and idempotent checkpoint setup.
+- [x] Persist session creation, activity, expiry, message count, and status metadata across API recreation.
+- [x] Add validated session status and permanent deletion APIs; deletion removes checkpoints and linked telemetry.
+- [x] Add configurable sliding expiry and an idempotent command for cleaning expired sessions.
+- [x] Store privacy-safe route, tool, retrieval, citation, latency, outcome, provider, and failure metadata without questions, answers, passages, prompts, or exception dumps.
+- [x] Remove conversational content from OpenTelemetry attributes and make runtime Phoenix failures degrade to no-op tracing.
+- [x] Persist the browser session identifier across reloads and distinguish New Chat from permanent conversation deletion.
+- [x] Add explicit expired-session, deletion-success, and deletion-failure UI states without changing the existing chat flow.
+- [x] Verify checkpoint and metadata survival across runtime/API recreation, session isolation, expiry, cleanup, deletion, telemetry privacy, migration rollback, JSON fallback, and optional tracing.
+- [x] Run the complete PostgreSQL-backed suite with 119 passing tests and zero skips.
 
 **Working result:** Conversations survive API restarts and the complete RAG workflow can be diagnosed.
 
