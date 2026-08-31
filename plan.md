@@ -138,12 +138,22 @@ LangChain and LangGraph are already implemented on the `feature/langgraph-rag-ag
 
 **Working result:** More defensible scores and meaningful year-over-year explanations.
 
-## Phase 4 — Improve citations and user experience
+## Phase 4 — Improve citations and user experience ✅
 
-- Show the exact source title, publisher, period, page/table locator, and retrieved passage.
-- Add source-preview panels without creating a separate comparison form.
-- Improve loading, no-evidence, fallback, accessibility, and mobile states.
-- Add a visible New Chat action and explain when session memory resets.
+**Status:** Completed 2026-08-31. Existing citation fields remain compatible and exact canonical passages are now available additively.
+
+- [x] Show the exact source title, publisher, period, page/table locator, and retrieved passage.
+- [x] Populate citation passages from canonical retrieved evidence through shared JSON/PostgreSQL, deterministic RAG, comparison, trend, and LangGraph-agent paths.
+- [x] Preserve citations with passages during deduplication and prevent internal local-file metadata from entering the public citation contract.
+- [x] Add expandable source-preview panels inside the existing chat and comparison flow without creating a separate comparison form.
+- [x] Improve localized loading, no-evidence, deterministic fallback, retry, stale-request, and empty-data states.
+- [x] Add live-region announcements, semantic controls, visible focus, reduced-motion behavior, mobile stacking, and accessible native source disclosures.
+- [x] Add a visible New Chat action that changes the session ID, clears the current answer, ignores in-flight responses, and explains temporary memory resets.
+- [x] Verify API compatibility, canonical passage propagation, citation safety, JSON/PostgreSQL parity, agent grounding, responsive hooks, and session-reset behavior.
+- [x] Run the complete PostgreSQL-backed suite with 110 passing tests and zero skips.
+- [x] Pass the 63-case deterministic RAG gate with 92.06% answer accuracy, 98.31% retrieval recall at 5, 100% citation precision, and 100% unsupported-question abstention.
+
+The external live Groq evaluator was not rerun during Phase 4 because it sends project questions and retrieved evidence to a third-party service; scripted LangGraph agent regressions passed locally.
 
 **Working result:** Non-technical users can understand an answer and verify its evidence easily.
 
