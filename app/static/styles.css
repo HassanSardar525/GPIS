@@ -13,6 +13,8 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--ink); background: var(--paper); font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+:focus-visible { outline: 3px solid #f4c976; outline-offset: 3px; }
 .site-header { display: flex; align-items: baseline; justify-content: space-between; padding: 22px max(5vw, 24px); border-bottom: 1px solid var(--line); }
 .site-header p { margin: 0; color: var(--muted); font-size: .9rem; }
 .brand { color: var(--green); font-weight: 900; letter-spacing: -.04em; text-decoration: none; font-size: 1.45rem; }
@@ -71,13 +73,36 @@ select, input { width: 100%; padding: 14px 16px; border: 1px solid var(--line); 
 .bar { height: 100%; background: var(--gold); }
 .chat-panel { background: #14261f; color: white; }
 .chat-panel .eyebrow { color: #8ed1b5; }
+.chat-heading { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+.chat-heading h2 { margin-bottom: 8px; }
+.secondary-button { min-height: 40px; padding: 8px 13px; border: 1px solid rgba(255,255,255,.32); color: white; background: transparent; font-size: .75rem; white-space: nowrap; }
+.memory-note { margin: 0 0 14px; color: #b8cbc2; font-size: .75rem; line-height: 1.45; }
 .chat-answer { min-height: 154px; padding: 18px; border-radius: 12px; background: rgba(255,255,255,.07); color: #e1ebe6; line-height: 1.55; font-size: .92rem; }
 .chat-answer a { color: #f4c976; }
-.answer-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; color: #9ec8b6; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
+.answer-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; color: #9ec8b6; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
 .answer-mode { padding: 4px 8px; border: 1px solid rgba(255,255,255,.2); border-radius: 99px; }
+.answer-status { padding: 10px 12px; border-radius: 8px; font-size: .78rem; }
+.state-fallback { color: #fff1c7; background: rgba(216,155,50,.16); }
+.state-empty { color: #dbe9e3; background: rgba(142,209,181,.1); }
 .chat-prompts { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 12px; }
 .chat-prompts button { padding: 7px 10px; border: 1px solid rgba(255,255,255,.18); color: #dbe9e3; background: transparent; font-size: .74rem; font-weight: 700; }
 .chat-warnings { color: #f4c976; font-size: .78rem; }
+.citation-list { margin-top: 18px; }
+.citation-list > h3 { margin: 0 0 9px; font-size: .88rem; }
+.citation-preview { margin-top: 8px; border: 1px solid rgba(255,255,255,.16); border-radius: 10px; background: rgba(255,255,255,.04); }
+.citation-preview summary { display: grid; gap: 2px; padding: 11px 13px; cursor: pointer; }
+.citation-preview summary span { color: #8ed1b5; font-size: .66rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.citation-preview summary strong { color: white; font-size: .8rem; }
+.citation-preview summary small { color: #b8cbc2; font-size: .7rem; }
+.citation-body { padding: 0 13px 13px; border-top: 1px solid rgba(255,255,255,.1); }
+.citation-body dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.citation-body dl div { min-width: 0; }
+.citation-body dt { color: #8ed1b5; font-size: .65rem; font-weight: 800; text-transform: uppercase; }
+.citation-body dd { margin: 2px 0 0; overflow-wrap: anywhere; color: #dbe9e3; font-size: .72rem; }
+.citation-body h4 { margin: 12px 0 5px; font-size: .75rem; }
+.citation-body blockquote { margin: 0 0 12px; padding: 10px 12px; border-left: 3px solid var(--gold); background: rgba(0,0,0,.15); color: #edf4f0; font-size: .8rem; }
+.citation-empty { color: #b8cbc2; font-size: .75rem; }
+.citation-body a { display: inline-block; font-size: .76rem; font-weight: 800; }
 .comparison-result { margin: 16px 0; padding: 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 12px; background: rgba(255,255,255,.05); }
 .comparison-heading { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
 .comparison-heading h3 { margin: 0; text-transform: capitalize; }
@@ -105,6 +130,12 @@ select, input { width: 100%; padding: 14px 16px; border: 1px solid var(--line); 
 #chat-form input { background: white; }
 button { padding: 0 22px; border: 0; border-radius: 10px; color: #14261f; background: var(--gold); font-weight: 900; cursor: pointer; }
 button:disabled { cursor: wait; opacity: .65; }
+.state-error { grid-column: 1 / -1; padding: 14px; border: 1px solid #d7a099; border-radius: 10px; color: #7a2f26; background: #f8e9e6; }
+.chat-panel .state-error { color: #ffe4df; background: rgba(167,68,56,.2); }
+.state-error p { margin-top: 0; }
+.state-error button { min-height: 38px; padding: 7px 12px; }
+.skeleton { min-height: 260px; background: linear-gradient(100deg, #fffdf7 20%, #ecece4 50%, #fffdf7 80%); background-size: 220% 100%; animation: shimmer 1.25s infinite linear; }
+@keyframes shimmer { to { background-position-x: -220%; } }
 .methodology { margin: 0 0 42px; }
 .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .method-grid p { color: var(--muted); line-height: 1.5; font-size: .88rem; }
@@ -117,4 +148,18 @@ footer { padding: 28px; border-top: 1px solid var(--line); text-align: center; c
   .overall-badge { min-width: 0; }
   .comparison-heading { display: block; }
   .comparison-heading span { display: block; margin-top: 4px; }
+  .citation-body dl { grid-template-columns: 1fr; }
+  button, summary { min-height: 44px; }
+}
+@media (max-width: 520px) {
+  main { width: min(100% - 20px, 1180px); }
+  .panel, .score-card { padding: 18px; }
+  .chat-heading { align-items: stretch; flex-direction: column; }
+  .secondary-button { align-self: start; }
+  #chat-form { grid-template-columns: 1fr; }
+  #chat-form button { min-height: 46px; }
+  .comparison-districts { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }

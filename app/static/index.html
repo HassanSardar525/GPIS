@@ -25,9 +25,9 @@
       </label>
     </section>
 
-    <section id="notice" class="notice"></section>
+    <section id="notice" class="notice" role="status" aria-live="polite"></section>
 
-    <section class="district-heading">
+    <section id="district-summary" class="district-heading" aria-busy="true">
       <div>
         <p class="eyebrow">District scorecard · Census 2023 / FY 2023–24</p>
         <h2 id="district-name">Loading…</h2>
@@ -43,7 +43,7 @@
 
     <section id="scorecards" class="score-grid" aria-label="Performance scores"></section>
 
-    <section class="panel trend-panel" aria-labelledby="trend-title">
+    <section id="trend-panel" class="panel trend-panel" aria-labelledby="trend-title" aria-busy="true">
       <div class="panel-title">
         <div>
           <p class="eyebrow">Verified two-period comparison</p>
@@ -70,13 +70,19 @@
             <option value="accountability">Financial management</option>
           </select>
         </div>
-        <ol id="ranking-list" class="ranking-list"></ol>
+        <ol id="ranking-list" class="ranking-list" aria-live="polite" aria-busy="true"></ol>
       </article>
 
-      <article class="panel chat-panel">
-        <p class="eyebrow">Citation-grounded assistant</p>
-        <h2>Ask about the evidence</h2>
-        <div id="chat-answer" class="chat-answer">
+      <article class="panel chat-panel" aria-labelledby="chat-title">
+        <div class="chat-heading">
+          <div>
+            <p class="eyebrow">Citation-grounded assistant</p>
+            <h2 id="chat-title">Ask about the evidence</h2>
+          </div>
+          <button id="new-chat" class="secondary-button" type="button">New Chat</button>
+        </div>
+        <p id="memory-note" class="memory-note">Memory lasts for this browser conversation and may reset after a page or server restart. New Chat starts a separate conversation.</p>
+        <div id="chat-answer" class="chat-answer" role="status" aria-live="polite" aria-busy="false" tabindex="-1">
           Try: “Why did this district receive its health score?” or “How did budget utilization change?”
         </div>
         <div class="chat-prompts" aria-label="Suggested questions">
@@ -85,8 +91,9 @@
           <button type="button" data-question="Which district ranks best overall?" data-all-districts="true">Best overall</button>
         </div>
         <form id="chat-form">
+          <label class="sr-only" for="chat-question">Question about district evidence</label>
           <input id="chat-question" autocomplete="off" placeholder="Ask about any district or compare districts…" required>
-          <button type="submit">Ask</button>
+          <button id="chat-submit" type="submit">Ask</button>
         </form>
       </article>
     </section>

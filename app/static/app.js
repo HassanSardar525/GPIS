@@ -3,9 +3,15 @@ const state = {
   districts: [],
   trend: null,
   sessionId: window.crypto?.randomUUID?.() || `session-${Date.now()}`,
+  districtRequest: 0,
+  rankingRequest: 0,
+  chatRequest: 0,
+  lastQuestion: null,
+  lastDistricts: [],
 };
 const select = document.querySelector('#district-select');
 const rankingCategory = document.querySelector('#ranking-category');
+const initialChatMessage = 'Try: “Why did this district receive its health score?” or “How did budget utilization change?”';
 
 const number = (value, digits = 0) => Number(value).toLocaleString('en-PK', {
   minimumFractionDigits: digits,
@@ -23,6 +29,76 @@ function safeUrl(value) {
   } catch {
     return '#';
   }
+}
+
+function setBusy(element, busy, message = null) {
+  element.setAttribute('aria-busy', String(busy));
+  element.dataset.state = busy ? 'loading' : 'ready';
+  if (message !== null) element.textContent = message;
+}
+
+function renderCitations(citations = []) {
+  if (!citations.length) return '';
+  const cards = citations.map((citation, index) => {
+    const sourceUrl = safeUrl(citation.url);
+    const officialLink = sourceUrl === '#'
+      ? '<span class="citation-empty">Official source link unavailable.</span>'
+      : `<a href="${sourceUrl}" target="_blank" rel="noreferrer">Open official source ↗</a>`;
+    const passage = citation.passage
+      ? `<blockquote>${escapeHtml(citation.passage)}</blockquote>`
+      : '<p class="citation-empty">No retrieved passage is available for this citation.</p>';
+    return `<details class="citation-preview">
+      <summary><span>Source ${index + 1}</span><strong>${escapeHtml(citation.title)}</strong><small>${escapeHtml(citation.publisher)} · ${escapeHtml(citation.period)}</small></summary>
+      <div class="citation-body">
+        <dl><div><dt>Publisher</dt><dd>${escapeHtml(citation.publisher)}</dd></div><div><dt>Period</dt><dd>${escapeHtml(citation.period)}</dd></div><div><dt>Page / table</dt><dd>${escapeHtml(citation.locator)}</dd></div></dl>
+        <h4>Retrieved passage</h4>
+        ${passage}
+        ${officialLink}
+      </div>
+    </details>`;
+  }).join('');
+  return `<section class="citation-list" aria-label="Evidence sources"><h3>Evidence sources</h3>${cards}</section>`;
+}
+
+function renderAnswerStatus(data) {
+  if (data.mode === 'abstained') {
+    return '<p class="answer-status state-empty">No matching evidence was found. Try a district literacy, health-facility, budget, score, ranking, or source question.</p>';
+  }
+  const fallback = data.mode === 'extractive' && data.warnings?.some(warning => warning.includes('LLM'));
+  return fallback
+    ? '<p class="answer-status state-fallback">A deterministic fallback answer is shown because the language-model response was unavailable or failed citation checks.</p>'
+    : '';
+}
+
+function setChatControlsDisabled(disabled) {
+  document.querySelector('#chat-submit').disabled = disabled;
+  document.querySelectorAll('.chat-prompts button').forEach(button => { button.disabled = disabled; });
+  document.querySelectorAll('[data-score-category]').forEach(button => { button.disabled = disabled; });
+}
+
+function showDistrictError(error) {
+  document.querySelector('#district-summary').setAttribute('aria-busy', 'false');
+  document.querySelector('#district-name').textContent = 'District unavailable';
+  document.querySelector('#scorecards').innerHTML = `<div class="state-error" role="alert"><p>${escapeHtml(error.message)}</p><button type="button" data-action="retry-district">Retry district</button></div>`;
+  renderTrendError(error);
+}
+
+function showRankingError(error) {
+  const list = document.querySelector('#ranking-list');
+  list.innerHTML = `<li class="state-error" role="alert"><span>${escapeHtml(error.message)}</span><button type="button" data-action="retry-ranking">Retry</button></li>`;
+  setBusy(list, false);
+}
+
+function startNewChat() {
+  state.chatRequest += 1;
+  state.sessionId = window.crypto?.randomUUID?.() || `session-${Date.now()}`;
+  state.lastQuestion = null;
+  state.lastDistricts = [];
+  setChatControlsDisabled(false);
+  const answer = document.querySelector('#chat-answer');
+  setBusy(answer, false, initialChatMessage);
+  document.querySelector('#chat-question').value = '';
+  document.querySelector('#chat-question').focus();
 }
 
 function comparisonValue(value, unit) {
@@ -114,7 +190,7 @@ function card(category, title, score, rank, detail, metrics, sourceUrl) {
 
 function renderDistrict(data) {
   state.district = data;
-  document.querySelector('#notice').textContent = data.metadata.disclaimer;
+  setBusy(document.querySelector('#notice'), false, data.metadata.disclaimer);
   document.querySelector('#district-name').textContent = data.name;
   document.querySelector('#population').textContent = `Population ${number(data.population_2023)} · Census 2023`;
   document.querySelector('#overall-score').textContent = data.derived.scores.overall;
@@ -141,7 +217,7 @@ function renderDistrict(data) {
       ['Formations audited', `${accountability.audited_formations} of ${accountability.total_formations}`],
     ], data.sources.agp_dha.url),
   ].join('');
-  loadRankings();
+  loadRankings().catch(showRankingError);
 }
 
 function renderTrend(data) {
@@ -157,6 +233,7 @@ function renderTrend(data) {
   </article>`).join('');
   document.querySelector('#trend-warning').textContent = data.warnings.join(' ');
   document.querySelector('#trend-source').href = safeUrl(data.citation.url);
+  document.querySelector('#trend-panel').setAttribute('aria-busy', 'false');
 }
 
 function renderTrendError(error) {
@@ -164,67 +241,108 @@ function renderTrendError(error) {
   document.querySelector('#trend-periods').innerHTML = '';
   document.querySelector('#trend-warning').textContent = error.message;
   document.querySelector('#trend-source').removeAttribute('href');
+  document.querySelector('#trend-panel').setAttribute('aria-busy', 'false');
 }
 
 async function loadDistrict(slug) {
+  const requestId = ++state.districtRequest;
+  setBusy(document.querySelector('#district-summary'), true);
   document.querySelector('#district-name').textContent = 'Loading…';
-  const [detail, trend] = await Promise.all([
-    json(`/api/v1/districts/${slug}`),
-    json(`/api/v1/districts/${slug}/trends/development-budget`).catch(error => ({ error })),
-  ]);
+  document.querySelector('#scorecards').innerHTML = '<article class="score-card skeleton" aria-hidden="true"></article><article class="score-card skeleton" aria-hidden="true"></article><article class="score-card skeleton" aria-hidden="true"></article>';
+  document.querySelector('#trend-panel').setAttribute('aria-busy', 'true');
+  document.querySelector('#trend-change').textContent = 'Loading…';
+  let detail;
+  let trend;
+  try {
+    [detail, trend] = await Promise.all([
+      json(`/api/v1/districts/${slug}`),
+      json(`/api/v1/districts/${slug}/trends/development-budget`).catch(error => ({ error })),
+    ]);
+  } catch (error) {
+    if (requestId !== state.districtRequest) return;
+    throw error;
+  }
+  if (requestId !== state.districtRequest) return;
   renderDistrict(detail);
   if (trend.error) renderTrendError(trend.error); else renderTrend(trend);
+  setBusy(document.querySelector('#district-summary'), false);
 }
 
 async function loadRankings() {
-  const data = await json(`/api/v1/rankings?category=${rankingCategory.value}`);
+  const requestId = ++state.rankingRequest;
+  setBusy(document.querySelector('#ranking-list'), true, 'Loading rankings…');
+  let data;
+  try {
+    data = await json(`/api/v1/rankings?category=${rankingCategory.value}`);
+  } catch (error) {
+    if (requestId !== state.rankingRequest) return;
+    throw error;
+  }
+  if (requestId !== state.rankingRequest) return;
+  if (!data.rankings.length) {
+    setBusy(document.querySelector('#ranking-list'), false, 'No rankable districts are available for this category.');
+    return;
+  }
   document.querySelector('#ranking-list').innerHTML = data.rankings.map(item => `
     <li class="${state.district?.slug === item.slug ? 'active' : ''}">
       <strong>${item.rank}</strong>
       <span>${escapeHtml(item.name)}<span class="bar-track"><span class="bar" style="display:block;width:${item.score}%"></span></span></span>
       <strong title="${escapeHtml(`${item.score_detail.version}; ${item.score_detail.reporting_period}; coverage ${number(item.score_detail.coverage * 100, 0)}%`)}">${item.score}</strong>
     </li>`).join('');
+  setBusy(document.querySelector('#ranking-list'), false);
 }
 
 async function askQuestion(question, districts = [state.district.slug]) {
   const answer = document.querySelector('#chat-answer');
-  const submit = document.querySelector('#chat-form button');
-  submit.disabled = true;
-  answer.textContent = 'Searching structured facts and official evidence…';
+  const requestId = ++state.chatRequest;
+  state.lastQuestion = question;
+  state.lastDistricts = [...districts];
+  setChatControlsDisabled(true);
+  setBusy(answer, true, 'Searching structured facts and official evidence…');
   try {
     const data = await json('/api/v1/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question, districts, session_id: state.sessionId }),
     });
+    if (requestId !== state.chatRequest) return;
     state.sessionId = data.session_id || state.sessionId;
-    const citations = data.citations.map(citation =>
-      `<li><a href="${safeUrl(citation.url)}" target="_blank" rel="noreferrer">${escapeHtml(citation.publisher)}: ${escapeHtml(citation.title)}</a> — ${escapeHtml(citation.period)} · ${escapeHtml(citation.locator)}</li>`
-    ).join('');
     const warnings = data.warnings.map(warning => `<li>${escapeHtml(warning)}</li>`).join('');
     const tools = data.tools_used?.length ? `<span>tools: ${escapeHtml(data.tools_used.join(', '))}</span>` : '';
     const comparison = renderComparison(data.comparison);
-    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${data.mode}">${escapeHtml(data.mode)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(data.trace_id.slice(0, 8))}</span></div><p>${escapeHtml(data.answer)}</p>${comparison}${citations ? `<ol>${citations}</ol>` : ''}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
+    const mode = ['groq', 'extractive', 'abstained'].includes(data.mode) ? data.mode : 'extractive';
+    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${mode}">${escapeHtml(data.mode)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(String(data.trace_id).slice(0, 8))}</span></div>${renderAnswerStatus(data)}<p>${escapeHtml(data.answer)}</p>${comparison}${renderCitations(data.citations)}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
+    setBusy(answer, false);
+    answer.focus({ preventScroll: true });
   } catch (error) {
-    answer.innerHTML = `<p>Evidence service unavailable: ${escapeHtml(error.message)}</p>`;
+    if (requestId !== state.chatRequest) return;
+    answer.innerHTML = `<div class="state-error" role="alert"><p>Evidence service unavailable: ${escapeHtml(error.message)}</p><button type="button" data-action="retry-chat">Retry question</button></div>`;
+    setBusy(answer, false);
   } finally {
-    submit.disabled = false;
+    if (requestId === state.chatRequest) setChatControlsDisabled(false);
   }
 }
 
 async function init() {
+  setBusy(document.querySelector('#notice'), true, 'Loading reviewed district evidence…');
   const data = await json('/api/v1/districts');
+  if (!data.districts.length) {
+    setBusy(document.querySelector('#notice'), false, 'No reviewed districts are currently available.');
+    select.disabled = true;
+    setBusy(document.querySelector('#district-summary'), false);
+    document.querySelector('#district-name').textContent = 'No districts available';
+    document.querySelector('#scorecards').innerHTML = '<div class="state-empty">No scorecards can be displayed.</div>';
+    renderTrendError(new Error('No trend evidence is available.'));
+    setBusy(document.querySelector('#ranking-list'), false, 'No rankable districts are available.');
+    return;
+  }
   state.districts = data.districts;
   select.innerHTML = data.districts.map(district => `<option value="${district.slug}">${escapeHtml(district.name)}</option>`).join('');
   await loadDistrict(data.districts[0].slug);
 }
 
-select.addEventListener('change', () => loadDistrict(select.value).catch(error => {
-  document.querySelector('#notice').textContent = error.message;
-}));
-rankingCategory.addEventListener('change', () => loadRankings().catch(error => {
-  document.querySelector('#ranking-list').innerHTML = `<li>${escapeHtml(error.message)}</li>`;
-}));
+select.addEventListener('change', () => loadDistrict(select.value).catch(showDistrictError));
+rankingCategory.addEventListener('change', () => loadRankings().catch(showRankingError));
 
 document.querySelector('#scorecards').addEventListener('click', event => {
   const button = event.target.closest('[data-score-category]');
@@ -237,7 +355,23 @@ document.querySelector('#scorecards').addEventListener('click', event => {
 
 document.querySelector('#chat-form').addEventListener('submit', async event => {
   event.preventDefault();
-  await askQuestion(document.querySelector('#chat-question').value);
+  const question = document.querySelector('#chat-question').value.trim();
+  if (question) await askQuestion(question);
+});
+
+document.querySelector('#new-chat').addEventListener('click', startNewChat);
+
+document.addEventListener('click', event => {
+  const action = event.target.closest('[data-action]')?.dataset.action;
+  if (action === 'retry-chat' && state.lastQuestion) {
+    askQuestion(state.lastQuestion, state.lastDistricts);
+  } else if (action === 'retry-district') {
+    loadDistrict(select.value).catch(showDistrictError);
+  } else if (action === 'retry-ranking') {
+    loadRankings().catch(showRankingError);
+  } else if (action === 'retry-init') {
+    init().catch(showInitError);
+  }
 });
 
 document.querySelectorAll('.chat-prompts button').forEach(button => {
@@ -248,4 +382,10 @@ document.querySelectorAll('.chat-prompts button').forEach(button => {
   });
 });
 
-init().catch(error => { document.querySelector('#notice').textContent = error.message; });
+function showInitError(error) {
+  const notice = document.querySelector('#notice');
+  notice.innerHTML = `<div class="state-error" role="alert"><span>Unable to load district evidence: ${escapeHtml(error.message)}</span><button type="button" data-action="retry-init">Retry</button></div>`;
+  setBusy(notice, false);
+}
+
+init().catch(showInitError);

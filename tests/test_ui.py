@@ -22,6 +22,54 @@ def test_chat_output_is_escaped_before_html_rendering():
     script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
     assert "escapeHtml(data.answer)" in script
     assert "safeUrl(citation.url)" in script
+    assert "escapeHtml(citation.passage)" in script
+    assert "escapeHtml(citation.title)" in script
+    assert "escapeHtml(citation.publisher)" in script
+    assert "escapeHtml(citation.period)" in script
+    assert "escapeHtml(citation.locator)" in script
+
+
+def test_source_previews_are_inside_the_existing_chat_panel():
+    html = (ROOT / "app/static/index.html").read_text(encoding="utf-8")
+    script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
+    styles = (ROOT / "app/static/styles.css").read_text(encoding="utf-8")
+
+    assert html.count('id="chat-form"') == 1
+    assert "function renderCitations(citations = [])" in script
+    assert '<details class="citation-preview">' in script
+    assert "Retrieved passage" in script
+    assert "No retrieved passage is available" in script
+    assert "Official source link unavailable" in script
+    assert ".citation-preview" in styles
+
+
+def test_new_chat_explains_and_resets_temporary_memory():
+    html = (ROOT / "app/static/index.html").read_text(encoding="utf-8")
+    script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
+
+    assert 'id="new-chat"' in html
+    assert 'id="memory-note"' in html
+    assert "may reset after a page or server restart" in html
+    assert "function startNewChat()" in script
+    assert "state.chatRequest += 1" in script
+    assert "state.sessionId = window.crypto?.randomUUID?.()" in script
+    assert "document.querySelector('#chat-question').value = ''" in script
+
+
+def test_loading_failure_accessibility_and_mobile_states_are_explicit():
+    html = (ROOT / "app/static/index.html").read_text(encoding="utf-8")
+    script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
+    styles = (ROOT / "app/static/styles.css").read_text(encoding="utf-8")
+
+    assert 'aria-live="polite"' in html
+    assert 'aria-busy="false"' in html
+    assert "requestId !== state.districtRequest" in script
+    assert "requestId !== state.rankingRequest" in script
+    assert 'data-action="retry-chat"' in script
+    assert "A deterministic fallback answer is shown" in script
+    assert ".skeleton" in styles
+    assert "@media (max-width: 520px)" in styles
+    assert "@media (prefers-reduced-motion: reduce)" in styles
 
 
 def test_structured_comparison_renders_inside_existing_chat_panel():

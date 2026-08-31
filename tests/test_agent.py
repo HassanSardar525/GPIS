@@ -238,6 +238,7 @@ async def test_agent_returns_only_real_citations_from_tool_results():
     )
 
     assert response.citations[0].evidence_id == evidence_id
+    assert response.citations[0].passage
     assert f"[{evidence_id}]" in response.answer
     assert response.tools_used == ["district_data"]
     assert all(citation.evidence_id != "invented" for citation in response.citations)
