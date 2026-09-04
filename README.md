@@ -11,7 +11,8 @@ flowchart LR
     I --> P["PostgreSQL + pgvector"]
     P --> D1["District-data tool: SQL facts"]
     P --> R["Filtered full-text + vector RRF"]
-    R --> E1["Evidence-search tool"]
+    R --> C1["Redis cache-aside: query vectors + ranked evidence"]
+    C1 --> E1["Evidence-search tool"]
     J --> K1["Project-knowledge tool"]
     D1 --> L["LangGraph agent + session memory"]
     E1 --> L
@@ -36,7 +37,8 @@ app/
   static/         Browser UI
   main.py         FastAPI app and /api/v1 routes
   agent.py        LangGraph agent, three tools, bounded calls and session memory
-  services.py     District, retrieval and chat orchestration
+  services.py     District, cached retrieval and chat orchestration
+  cache.py        Failure-safe Redis cache-aside and corpus-version keys
   scoring.py      Deterministic score formulas
   routing.py      Question classification and controlled query expansion
   llm.py          Groq provider and citation validation
@@ -73,13 +75,17 @@ GROQ_MODEL=openai/gpt-oss-20b
 Recommended development workflow:
 
 ```powershell
-docker compose up -d database
+docker compose up -d database redis
 .\.venv\Scripts\alembic upgrade head
 .\.venv\Scripts\python -m app.cli bootstrap
 .\.venv\Scripts\python -m app.server
 ```
 
 Open <http://127.0.0.1:8000>. The first bootstrap downloads the local MiniLM model.
+
+### Safe RAG caching
+
+Redis caches query embeddings for 24 hours and ranked evidence for 15 minutes. Cache keys include the evidence-corpus version, retrieval settings, filters, and embedding model, so changed evidence automatically uses new keys. Generated answers are never cached, raw questions are not stored in keys, and Redis failures fall back to normal PostgreSQL/pgvector retrieval.
 
 ### Optional RAG tracing with Phoenix
 

@@ -176,6 +176,7 @@ The external live Groq evaluator was not rerun during Phase 4 because it sends p
 
 ## Phase 6 — Deployment and portfolio completion
 
+- [x] Add failure-safe Redis cache-aside for query embeddings and ranked evidence, with hashed keys, TTLs, corpus-version invalidation, and cache observability.
 - Add CI for unit, API, RAG evaluation, migration, and browser tests.
 - Move PostgreSQL and pgvector to Neon or Supabase for deployment.
 - Deploy FastAPI and the frontend with protected environment variables and health checks.

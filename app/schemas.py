@@ -293,6 +293,7 @@ class HealthResponse(BaseModel):
     groq: Literal["configured", "fallback"]
     embedding_model: str
     phoenix: Literal["configured", "disabled", "unavailable"]
+    cache: Literal["available", "unavailable", "disabled"]
 
 
 class ErrorDetail(BaseModel):

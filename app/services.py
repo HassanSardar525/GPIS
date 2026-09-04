@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 import uuid
 from collections import defaultdict
 
+from app.cache import CacheBackend, NoopCache, cache_key, normalized_query
 from app.comparisons import (
     build_comparison,
     comparison_language_is_safe,
@@ -14,7 +16,7 @@ from app.comparisons import (
     format_comparison_summary,
     requested_comparison_category,
 )
-from app.embeddings import Embedder
+from app.embeddings import EMBEDDING_DIMENSION, Embedder
 from app.llm import LLMProvider, validate_generated_answer
 from app.observability import NoopObservability, Observability
 from app.repositories import GPISRepository
@@ -70,14 +72,27 @@ class HybridRetriever:
         semantic_threshold: float = 0.35,
         rrf_k: int = 60,
         observability: Observability | None = None,
+        cache: CacheBackend | None = None,
+        retrieval_cache_ttl_seconds: int = 900,
+        embedding_cache_ttl_seconds: int = 86400,
     ):
         self.repository = repository
         self.embedder = embedder
         self.semantic_threshold = semantic_threshold
         self.rrf_k = rrf_k
         self.observability = observability or NoopObservability()
+        self.cache = cache or NoopCache()
+        self.retrieval_cache_ttl_seconds = retrieval_cache_ttl_seconds
+        self.embedding_cache_ttl_seconds = embedding_cache_ttl_seconds
 
     def retrieve(self, request: ChatRequest, route: QuestionRoute, limit: int = 6) -> list[RetrievedEvidence]:
+        cache_metrics = {
+            "gpis.cache.backend": self.cache.name,
+            "gpis.cache.retrieval_status": "disabled",
+            "gpis.cache.embedding_status": "not_used",
+            "gpis.cache.read_latency_ms": 0.0,
+            "gpis.cache.write_success": False,
+        }
         with self.observability.span(
             "gpis.retrieve",
             "RETRIEVER",
@@ -90,7 +105,7 @@ class HybridRetriever:
                 "gpis.limit": limit,
             },
         ) as span:
-            results = self._retrieve(request, route, limit)
+            results = self._retrieve(request, route, limit, cache_metrics)
             span.set_attributes(
                 {
                     "retrieval.document_count": len(results),
@@ -107,11 +122,130 @@ class HybridRetriever:
                         if item.semantic_similarity is not None
                     },
                     "gpis.rrf_scores": {item.id: item.rrf_score for item in results},
+                    **cache_metrics,
                 }
             )
             return results
 
-    def _retrieve(self, request: ChatRequest, route: QuestionRoute, limit: int) -> list[RetrievedEvidence]:
+    def _retrieve(
+        self,
+        request: ChatRequest,
+        route: QuestionRoute,
+        limit: int,
+        cache_metrics: dict,
+    ) -> list[RetrievedEvidence]:
+        if self.cache.status == "disabled":
+            return self._retrieve_uncached(request, route, limit, cache_metrics)
+
+        retrieval_key = cache_key(
+            "retrieval",
+            {
+                "corpus": self.repository.cache_version(),
+                "query": normalized_query(request.question),
+                "route": route.value,
+                "districts": sorted(request.selected_districts()),
+                "category": request.category,
+                "period": request.period,
+                "limit": limit,
+                "semantic_threshold": self.semantic_threshold,
+                "rrf_k": self.rrf_k,
+                "embedding_model": self.embedder.model_name if self.embedder else None,
+            },
+        )
+        lookup = self.cache.get(retrieval_key)
+        cache_metrics["gpis.cache.retrieval_status"] = lookup.outcome
+        cache_metrics["gpis.cache.read_latency_ms"] += lookup.latency_ms
+        if lookup.value is not None:
+            cached = self._cached_evidence(retrieval_key, lookup.value)
+            if cached is not None:
+                return cached
+            cache_metrics["gpis.cache.retrieval_status"] = "invalid"
+
+        lock_key = f"{retrieval_key}:lock"
+        lock_token = self.cache.acquire_lock(lock_key, ttl_seconds=10)
+        if lock_token is None and lookup.outcome == "miss":
+            time.sleep(0.05)
+            retry = self.cache.get(retrieval_key)
+            cache_metrics["gpis.cache.read_latency_ms"] += retry.latency_ms
+            if retry.value is not None:
+                cached = self._cached_evidence(retrieval_key, retry.value)
+                if cached is not None:
+                    cache_metrics["gpis.cache.retrieval_status"] = "hit_after_wait"
+                    return cached
+
+        try:
+            results = self._retrieve_uncached(request, route, limit, cache_metrics)
+            if results and lock_token is not None:
+                serialized = json.dumps(
+                    [item.model_dump(mode="json") for item in results],
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                cache_metrics["gpis.cache.write_success"] = self.cache.set(
+                    retrieval_key,
+                    serialized,
+                    self.retrieval_cache_ttl_seconds,
+                )
+            return results
+        finally:
+            if lock_token is not None:
+                self.cache.release_lock(lock_key, lock_token)
+
+    def _cached_evidence(self, key: str, value: str) -> list[RetrievedEvidence] | None:
+        try:
+            payload = json.loads(value)
+            if not isinstance(payload, list) or not payload:
+                raise ValueError("cached retrieval must be a non-empty list")
+            return [RetrievedEvidence.model_validate(item) for item in payload]
+        except (TypeError, ValueError, json.JSONDecodeError):
+            self.cache.delete(key)
+            return None
+
+    def _query_embedding(self, query: str, cache_metrics: dict) -> list[float]:
+        if not self.embedder:
+            raise RuntimeError("An embedder is required for vector retrieval")
+        embedding_key = cache_key(
+            "embedding",
+            {
+                "model": self.embedder.model_name,
+                "query": normalized_query(query),
+            },
+        )
+        lookup = self.cache.get(embedding_key)
+        cache_metrics["gpis.cache.embedding_status"] = lookup.outcome
+        cache_metrics["gpis.cache.read_latency_ms"] += lookup.latency_ms
+        if lookup.value is not None:
+            try:
+                vector = json.loads(lookup.value)
+                if (
+                    not isinstance(vector, list)
+                    or len(vector) != EMBEDDING_DIMENSION
+                    or any(not isinstance(value, (int, float)) for value in vector)
+                ):
+                    raise ValueError("invalid cached embedding")
+                return [float(value) for value in vector]
+            except (TypeError, ValueError, json.JSONDecodeError):
+                self.cache.delete(embedding_key)
+                cache_metrics["gpis.cache.embedding_status"] = "invalid"
+
+        vector = self.embedder.embed([query])[0]
+        if len(vector) != EMBEDDING_DIMENSION:
+            raise ValueError(f"Embedding model returned {len(vector)} dimensions; expected {EMBEDDING_DIMENSION}")
+        if lookup.outcome != "disabled":
+            self.cache.set(
+                embedding_key,
+                json.dumps(vector, separators=(",", ":")),
+                self.embedding_cache_ttl_seconds,
+            )
+        return vector
+
+    def _retrieve_uncached(
+        self,
+        request: ChatRequest,
+        route: QuestionRoute,
+        limit: int,
+        cache_metrics: dict,
+    ) -> list[RetrievedEvidence]:
         districts = request.selected_districts()
         if route == QuestionRoute.TEMPORAL_COMPARISON:
             facts = self.repository.trend_search(request.question, districts, limit)
@@ -174,7 +308,7 @@ class HybridRetriever:
         keyword = list(deduplicated.values())[:limit]
         vector: list[RetrievedEvidence] = []
         if self.embedder and route not in {QuestionRoute.UNSUPPORTED, QuestionRoute.METHODOLOGY}:
-            query_vector = self.embedder.embed([expand_semantic_query(request.question)])[0]
+            query_vector = self._query_embedding(expand_semantic_query(request.question), cache_metrics)
             vector = self.repository.vector_search(
                 query_vector, districts, request.category, request.period, limit
             )

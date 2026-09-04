@@ -12,8 +12,9 @@ flowchart LR
     P --> H["SQL facts plus PostgreSQL full-text search"]
     V --> H
     H --> R["Filtered RRF retrieval, maximum six chunks"]
+    R --> C2["Redis cache-aside: query vectors + ranked evidence"]
     P --> T["District-data tool"]
-    R --> V2["Evidence-search tool"]
+    C2 --> V2["Evidence-search tool"]
     C --> K["Project-knowledge tool"]
     T --> L["Single bounded LangGraph agent"]
     V2 --> L
@@ -34,7 +35,8 @@ The application has no runtime dependency on the raw documents. Reviewed values 
 |---|---|
 | `app/scoring.py` | Calculate transparent category and overall scores |
 | `app/agent.py` | Run the bounded LangGraph agent, three controlled tools, and in-memory chat sessions |
-| `app/services.py` | Route questions, fuse retrieval results, validate generation, and fall back safely |
+| `app/services.py` | Route questions, fuse and cache retrieval results, validate generation, and fall back safely |
+| `app/cache.py` | Cache query vectors and ranked evidence with Redis, TTLs, hashed keys, and safe fallback |
 | `app/database/` | SQLAlchemy schema, repositories, idempotent seed, and embeddings |
 | `app/llm.py` | Replaceable Groq provider and citation validator |
 | `app/main.py` | FastAPI application, API contracts, errors, request IDs, and static UI |

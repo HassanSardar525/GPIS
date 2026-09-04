@@ -64,6 +64,15 @@ class PostgresRepository:
         except Exception:
             return False
 
+    def cache_version(self) -> str:
+        with self.sessions() as session:
+            value = session.scalar(
+                select(DatasetMetadata.value).where(
+                    DatasetMetadata.key == "retrieval_corpus_version"
+                )
+            )
+        return str(value or f"unversioned-{self.score_version}")
+
     def metadata(self) -> dict:
         with self.sessions() as session:
             rows = session.scalars(select(DatasetMetadata)).all()

@@ -61,6 +61,7 @@ async def test_chat_captures_parent_retrieval_and_generation_spans():
     assert set(by_name) == {"gpis.chat", "gpis.retrieve", "gpis.generate"}
     assert by_name["gpis.chat"].attributes["gpis.answer_mode"] == "extractive"
     assert by_name["gpis.retrieve"].attributes["retrieval.document_ids"][0].startswith("fact-multan-")
+    assert by_name["gpis.retrieve"].attributes["gpis.cache.retrieval_status"] == "disabled"
     assert by_name["gpis.generate"].attributes["llm.provider"] == "unavailable"
     assert all("input.value" not in span.attributes for span in observer.spans)
     assert all("output.value" not in span.attributes for span in observer.spans)

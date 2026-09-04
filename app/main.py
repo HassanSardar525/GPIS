@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from langchain_groq import ChatGroq
 
 from app.agent import AgentChatService
+from app.cache import CacheBackend, build_cache
 from app.config import ROOT, Settings
 from app.embeddings import MiniLMEmbedder
 from app.errors import GPISException
@@ -52,10 +53,19 @@ def build_chat_service(
     repository: GPISRepository,
     observability: Observability | None = None,
     checkpointer: Any | None = None,
+    cache: CacheBackend | None = None,
 ) -> ChatService:
     observability = observability or build_observability(settings)
     embedder = MiniLMEmbedder(settings.embedding_model) if repository.name == "postgres" else None
-    retriever = HybridRetriever(repository, embedder, settings.semantic_threshold, observability=observability)
+    retriever = HybridRetriever(
+        repository,
+        embedder,
+        settings.semantic_threshold,
+        observability=observability,
+        cache=cache,
+        retrieval_cache_ttl_seconds=settings.retrieval_cache_ttl_seconds,
+        embedding_cache_ttl_seconds=settings.embedding_cache_ttl_seconds,
+    )
     provider = (
         GroqProvider(
             settings.groq_api_key,
@@ -95,6 +105,7 @@ def create_app(
     settings = settings or Settings.from_env()
     repository = repository or build_repository(settings)
     observability = build_observability(settings)
+    cache = build_cache(settings.redis_url)
     district_service = DistrictService(repository)
     checkpoint_runtime = (
         PostgresCheckpointRuntime(settings.database_url)
@@ -108,7 +119,9 @@ def create_app(
     )
     supplied_chat_service = chat_service
     if not checkpoint_runtime:
-        chat_service = chat_service or build_chat_service(settings, repository, observability)
+        chat_service = chat_service or build_chat_service(
+            settings, repository, observability, cache=cache
+        )
         session_store.attach_checkpointer(getattr(chat_service, "checkpointer", None))
 
     @asynccontextmanager
@@ -120,6 +133,7 @@ def create_app(
                 repository,
                 observability,
                 checkpointer=checkpoint_runtime.checkpointer,
+                cache=cache,
             )
             session_store.attach_checkpointer(checkpoint_runtime.checkpointer)
         try:
@@ -127,6 +141,7 @@ def create_app(
         finally:
             if checkpoint_runtime:
                 await checkpoint_runtime.close()
+            cache.close()
 
     application = FastAPI(
         title="Government Performance Intelligence System",
@@ -140,6 +155,7 @@ def create_app(
     application.state.repository = repository
     application.state.chat_service = chat_service
     application.state.observability = observability
+    application.state.cache = cache
     application.state.session_store = session_store
 
     @application.middleware("http")
@@ -184,6 +200,7 @@ def create_app(
             groq="configured" if settings.groq_api_key else "fallback",
             embedding_model=settings.embedding_model,
             phoenix=observability.status,
+            cache=cache.status,
         )
 
     @application.get("/api/v1/districts", response_model=DistrictListResponse)

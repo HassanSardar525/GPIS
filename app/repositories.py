@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Protocol
 
+from app.cache import retrieval_corpus_version
 from app.errors import DistrictNotFound, InvalidCategory, TrendUnavailable
 from app.evidence_quality import EXPECTED_FACILITY_KINDS, health_capacity_change, load_health_capacity
 from app.facts import format_fact, requested_metrics
@@ -25,6 +26,7 @@ class GPISRepository(Protocol):
     name: str
 
     def healthcheck(self) -> bool: ...
+    def cache_version(self) -> str: ...
     def metadata(self) -> dict: ...
     def list_districts(self) -> list[dict]: ...
     def get_district(self, slug: str) -> dict: ...
@@ -68,6 +70,7 @@ class JsonRepository:
         self.path = path
         self.data = json.loads(path.read_text(encoding="utf-8"))
         self.score_version = score_version
+        self._cache_version = retrieval_corpus_version(path, score_version)
         self.districts = score_districts(
             self.data["districts"], self.data["metadata"]["generated_on"]
         )
@@ -79,6 +82,9 @@ class JsonRepository:
         self.health_capacity = load_health_capacity(health_path) if health_path.is_file() else None
         qualification_path = path.with_name("evidence_qualification.json")
         self.qualification = load_qualification_registry(qualification_path)
+
+    def cache_version(self) -> str:
+        return self._cache_version
 
     def _methodology_citation(self, evidence_id: str, locator: str) -> dict:
         source = self.data["sources"]["gpis_methodology_v1"]

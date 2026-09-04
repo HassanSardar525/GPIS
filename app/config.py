@@ -58,6 +58,9 @@ class Settings:
     phoenix_endpoint: str | None = None
     phoenix_project_name: str = "gpis-local"
     session_ttl_hours: int = 24
+    redis_url: str | None = None
+    retrieval_cache_ttl_seconds: int = 900
+    embedding_cache_ttl_seconds: int = 86400
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -84,4 +87,7 @@ class Settings:
             phoenix_endpoint=os.getenv("PHOENIX_COLLECTOR_ENDPOINT") or None,
             phoenix_project_name=os.getenv("PHOENIX_PROJECT_NAME", defaults.phoenix_project_name),
             session_ttl_hours=_int("GPIS_SESSION_TTL_HOURS", defaults.session_ttl_hours),
+            redis_url=os.getenv("GPIS_REDIS_URL") or None,
+            retrieval_cache_ttl_seconds=_int("GPIS_RETRIEVAL_CACHE_TTL_SECONDS", 900),
+            embedding_cache_ttl_seconds=_int("GPIS_EMBEDDING_CACHE_TTL_SECONDS", 86400),
         )

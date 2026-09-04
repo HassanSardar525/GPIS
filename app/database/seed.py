@@ -10,6 +10,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import joinedload
 
+from app.cache import retrieval_corpus_version
 from app.database.models import DatasetMetadata, District, EvidenceChunk, Observation, ScoreDefinition, ScoreResult, Source
 from app.database.session import session_factory
 from app.embeddings import Embedder
@@ -57,6 +58,7 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
     health_capacity = load_health_capacity(health_path) if health_path.is_file() else None
     qualification = load_qualification_registry(data_path.with_name("evidence_qualification.json"))
     scored = score_districts(data["districts"], data["metadata"]["generated_on"])
+    corpus_version = retrieval_corpus_version(data_path, score_version)
     sessions = session_factory(database_url)
     with sessions.begin() as session:
         for source_id, source in data["sources"].items():
@@ -83,6 +85,12 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
             session,
             DatasetMetadata,
             {"key": "active_score_version", "value": score_version},
+            ["key"],
+        )
+        _upsert(
+            session,
+            DatasetMetadata,
+            {"key": "retrieval_corpus_version", "value": corpus_version},
             ["key"],
         )
         _upsert(

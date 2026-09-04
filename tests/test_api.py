@@ -20,6 +20,7 @@ def test_health_contract_reports_fallbacks():
     assert response.json()["repository"] == "json"
     assert response.json()["groq"] == "fallback"
     assert response.json()["phoenix"] == "disabled"
+    assert response.json()["cache"] == "disabled"
     assert response.headers["X-Request-ID"]
 
 
