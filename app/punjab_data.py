@@ -16,8 +16,7 @@ from app.facts import format_fact
 from app.ingest_official_data import CONFIG, ROOT, Report, extract, load_observations, parse_count, resolve_district
 
 SNAPSHOT = ROOT / 'data/curated/punjab_census.json'
-LIMITATION = ('Population and education facts are available from Census 2023. Reviewed GPIS scores, '
-              'health facilities, budget figures and comparable trends are not yet available for this district.')
+from app.punjab_services import NOTICE as LIMITATION
 
 
 def parse_percent(value):

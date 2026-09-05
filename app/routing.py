@@ -134,6 +134,9 @@ def unavailable_data_reason(request, repository):
         record = repository.get_district(slug)
         if record['score_details']:
             continue
+        from app.punjab_services import query_rows
+        if route != QuestionRoute.TEMPORAL_COMPARISON and query_rows(question, record):
+            continue
         metrics = requested_metrics(question)
         available = {'population_2023', *record['education'], *record['health'], *record['accountability']}
         if (any(metric not in available for metric in metrics)
@@ -141,6 +144,6 @@ def unavailable_data_reason(request, repository):
                 or any(word in question for word in ('score', 'rank', 'health', 'hospital', 'facilit', 'budget', 'accountability'))
                 or request.category in {'health', 'accountability'}):
             return (f"{record['name']} has Census 2023 population, literacy and out-of-school figures. "
-                    'Reviewed GPIS scores, health facilities, budgets and comparable trends are not yet available '
+                    'The requested score, breakdown or comparable trend is not yet available '
                     'for this district, so I cannot provide the requested measure.')
     return None

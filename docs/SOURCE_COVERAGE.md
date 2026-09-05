@@ -40,3 +40,39 @@ The audit report supports budget-utilization and audited-formation facts. Findin
 ## Unsupported temporal claims
 
 The current source set does not contain comparable two-period inputs for literacy, district staffing, general health outcomes, the full accountability composite, or the overall GPIS score. Those changes remain unavailable until equivalent official sources are added. The reviewed health-capacity series is evidence and normalized capacity data, but it is not part of the active score version.
+
+
+## Punjab health and health-authority budget expansion
+
+`data/curated/punjab_services.json` contains 720 cells for all 36 census districts:
+16 health institution/bed cells and four DHA budget/expenditure cells per district.
+Printed health dashes remain explicit nulls. Numeric observations are stored in PostgreSQL;
+source evidence preserves the dash meaning. Both repositories expose dated, source-scoped
+`official_health` and `official_budget` profile sections and support Ask GPIS facts.
+
+Health: Punjab Health Statistics 2024, Table 3, PDF pages 19–23 (printed 4–8),
+as at 31 December 2023. The already-downloaded 2023 edition is scanned; its existing
+reviewed two-snapshot pilot contract remains unchanged. A second health snapshot has
+not been transcribed for the other 26 districts.
+
+Budget: the previously downloaded South audit report, Annexure D, PDF pages 302–304,
+provides FY 2023–24 DHA budgets and expenditure for 17 districts. The newly downloaded
+North audit report, Audit Year 2023–24, provides FY 2022–23 figures for the other 19
+in each district's Comments on Budget and Accounts table. The audit year is not the
+financial year. These are DHA budgets, not total local-government or all-sector budgets.
+Each cell records its exact PDF page, row, measure and source SHA-256.
+
+Rebuild with `python -m scripts.build_punjab_services` after installing `.[ingestion]`.
+The parser checks source hashes, headers, exact district coverage, row shapes and all
+existing pilot health values. It joins characters within fixed health-table columns to
+preserve spaced digits, and never imports tehsil or division totals as districts.
+Run `python -m app.cli seed` to load transactionally; repeat loads preserve existing
+qualified health observations and reject conflicting values. Cache versions include the snapshot.
+
+Source inconsistencies remain visible, not silently repaired: North Bhakkar's budget
+summary uses 3,458.150 million while its adjacent comparative table uses 3,458.153;
+North Khushab reports development spending above budget. South Faisalabad's Annexure D
+uses 1,120.434 million versus 1,120.430 in the trend table. This snapshot consistently
+uses the named budget table, not the neighbouring trend table. Prototype scores and the
+ten-district, two-year development trend contract are unchanged. No common-year Punjab-wide
+budget ranking or new performance score is inferred from this expansion.

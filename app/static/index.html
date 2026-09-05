@@ -20,11 +20,11 @@
     <section data-page="overview" id="overview-page">
       <div class="hero page-intro"><div><p class="eyebrow">Evidence before slogans</p>
         <h1>Explore Punjab, district by district.</h1>
-        <p class="lede">Population and education facts for 36 census districts. Reviewed performance scores for the ten-district pilot. Every figure has a source.</p></div></div>
+        <p class="lede">Population, education, health capacity and health-authority budget facts for 36 census districts. Reviewed performance scores for the ten-district pilot. Every figure has a source.</p></div></div>
       <div class="overview-grid">
         <article class="panel"><h2>36 districts with facts</h2><p>Compare Census 2023 population, literacy and out-of-school figures across all 36 source districts.</p></article>
-        <article class="panel"><h2>10 performance profiles</h2><p>Only these districts have the reviewed education, health and budget inputs for GPIS scores. The other 26 have census facts, not performance scores.</p></article>
-        <article class="panel"><h2>2 budget periods</h2><p>Verified FY 2022–23 and FY 2023–24 utilization for the pilot districts.</p></article>
+        <article class="panel"><h2>10 performance profiles</h2><p>The original scoring formula compares a fixed ten-district pilot. All 36 districts now have health and budget facts, but different source scopes and fiscal years cannot be silently added to that score.</p></article>
+        <article class="panel"><h2>2 budget periods</h2><p>DHA budgets cover all 36 districts: FY 2022–23 in the North and FY 2023–24 in the South. Two-year development trends remain available for the pilot.</p></article>
       </div>
     </section>
     <section class="district-toolbar" aria-label="District selection">
@@ -32,7 +32,7 @@
         <label for="district-query">Search city / district</label>
         <input id="district-query" type="search" placeholder="Type a name, e.g. Lahore" autocomplete="off" aria-controls="district-results" aria-describedby="district-search-status">
         <select id="district-results" aria-label="Search results" hidden></select>
-        <small id="district-search-status" role="status" aria-live="polite">District-level census data</small>
+        <small id="district-search-status" role="status" aria-live="polite">District-level official data</small>
         <label for="district-select">Or choose from the full list</label>
         <select id="district-select" aria-label="Choose a district from the full list"></select>
       </div>
@@ -77,7 +77,7 @@
     <div data-page="district" id="district-page" hidden>
     <section id="district-summary" class="district-heading" aria-busy="true">
       <div>
-        <p class="eyebrow">District scorecard · Census 2023 / FY 2023–24</p>
+        <p class="eyebrow">District profile · source periods shown below</p>
         <h2 id="district-name">Loading…</h2>
         <p id="population"></p>
       </div>
@@ -89,7 +89,7 @@
       </div>
     </section>
 
-    <section id="scorecards" class="score-grid" aria-label="Performance scores"></section>
+    <section id="scorecards" class="score-grid" aria-label="District facts and performance scores"></section>
 
       <article class="panel chat-panel" aria-labelledby="chat-title">
         <div class="chat-heading">

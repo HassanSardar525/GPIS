@@ -355,6 +355,10 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
             from app.punjab_data import load_snapshot
             load_snapshot(session, json.loads(census_path.read_text()))
 
+        from app.punjab_services import load_services, seed_services
+        services = load_services(data_path)
+        if services:
+            seed_services(session, services)
         return {
             "districts": session.scalar(select(func.count()).select_from(District)),
             "observations": session.scalar(select(func.count()).select_from(Observation)),

@@ -223,6 +223,29 @@ function card(category, title, score, rank, detail, metrics, sourceUrl) {
   </article>`;
 }
 
+function officialServiceCards(data) {
+  const labels = {hospitals: 'Hospitals', dispensaries: 'Dispensaries', rhcs: 'RHCs', bhus: 'BHUs', tb_clinics: 'TB clinics', sh_centers: 'Sub-health centres', mch_centers: 'Maternal and child health centres', trauma_centers: 'Trauma centres'};
+  const health = data.official_health;
+  const budget = data.official_budget;
+  let html = '';
+  if (health) {
+    const values = Object.fromEntries(health.observations.map(row => [row.metric_key, row.value]));
+    const display = value => value == null ? '—' : number(value);
+    const source = Object.values(health.sources)[0];
+    html += `<article class="score-card"><h3>Official health capacity</h3><p>As at ${escapeHtml(health.period)} · Punjab Health Statistics</p>
+      <table><thead><tr><th>Facility</th><th>Institutions</th><th>Beds</th></tr></thead><tbody>${Object.entries(labels).map(([key, label]) => `<tr><th>${escapeHtml(label)}</th><td>${display(values[`phs_${key}_count`])}</td><td>${display(values[`phs_${key}_beds`])}</td></tr>`).join('')}</tbody></table>
+      <p class="muted">— = printed dash (nil or insignificant), not a confirmed zero. Capacity does not measure quality of care.</p><a class="source-link" href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">View official health source ↗</a></article>`;
+  }
+  if (budget) {
+    const values = Object.fromEntries(budget.observations.map(row => [row.metric_key, row.value]));
+    const source = Object.values(budget.sources)[0];
+    html += `<article class="score-card"><h3>Health-authority budget</h3><p>${escapeHtml(budget.period)} · Rs million</p>
+      <ul class="metric-list">${[['Total budget', 'total_budget'], ['Total expenditure', 'total_expenditure'], ['Development budget', 'development_budget'], ['Development expenditure', 'development_expenditure']].map(([label,key]) => `<li><span>${label}</span><strong>${number(values[`dha_${key}_million_pkr`],3)}</strong></li>`).join('')}</ul>
+      <p class="muted">District Health Authority spending only. North Punjab figures are FY 2022–23; South Punjab figures are FY 2023–24. These are not a same-year ranking.</p><a class="source-link" href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">View official budget source ↗</a></article>`;
+  }
+  return html;
+}
+
 function renderDistrict(data) {
   state.district = data;
   if (typeof syncWorkspaceDistrict === 'function') syncWorkspaceDistrict(data);
@@ -233,7 +256,7 @@ function renderDistrict(data) {
   if (data.derived.scores.overall == null) {
     document.querySelector('#overall-score').textContent = 'Unavailable';
     document.querySelector('#overall-rank').textContent = 'Not ranked';
-    document.querySelector('#overall-quality').textContent = 'Census facts available; reviewed scores pending.';
+    document.querySelector('#overall-quality').textContent = 'Official facts available; outside the ten-district score cohort.';
     const education = data.education;
     document.querySelector('#scorecards').innerHTML = `<article class="score-card">
       <h3>Census 2023 education</h3>
@@ -243,7 +266,7 @@ function renderDistrict(data) {
         <li><span>Female literacy</span><strong>${escapeHtml(number(education.literacy_female_pct, 2))}%</strong></li>
         <li><span>Out-of-school age 5–16</span><strong>${escapeHtml(number(education.out_of_school_children_5_16))}</strong></li>
       </ul><a class="source-link" href="${safeUrl(data.sources.pbs_table_12?.url)}" target="_blank" rel="noreferrer">View official source ↗</a>
-      </article><article class="score-card"><h3>Health and budgets</h3><p>Supporting data is not yet available for this district. Missing values are not zero.</p></article>`;
+      </article>` + officialServiceCards(data);
     setBusy(document.querySelector('#notice'), false, (data.data_warnings || []).join(' '));
     loadRankings().catch(showRankingError);
     return;
@@ -271,7 +294,7 @@ function renderDistrict(data) {
       ['Development budget utilized', `${number(100 - accountability.development_budget_lapse_pct, 1)}%`],
       ['Formations audited', `${accountability.audited_formations} of ${accountability.total_formations}`],
     ], data.sources.agp_dha.url),
-  ].join('');
+  ].join('') + officialServiceCards(data);
   loadRankings().catch(showRankingError);
 }
 
@@ -411,7 +434,7 @@ function filterDistricts() {
   results.hidden = !query;
   document.querySelector('#district-search-status').textContent = query
     ? (matches.length ? `${matches.length} matching district${matches.length === 1 ? '' : 's'}. Choose a result or press Enter.` : 'No matching districts. Try another name.')
-    : 'District-level census data';
+    : 'District-level official data';
 }
 
 async function init() {

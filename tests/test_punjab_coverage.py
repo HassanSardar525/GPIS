@@ -58,6 +58,9 @@ def test_all_districts_queryable_without_invented_scores(backend):
             data = response.json()
             assert data['population_2023'] > 0
             assert len(data['education']) == 4
+            assert len(data['official_health']['observations']) == 16
+            assert len(data['official_budget']['observations']) == 4
+            assert data['official_health']['period'] == '2023-12-31'
             if district['scores']['overall'] is None:
                 assert data['health'] == data['accountability'] == data['rankings'] == {}
                 assert data['derived']['facility_count'] is None
@@ -75,6 +78,12 @@ def test_all_districts_queryable_without_invented_scores(backend):
             assert not payload['abstained']
             assert expected in payload['answer']
             assert any(citation['evidence_id'].startswith('fact-' + slug) for citation in payload['citations'])
+        for question in ('How many hospitals in Lahore?', 'What is Lahore budget?'):
+            payload = client.post('/api/v1/chat', json={'question': question}).json()
+            assert not payload['abstained'], payload
+            assert payload['citations']
+            assert any(c['evidence_id'].startswith('service-lahore-') for c in payload['citations'])
+            assert all(c['source_id'] in {'punjab_health_statistics_2024', 'agp_dha_north_budget_2022_23'} for c in payload['citations'] if c['evidence_id'].startswith('service-'))
         unavailable = client.post('/api/v1/chat', json={'question': 'What is Lahore health score?'}).json()
         assert unavailable['abstained']
         assert 'not yet available' in unavailable['answer']

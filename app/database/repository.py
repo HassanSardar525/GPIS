@@ -411,7 +411,22 @@ class PostgresRepository:
                 for category in RANKING_CATEGORIES
                 if category in score_details
             }
+            from app.punjab_services import profile, LABELS
+            service_rows = [dict(metric_key=o.metric_key, value=float(o.value), category=o.category, unit=o.unit,
+                            period=o.period, source_id=o.source_id, locator=o.locator)
+                            for o in observations if (o.metric_key.startswith("dha_") or
+                              (o.metric_key.startswith("phs_") and not o.metric_key.endswith("per_100k") and o.period=="2023-12-31"))]
+            health_chunk = next((e for e in evidence_rows if e.id == f"{slug}-services-health"), None)
+            if health_chunk:
+                present = {o["metric_key"] for o in service_rows}
+                for kind in LABELS:
+                    for measure in ("count", "beds"):
+                        metric = f"phs_{kind}_{measure}"
+                        if metric not in present:
+                            service_rows.append(dict(metric_key=metric,value=None,category="health",unit="count",
+                              period="2023-12-31",source_id=health_chunk.source_id,locator=health_chunk.locator))
             return {
+                **profile(service_rows, sources),
                 "slug": district.slug,
                 "name": district.name,
                 "population_2023": district.population_2023,
@@ -422,7 +437,7 @@ class PostgresRepository:
                 "rankings": rankings,
                 "sources": sources,
                 "metadata": self.metadata(),
-                "data_warnings": [] if score_rows else ["Census facts are available; reviewed scores, health, budget figures and comparable trends are unavailable."],
+                "data_warnings": [] if score_rows else ["Census, health-capacity and DHA budget facts are available. Scores remain limited to the fixed ten-district pilot."],
             }
 
     def _filters(self, statement, district_slugs: list[str], category: str | None, period: str | None):
@@ -476,6 +491,10 @@ class PostgresRepository:
             return [self._evidence(row[:3], keyword_rank=index) for index, row in enumerate(session.execute(statement), start=1)]
 
     def fact_search(self, query, district_slugs, limit):
+        from app.punjab_services import fact_search
+        supplemental = fact_search(self, query, district_slugs, limit)
+        if supplemental:
+            return supplemental
         metrics = requested_metrics(query)
         if not metrics:
             return []

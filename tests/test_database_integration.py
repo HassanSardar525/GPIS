@@ -36,7 +36,7 @@ def test_migration_and_seed_are_idempotent():
     first = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     second = seed_database(DATABASE_URL, ROOT / "data/curated/districts.json", "prototype-v1")
     assert first == second
-    assert second == {"districts": 36, "observations": 686, "evidence_chunks": 119, "score_results": 40}
+    assert second == {"districts": 36, "observations": 1081, "evidence_chunks": 191, "score_results": 40}
 
 
 def test_provenance_is_complete_after_seed():

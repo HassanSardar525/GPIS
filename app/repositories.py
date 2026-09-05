@@ -83,6 +83,15 @@ class JsonRepository:
             self.data["sources"].update(census["sources"])
             for record in census["districts"]:
                 self.by_slug.setdefault(record["slug"], unscored_record(record))
+        from app.punjab_services import load_services, profile, evidence
+        services = load_services(path)
+        if services:
+            self.data["sources"].update(services["sources"])
+            for record in services["districts"]:
+                target = self.by_slug.get(record["slug"])
+                if target:
+                    target.update(profile(record["observations"], services["sources"]))
+                    target["evidence"].extend(evidence(record))
         self.retriever = EvidenceRetriever(
             list(self.by_slug.values()), self.data["sources"], self.data.get("project_evidence", [])
         )
@@ -329,6 +338,10 @@ class JsonRepository:
         return results
 
     def fact_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]:
+        from app.punjab_services import fact_search
+        supplemental = fact_search(self, query, district_slugs, limit)
+        if supplemental:
+            return supplemental
         metrics = requested_metrics(query)
         if not metrics:
             return []

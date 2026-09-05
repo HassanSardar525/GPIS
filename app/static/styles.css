@@ -217,3 +217,7 @@ footer { padding: 28px; border-top: 1px solid var(--line); text-align: center; c
 .architecture-details { border-top: 1px solid var(--line); padding-top: 18px; }
 .architecture-details summary { color: var(--green); font-weight: 700; cursor: pointer; }
 @media (max-width: 800px) { .architecture-flow { grid-template-columns: 1fr; } }
+
+.score-card table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.score-card th, .score-card td { padding: 7px 5px; border-bottom: 1px solid #d8ded5; text-align: right; }
+.score-card th:first-child { text-align: left; font-weight: 500; }

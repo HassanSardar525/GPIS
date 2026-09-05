@@ -1,7 +1,18 @@
 """Opt-in browser regression against a running GPIS instance; no LLM calls."""
 import os
+import asyncio
+import sys
 
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def browser_event_loop_policy():
+    previous = asyncio.get_event_loop_policy()
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    yield
+    asyncio.set_event_loop_policy(previous)
 
 
 def test_workspace_navigation_and_charts(tmp_path):
@@ -44,6 +55,9 @@ def test_workspace_navigation_and_charts(tmp_path):
      expect(page.locator('#year-chart svg')).to_have_count(0)
      page.locator('[data-nav=district]').click()
      expect(page.locator('#chat-form')).to_be_visible()
+     expect(page.locator('#scorecards')).to_contain_text('Official health capacity')
+     expect(page.locator('#scorecards')).to_contain_text('5,818.950')
+     expect(page.locator('#scorecards')).to_contain_text('FY 2022-23')
      assert page.evaluate("window.localStorage.getItem('gpis.sessionId')")==session
      page.reload(wait_until='networkidle')
      expect(page.locator('#district-name')).to_have_text('Lahore')
