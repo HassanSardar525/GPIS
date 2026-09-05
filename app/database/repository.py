@@ -125,6 +125,24 @@ class PostgresRepository:
                 for rank, (district, score) in enumerate(rows, start=1)
             ]
 
+    def census_ranking(self, metric: str) -> dict:
+        from app.facts import CENSUS_METRICS, census_ranking
+        if metric not in CENSUS_METRICS:
+            raise InvalidCategory("Unknown census metric")
+        with self.sessions() as session:
+            entries = session.execute(select(Observation, District, Source)
+                .join(District, District.id == Observation.district_id)
+                .join(Source, Source.id == Observation.source_id)
+                .where(Observation.metric_key == metric, Observation.period == "2023",
+                       Observation.source_id == ("pbs_table_1" if metric == "population_2023" else "pbs_table_12"))).all()
+            rows = [{"slug": district.slug, "name": district.name, "value": float(observation.value),
+                     "citation": Citation(evidence_id=f"fact-{district.slug}-{metric}", source_id=source.id,
+                         publisher=source.publisher, title=source.title, period=observation.period,
+                         url=source.url, locator=observation.locator,
+                         passage=format_fact(district.name, metric, float(observation.value), observation.unit)).model_dump()}
+                    for observation, district, source in entries]
+            return census_ranking(metric, rows)
+
     def development_trend(self, slug: str) -> dict:
         metric_keys = {"development_final_grant_million_pkr", "development_expenditure_million_pkr"}
         with self.sessions() as session:
@@ -240,7 +258,12 @@ class PostgresRepository:
 
     def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]:
         selected = district_slugs or [item["slug"] for item in self.list_districts()]
-        trends = [self.development_trend(slug) for slug in selected]
+        trends = []
+        for slug in selected:
+            try:
+                trends.append(self.development_trend(slug))
+            except TrendUnavailable:
+                continue
         reverse = not any(word in query.casefold() for word in ("decline", "decrease", "least", "worst"))
         trends.sort(key=lambda item: item["change_percentage_points"], reverse=reverse)
         results = []
@@ -369,8 +392,8 @@ class PostgresRepository:
                 for field in ("government_dispensaries", "bhus", "rhcs", "thq_hospitals", "dhq_hospitals", "dhdc")
             )
             derived = {
-                "facility_count": facilities,
-                "facilities_per_100k": round(facilities / district.population_2023 * 100_000, 2),
+                "facility_count": facilities if categories["health"] else None,
+                "facilities_per_100k": round(facilities / district.population_2023 * 100_000, 2) if categories["health"] else None,
                 "scores": scores,
             }
             evidence = [
@@ -386,6 +409,7 @@ class PostgresRepository:
             rankings = {
                 category: next(item for item in self.rankings(category) if item["slug"] == slug)
                 for category in RANKING_CATEGORIES
+                if category in score_details
             }
             return {
                 "slug": district.slug,
@@ -398,6 +422,7 @@ class PostgresRepository:
                 "rankings": rankings,
                 "sources": sources,
                 "metadata": self.metadata(),
+                "data_warnings": [] if score_rows else ["Census facts are available; reviewed scores, health, budget figures and comparable trends are unavailable."],
             }
 
     def _filters(self, statement, district_slugs: list[str], category: str | None, period: str | None):

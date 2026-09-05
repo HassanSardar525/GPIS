@@ -67,10 +67,10 @@ class Citation(BaseModel):
 
 
 class ScoreSet(BaseModel):
-    education: float = Field(ge=0, le=100)
-    health: float = Field(ge=0, le=100)
-    accountability: float = Field(ge=0, le=100)
-    overall: float = Field(ge=0, le=100)
+    education: float | None = Field(default=None, ge=0, le=100)
+    health: float | None = Field(default=None, ge=0, le=100)
+    accountability: float | None = Field(default=None, ge=0, le=100)
+    overall: float | None = Field(default=None, ge=0, le=100)
 
 
 class ScoreResult(BaseModel):
@@ -304,3 +304,20 @@ class ErrorDetail(BaseModel):
 
 class ErrorResponse(BaseModel):
     error: ErrorDetail
+
+
+class CensusRankingEntry(BaseModel):
+    slug: str
+    name: str
+    value: float = Field(ge=0)
+    position: int = Field(ge=1)
+    citation: Citation
+
+
+class CensusRankingResponse(BaseModel):
+    metric: str
+    label: str
+    unit: Literal["count", "percent"]
+    period: Literal["2023"]
+    rows: list[CensusRankingEntry]
+    note: str

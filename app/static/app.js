@@ -27,7 +27,7 @@ const select = document.querySelector('#district-select');
 const rankingCategory = document.querySelector('#ranking-category');
 const initialChatMessage = 'Try: “Why did this district receive its health score?” or “How did budget utilization change?”';
 
-const number = (value, digits = 0) => Number(value).toLocaleString('en-PK', {
+const number = (value, digits = 0) => value == null ? 'Unavailable' : Number(value).toLocaleString('en-PK', {
   minimumFractionDigits: digits,
   maximumFractionDigits: digits,
 });
@@ -216,7 +216,7 @@ async function json(url, options) {
 
 function card(category, title, score, rank, detail, metrics, sourceUrl) {
   return `<article class="score-card">
-    <div class="score-top"><div><h3>${escapeHtml(title)}</h3><span class="rank">Rank ${rank.rank} of ${state.districts.length}</span></div><button class="score-number" type="button" data-score-category="${category}" title="Ask why this score was given">${score}</button></div>
+    <div class="score-top"><div><h3>${escapeHtml(title)}</h3><span class="rank">Rank ${rank.rank} of ${state.districts.filter(item => item.scores[category] != null).length}</span></div><button class="score-number" type="button" data-score-category="${category}" title="Ask why this score was given">${score}</button></div>
     ${renderScoreQuality(detail)}
     <ul class="metric-list">${metrics.map(([label, value]) => `<li><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`).join('')}</ul>
     <a class="source-link" href="${safeUrl(sourceUrl)}" target="_blank" rel="noreferrer">View official source ↗</a>
@@ -225,11 +225,31 @@ function card(category, title, score, rank, detail, metrics, sourceUrl) {
 
 function renderDistrict(data) {
   state.district = data;
+  if (typeof syncWorkspaceDistrict === 'function') syncWorkspaceDistrict(data);
   setBusy(document.querySelector('#notice'), false, data.metadata.disclaimer);
   document.querySelector('#district-name').textContent = data.name;
   document.querySelector('#population').textContent = `Population ${number(data.population_2023)} · Census 2023`;
+  document.querySelector('#overall-score').dataset.available = String(data.derived.scores.overall != null);
+  if (data.derived.scores.overall == null) {
+    document.querySelector('#overall-score').textContent = 'Unavailable';
+    document.querySelector('#overall-rank').textContent = 'Not ranked';
+    document.querySelector('#overall-quality').textContent = 'Census facts available; reviewed scores pending.';
+    const education = data.education;
+    document.querySelector('#scorecards').innerHTML = `<article class="score-card">
+      <h3>Census 2023 education</h3>
+      <ul class="metric-list">
+        <li><span>Total literacy</span><strong>${escapeHtml(number(education.literacy_total_pct, 2))}%</strong></li>
+        <li><span>Male literacy</span><strong>${escapeHtml(number(education.literacy_male_pct, 2))}%</strong></li>
+        <li><span>Female literacy</span><strong>${escapeHtml(number(education.literacy_female_pct, 2))}%</strong></li>
+        <li><span>Out-of-school age 5–16</span><strong>${escapeHtml(number(education.out_of_school_children_5_16))}</strong></li>
+      </ul><a class="source-link" href="${safeUrl(data.sources.pbs_table_12?.url)}" target="_blank" rel="noreferrer">View official source ↗</a>
+      </article><article class="score-card"><h3>Health and budgets</h3><p>Supporting data is not yet available for this district. Missing values are not zero.</p></article>`;
+    setBusy(document.querySelector('#notice'), false, (data.data_warnings || []).join(' '));
+    loadRankings().catch(showRankingError);
+    return;
+  }
   document.querySelector('#overall-score').textContent = data.derived.scores.overall;
-  document.querySelector('#overall-rank').textContent = `Rank ${data.rankings.overall.rank} of ${state.districts.length}`;
+  document.querySelector('#overall-rank').textContent = `Rank ${data.rankings.overall.rank} of ${state.districts.filter(item => item.scores.overall != null).length}`;
   document.querySelector('#overall-quality').innerHTML = renderScoreQuality(data.score_details.overall);
 
   const education = data.education;
@@ -257,6 +277,7 @@ function renderDistrict(data) {
 
 function renderTrend(data) {
   state.trend = data;
+  if (typeof renderYearChart === 'function') renderYearChart(data);
   const signedChange = `${data.change_percentage_points > 0 ? '+' : ''}${number(data.change_percentage_points, 2)} pp`;
   const change = document.querySelector('#trend-change');
   change.textContent = `${signedChange} · ${data.direction}`;
@@ -272,6 +293,10 @@ function renderTrend(data) {
 }
 
 function renderTrendError(error) {
+  state.trend = null;
+  document.querySelector('#year-chart')?.replaceChildren();
+  const trendLabel = document.querySelector('#trend-district-label');
+  if (trendLabel) trendLabel.textContent = state.district?.name || '';
   document.querySelector('#trend-change').textContent = 'Unavailable';
   document.querySelector('#trend-periods').innerHTML = '';
   document.querySelector('#trend-warning').textContent = error.message;
@@ -305,6 +330,11 @@ async function loadDistrict(slug) {
 
 async function loadRankings() {
   const requestId = ++state.rankingRequest;
+  if (rankingCategory.value.startsWith('census:')) {
+    return loadCensusRankings(requestId);
+  }
+  const note = document.querySelector('#ranking-note');
+  if (note) note.textContent = 'Reviewed performance scores: fixed ten-district cohort. Districts without a score are not ranked.';
   setBusy(document.querySelector('#ranking-list'), true, 'Loading rankings…');
   let data;
   try {
@@ -328,6 +358,7 @@ async function loadRankings() {
 }
 
 async function askQuestion(question, districts = [state.district.slug]) {
+  if (location.hash.startsWith('#/compare') || location.hash === '#/overview') location.hash = '#/district/' + state.district.slug;
   const answer = document.querySelector('#chat-answer');
   const requestId = ++state.chatRequest;
   state.lastQuestion = question;
@@ -362,9 +393,42 @@ async function askQuestion(question, districts = [state.district.slug]) {
   }
 }
 
+function filterDistricts() {
+  const results = document.querySelector('#district-results');
+  const query = document.querySelector('#district-query').value.trim();
+  const normalize = value => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const needle = normalize(query);
+  const matches = state.districts.filter(district => {
+    const aliases = district.slug === 'dera-ghazi-khan' ? ' DG Khan D.G. Khan' : '';
+    return normalize(district.name + aliases).includes(needle);
+  });
+  results.innerHTML = matches.length
+    ? matches.map(district => `<option value="${escapeHtml(district.slug)}">${escapeHtml(district.name)}</option>`).join('')
+    : '<option value="">No matching districts</option>';
+  results.disabled = matches.length === 0;
+  results.size = query ? Math.max(2, Math.min(matches.length, 5)) : 1;
+  if (query && matches.length) results.selectedIndex = -1;
+  results.hidden = !query;
+  document.querySelector('#district-search-status').textContent = query
+    ? (matches.length ? `${matches.length} matching district${matches.length === 1 ? '' : 's'}. Choose a result or press Enter.` : 'No matching districts. Try another name.')
+    : 'District-level census data';
+}
+
 async function init() {
+  select.disabled = true;
+  select.innerHTML = '<option value="">Loading districts...</option>';
   setBusy(document.querySelector('#notice'), true, 'Loading reviewed district evidence…');
-  const data = await json('/api/v1/districts');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  let data;
+  try {
+    data = await json('/api/v1/districts', { signal: controller.signal });
+  } catch (error) {
+    if (error.name === 'AbortError') throw new Error('District data took too long to load. Check the database connection and retry.');
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!data.districts.length) {
     setBusy(document.querySelector('#notice'), false, 'No reviewed districts are currently available.');
     select.disabled = true;
@@ -376,11 +440,44 @@ async function init() {
     return;
   }
   state.districts = data.districts;
-  select.innerHTML = data.districts.map(district => `<option value="${district.slug}">${escapeHtml(district.name)}</option>`).join('');
-  await loadDistrict(data.districts[0].slug);
+  select.innerHTML = data.districts.map(district => `<option value="${escapeHtml(district.slug)}">${escapeHtml(district.name)}</option>`).join('');
+  select.disabled = false;
+  filterDistricts();
+  const requestedSlug = location.hash.split('/')[2];
+  const initialSlug = data.districts.some(item => item.slug === requestedSlug) ? requestedSlug : data.districts[0].slug;
+  select.value = initialSlug;
+  initWorkspaceNavigation();
+  await loadDistrict(initialSlug);
 }
 
-select.addEventListener('change', () => loadDistrict(select.value).catch(showDistrictError));
+select.addEventListener('change', () => {
+  if (select.value) loadDistrict(select.value).catch(showDistrictError);
+});
+document.querySelector('#district-results').addEventListener('change', event => {
+  const slug = event.target.value;
+  if (slug) {
+    select.value = slug;
+    loadDistrict(slug).catch(showDistrictError);
+  }
+});
+document.querySelector('#district-query').addEventListener('input', filterDistricts);
+document.querySelector('#district-query').addEventListener('keydown', event => {
+  const results = document.querySelector('#district-results');
+  if (event.key === 'Enter' && !results.hidden && !results.disabled) {
+    event.preventDefault();
+    const slug = results.value || results.options[0]?.value;
+    if (slug) {
+      select.value = slug;
+      loadDistrict(slug).catch(showDistrictError);
+    }
+  } else if (event.key === 'ArrowDown' && !results.hidden && !results.disabled) {
+    event.preventDefault();
+    results.focus();
+  } else if (event.key === 'Escape') {
+    event.target.value = '';
+    filterDistricts();
+  }
+});
 rankingCategory.addEventListener('change', () => loadRankings().catch(showRankingError));
 
 document.querySelector('#scorecards').addEventListener('click', event => {
@@ -427,6 +524,12 @@ document.querySelectorAll('.chat-prompts button').forEach(button => {
 });
 
 function showInitError(error) {
+  if (!state.districts.length) {
+    select.disabled = true;
+    select.innerHTML = '<option value="">District list unavailable - retry below</option>';
+    document.querySelector('#district-name').textContent = 'District data unavailable';
+    setBusy(document.querySelector('#district-summary'), false);
+  }
   const notice = document.querySelector('#notice');
   notice.innerHTML = `<div class="state-error" role="alert"><span>Unable to load district evidence: ${escapeHtml(error.message)}</span><button type="button" data-action="retry-init">Retry</button></div>`;
   setBusy(notice, false);

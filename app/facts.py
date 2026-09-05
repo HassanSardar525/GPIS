@@ -57,3 +57,30 @@ def format_fact(name: str, metric: str, value: float, unit: str) -> str:
     else:
         rendered = f"{value:,.2f}"
     return f"{label} for {name} is {rendered}."
+
+
+CENSUS_METRICS = {
+    "population_2023": "count",
+    "literacy_total_pct": "percent",
+    "literacy_male_pct": "percent",
+    "literacy_female_pct": "percent",
+    "out_of_school_children_5_16": "count",
+}
+
+
+def census_ranking(metric: str, rows: list[dict]) -> dict:
+    """Order factual values, with equal positions for ties; no performance score is inferred."""
+    from app.errors import InvalidCategory
+    if metric not in CENSUS_METRICS:
+        raise InvalidCategory("Unknown census metric")
+    ordered = sorted(rows, key=lambda row: (-row["value"], row["name"]))
+    previous = None
+    position = 0
+    for index, row in enumerate(ordered, 1):
+        if row["value"] != previous:
+            position = index
+        row["position"] = position
+        previous = row["value"]
+    return {"metric": metric, "label": METRIC_LABELS[metric], "unit": CENSUS_METRICS[metric],
+            "period": "2023", "rows": ordered,
+            "note": "Ordered by value, highest first; these positions are not GPIS performance scores. Coverage follows the 36 districts in the Census 2023 source files."}

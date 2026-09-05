@@ -14,6 +14,7 @@ from langchain_groq import ChatGroq
 
 from app.agent import AgentChatService
 from app.cache import CacheBackend, build_cache
+from app.schemas import CensusRankingResponse
 from app.config import ROOT, Settings
 from app.embeddings import MiniLMEmbedder
 from app.errors import GPISException
@@ -210,6 +211,10 @@ def create_app(
     @application.get("/api/v1/districts/{slug}", response_model=DistrictDetail)
     def district(slug: str) -> DistrictDetail:
         return DistrictDetail.model_validate(district_service.get_district(slug))
+
+    @application.get("/api/v1/census-rankings", response_model=CensusRankingResponse)
+    def census_rankings(metric: str = Query(default="literacy_total_pct")) -> CensusRankingResponse:
+        return CensusRankingResponse.model_validate(repository.census_ranking(metric))
 
     @application.get("/api/v1/rankings", response_model=RankingResponse)
     def ranking(category: str = Query(default="overall")) -> RankingResponse:

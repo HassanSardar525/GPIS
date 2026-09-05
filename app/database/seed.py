@@ -350,6 +350,11 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                     ["district_id", "version", "category"],
                 )
 
+        census_path = data_path.with_name("punjab_census.json")
+        if census_path.is_file():
+            from app.punjab_data import load_snapshot
+            load_snapshot(session, json.loads(census_path.read_text()))
+
         return {
             "districts": session.scalar(select(func.count()).select_from(District)),
             "observations": session.scalar(select(func.count()).select_from(Observation)),

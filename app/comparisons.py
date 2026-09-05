@@ -87,6 +87,8 @@ def build_comparison(repository, district_slugs: list[str], category: RankingCat
         raise InvalidComparison("A structured comparison requires exactly two different districts.")
 
     records = [repository.get_district(slug) for slug in selected]
+    if any(category not in record["score_details"] for record in records):
+        raise InvalidComparison("Reviewed scores are unavailable for one or more selected districts; compare census facts instead.")
     districts = [
         ComparisonDistrict(
             slug=record["slug"],

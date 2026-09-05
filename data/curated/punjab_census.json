@@ -1,0 +1,2336 @@
+{
+  "sources": {
+    "pbs_table_1": {
+      "publisher": "Pakistan Bureau of Statistics",
+      "title": "Census 2023, Punjab Districts, Table 1: Area and Population",
+      "period": "2023",
+      "url": "https://www.pbs.gov.pk/wp-content/uploads/2020/07/table_1_punjab_districts.xlsx",
+      "local_file": "data/raw/pbs_census_2023_table_1_punjab.xlsx",
+      "sha256": "e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+    },
+    "pbs_table_12": {
+      "publisher": "Pakistan Bureau of Statistics",
+      "title": "Census 2023, Punjab Districts, Table 12: Literacy and Out-of-School Population",
+      "period": "2023",
+      "url": "https://www.pbs.gov.pk/wp-content/uploads/2020/07/table_12_punjab_districts.xlsx",
+      "local_file": "data/raw/pbs_census_2023_table_12_punjab.xlsx",
+      "sha256": "6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+    }
+  },
+  "districts": [
+    {
+      "slug": "attock",
+      "name": "Attock",
+      "population_2023": 2170423,
+      "education": {
+        "literacy_total_pct": 70.224134,
+        "literacy_male_pct": 79.688999,
+        "literacy_female_pct": 60.659238,
+        "out_of_school_children_5_16": 96795
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "attock-census-context",
+          "category": "context",
+          "text": "Population (2023) for Attock is 2,170,423.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A8:C8; source row='ATTOCK DISTRICT', population=2170423; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "attock-census-education",
+          "category": "education",
+          "text": "Total literacy for Attock is 70.22%. Male literacy for Attock is 79.69%. Female literacy for Attock is 60.66%. Out-of-school children aged 5-16 for Attock is 96,795.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B9; Attock District; Literate %=70.22413412857283; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C9; Attock District; Literate %=79.68899854221813; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D9; Attock District; Literate %=60.659237602036555; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B19; Attock District; Out of School Children (5-16)=96795; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "attock",
+          "name": "Attock",
+          "value": 2170423,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A8:C8; source row='ATTOCK DISTRICT', population=2170423; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "attock",
+          "name": "Attock",
+          "population_2023": 2170423,
+          "value": 70.224134,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B9; Attock District; Literate %=70.22413412857283; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "attock",
+          "name": "Attock",
+          "population_2023": 2170423,
+          "value": 79.688999,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C9; Attock District; Literate %=79.68899854221813; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "attock",
+          "name": "Attock",
+          "population_2023": 2170423,
+          "value": 60.659238,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D9; Attock District; Literate %=60.659237602036555; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "attock",
+          "name": "Attock",
+          "population_2023": 2170423,
+          "value": 96795,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B19; Attock District; Out of School Children (5-16)=96795; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "bahawalnagar",
+      "name": "Bahawalnagar",
+      "population_2023": 3550342,
+      "education": {
+        "literacy_total_pct": 57.013669,
+        "literacy_male_pct": 63.547116,
+        "literacy_female_pct": 49.949344,
+        "out_of_school_children_5_16": 344881
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "bahawalnagar-census-context",
+          "category": "context",
+          "text": "Population (2023) for Bahawalnagar is 3,550,342.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A29:C29; source row='BAHAWALNAGAR DISTRICT', population=3550342; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "bahawalnagar-census-education",
+          "category": "education",
+          "text": "Total literacy for Bahawalnagar is 57.01%. Male literacy for Bahawalnagar is 63.55%. Female literacy for Bahawalnagar is 49.95%. Out-of-school children aged 5-16 for Bahawalnagar is 344,881.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B114; Bahawalnagar District; Literate %=57.01366892214894; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C114; Bahawalnagar District; Literate %=63.54711640453069; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D114; Bahawalnagar District; Literate %=49.94934381630417; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B124; Bahawalnagar District; Out of School Children (5-16)=344881; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "bahawalnagar",
+          "name": "Bahawalnagar",
+          "value": 3550342,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A29:C29; source row='BAHAWALNAGAR DISTRICT', population=3550342; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "bahawalnagar",
+          "name": "Bahawalnagar",
+          "population_2023": 3550342,
+          "value": 57.013669,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B114; Bahawalnagar District; Literate %=57.01366892214894; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "bahawalnagar",
+          "name": "Bahawalnagar",
+          "population_2023": 3550342,
+          "value": 63.547116,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C114; Bahawalnagar District; Literate %=63.54711640453069; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "bahawalnagar",
+          "name": "Bahawalnagar",
+          "population_2023": 3550342,
+          "value": 49.949344,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D114; Bahawalnagar District; Literate %=49.94934381630417; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "bahawalnagar",
+          "name": "Bahawalnagar",
+          "population_2023": 3550342,
+          "value": 344881,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B124; Bahawalnagar District; Out of School Children (5-16)=344881; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "bhakkar",
+      "name": "Bhakkar",
+      "population_2023": 1957470,
+      "education": {
+        "literacy_total_pct": 55.675703,
+        "literacy_male_pct": 66.811079,
+        "literacy_female_pct": 43.870785,
+        "out_of_school_children_5_16": 154352
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "bhakkar-census-context",
+          "category": "context",
+          "text": "Population (2023) for Bhakkar is 1,957,470.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A68:C68; source row='BHAKKAR DISTRICT', population=1957470; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "bhakkar-census-education",
+          "category": "education",
+          "text": "Total literacy for Bhakkar is 55.68%. Male literacy for Bhakkar is 66.81%. Female literacy for Bhakkar is 43.87%. Out-of-school children aged 5-16 for Bhakkar is 154,352.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B309; Bhakkar District; Literate %=55.6757030388534; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C309; Bhakkar District; Literate %=66.8110785127148; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D309; Bhakkar District; Literate %=43.8707853618421; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B319; Bhakkar District; Out of School Children (5-16)=154352; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "bhakkar",
+          "name": "Bhakkar",
+          "value": 1957470,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A68:C68; source row='BHAKKAR DISTRICT', population=1957470; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "bhakkar",
+          "name": "Bhakkar",
+          "population_2023": 1957470,
+          "value": 55.675703,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B309; Bhakkar District; Literate %=55.6757030388534; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "bhakkar",
+          "name": "Bhakkar",
+          "population_2023": 1957470,
+          "value": 66.811079,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C309; Bhakkar District; Literate %=66.8110785127148; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "bhakkar",
+          "name": "Bhakkar",
+          "population_2023": 1957470,
+          "value": 43.870785,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D309; Bhakkar District; Literate %=43.8707853618421; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "bhakkar",
+          "name": "Bhakkar",
+          "population_2023": 1957470,
+          "value": 154352,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B319; Bhakkar District; Out of School Children (5-16)=154352; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "chakwal",
+      "name": "Chakwal",
+      "population_2023": 1734854,
+      "education": {
+        "literacy_total_pct": 77.787095,
+        "literacy_male_pct": 86.120173,
+        "literacy_female_pct": 69.522624,
+        "out_of_school_children_5_16": 60787
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "chakwal-census-context",
+          "category": "context",
+          "text": "Population (2023) for Chakwal is 1,734,854.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A83:C83; source row='CHAKWAL DISTRICT', population=1734854; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "chakwal-census-education",
+          "category": "education",
+          "text": "Total literacy for Chakwal is 77.79%. Male literacy for Chakwal is 86.12%. Female literacy for Chakwal is 69.52%. Out-of-school children aged 5-16 for Chakwal is 60,787.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B384; Chakwal District; Literate %=77.78709476122188; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C384; Chakwal District; Literate %=86.12017265632294; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D384; Chakwal District; Literate %=69.52262406589153; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B394; Chakwal District; Out of School Children (5-16)=60787; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "chakwal",
+          "name": "Chakwal",
+          "value": 1734854,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A83:C83; source row='CHAKWAL DISTRICT', population=1734854; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "chakwal",
+          "name": "Chakwal",
+          "population_2023": 1734854,
+          "value": 77.787095,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B384; Chakwal District; Literate %=77.78709476122188; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "chakwal",
+          "name": "Chakwal",
+          "population_2023": 1734854,
+          "value": 86.120173,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C384; Chakwal District; Literate %=86.12017265632294; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "chakwal",
+          "name": "Chakwal",
+          "population_2023": 1734854,
+          "value": 69.522624,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D384; Chakwal District; Literate %=69.52262406589153; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "chakwal",
+          "name": "Chakwal",
+          "population_2023": 1734854,
+          "value": 60787,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B394; Chakwal District; Out of School Children (5-16)=60787; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "chiniot",
+      "name": "Chiniot",
+      "population_2023": 1563024,
+      "education": {
+        "literacy_total_pct": 55.046363,
+        "literacy_male_pct": 64.644101,
+        "literacy_female_pct": 45.186994,
+        "out_of_school_children_5_16": 128830
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "chiniot-census-context",
+          "category": "context",
+          "text": "Population (2023) for Chiniot is 1,563,024.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A101:C101; source row='CHINIOT DISTRICT', population=1563024; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "chiniot-census-education",
+          "category": "education",
+          "text": "Total literacy for Chiniot is 55.05%. Male literacy for Chiniot is 64.64%. Female literacy for Chiniot is 45.19%. Out-of-school children aged 5-16 for Chiniot is 128,830.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B474; Chiniot District; Literate %=55.04636311754224; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C474; Chiniot District; Literate %=64.64410112311187; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D474; Chiniot District; Literate %=45.18699446007894; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B484; Chiniot District; Out of School Children (5-16)=128830; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "chiniot",
+          "name": "Chiniot",
+          "value": 1563024,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A101:C101; source row='CHINIOT DISTRICT', population=1563024; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "chiniot",
+          "name": "Chiniot",
+          "population_2023": 1563024,
+          "value": 55.046363,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B474; Chiniot District; Literate %=55.04636311754224; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "chiniot",
+          "name": "Chiniot",
+          "population_2023": 1563024,
+          "value": 64.644101,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C474; Chiniot District; Literate %=64.64410112311187; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "chiniot",
+          "name": "Chiniot",
+          "population_2023": 1563024,
+          "value": 45.186994,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D474; Chiniot District; Literate %=45.18699446007894; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "chiniot",
+          "name": "Chiniot",
+          "population_2023": 1563024,
+          "value": 128830,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B484; Chiniot District; Out of School Children (5-16)=128830; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "faisalabad",
+      "name": "Faisalabad",
+      "population_2023": 9075819,
+      "education": {
+        "literacy_total_pct": 73.41397,
+        "literacy_male_pct": 77.337311,
+        "literacy_female_pct": 69.114912,
+        "out_of_school_children_5_16": 479098
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "faisalabad-census-context",
+          "category": "context",
+          "text": "Population (2023) for Faisalabad is 9,075,819.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A128:C128; source row='FAISALABAD DISTRICT', population=9075819; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "faisalabad-census-education",
+          "category": "education",
+          "text": "Total literacy for Faisalabad is 73.41%. Male literacy for Faisalabad is 77.34%. Female literacy for Faisalabad is 69.11%. Out-of-school children aged 5-16 for Faisalabad is 479,098.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B609; Faisalabad District; Literate %=73.41397006813503; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C609; Faisalabad District; Literate %=77.33731101644149; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D609; Faisalabad District; Literate %=69.11491160669149; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B619; Faisalabad District; Out of School Children (5-16)=479098; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "faisalabad",
+          "name": "Faisalabad",
+          "value": 9075819,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A128:C128; source row='FAISALABAD DISTRICT', population=9075819; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "faisalabad",
+          "name": "Faisalabad",
+          "population_2023": 9075819,
+          "value": 73.41397,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B609; Faisalabad District; Literate %=73.41397006813503; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "faisalabad",
+          "name": "Faisalabad",
+          "population_2023": 9075819,
+          "value": 77.337311,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C609; Faisalabad District; Literate %=77.33731101644149; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "faisalabad",
+          "name": "Faisalabad",
+          "population_2023": 9075819,
+          "value": 69.114912,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D609; Faisalabad District; Literate %=69.11491160669149; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "faisalabad",
+          "name": "Faisalabad",
+          "population_2023": 9075819,
+          "value": 479098,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B619; Faisalabad District; Out of School Children (5-16)=479098; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "gujranwala",
+      "name": "Gujranwala",
+      "population_2023": 5959750,
+      "education": {
+        "literacy_total_pct": 76.77472,
+        "literacy_male_pct": 78.141612,
+        "literacy_female_pct": 75.360381,
+        "out_of_school_children_5_16": 321967
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "gujranwala-census-context",
+          "category": "context",
+          "text": "Population (2023) for Gujranwala is 5,959,750.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A149:C149; source row='GUJRANWALA DISTRICT', population=5959750; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "gujranwala-census-education",
+          "category": "education",
+          "text": "Total literacy for Gujranwala is 76.77%. Male literacy for Gujranwala is 78.14%. Female literacy for Gujranwala is 75.36%. Out-of-school children aged 5-16 for Gujranwala is 321,967.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B714; Gujranwala District; Literate %=76.77471951711706; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C714; Gujranwala District; Literate %=78.14161173718902; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D714; Gujranwala District; Literate %=75.36038057540718; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B724; Gujranwala District; Out of School Children (5-16)=321967; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "gujranwala",
+          "name": "Gujranwala",
+          "value": 5959750,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A149:C149; source row='GUJRANWALA DISTRICT', population=5959750; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "gujranwala",
+          "name": "Gujranwala",
+          "population_2023": 5959750,
+          "value": 76.77472,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B714; Gujranwala District; Literate %=76.77471951711706; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "gujranwala",
+          "name": "Gujranwala",
+          "population_2023": 5959750,
+          "value": 78.141612,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C714; Gujranwala District; Literate %=78.14161173718902; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "gujranwala",
+          "name": "Gujranwala",
+          "population_2023": 5959750,
+          "value": 75.360381,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D714; Gujranwala District; Literate %=75.36038057540718; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "gujranwala",
+          "name": "Gujranwala",
+          "population_2023": 5959750,
+          "value": 321967,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B724; Gujranwala District; Out of School Children (5-16)=321967; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "gujrat",
+      "name": "Gujrat",
+      "population_2023": 3219375,
+      "education": {
+        "literacy_total_pct": 81.374076,
+        "literacy_male_pct": 84.808451,
+        "literacy_female_pct": 77.947783,
+        "out_of_school_children_5_16": 118204
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "gujrat-census-context",
+          "category": "context",
+          "text": "Population (2023) for Gujrat is 3,219,375.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A167:C167; source row='GUJRAT DISTRICT', population=3219375; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "gujrat-census-education",
+          "category": "education",
+          "text": "Total literacy for Gujrat is 81.37%. Male literacy for Gujrat is 84.81%. Female literacy for Gujrat is 77.95%. Out-of-school children aged 5-16 for Gujrat is 118,204.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B804; Gujrat District; Literate %=81.37407562483638; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C804; Gujrat District; Literate %=84.80845061623081; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D804; Gujrat District; Literate %=77.9477826054596; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B814; Gujrat District; Out of School Children (5-16)=118204; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "gujrat",
+          "name": "Gujrat",
+          "value": 3219375,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A167:C167; source row='GUJRAT DISTRICT', population=3219375; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "gujrat",
+          "name": "Gujrat",
+          "population_2023": 3219375,
+          "value": 81.374076,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B804; Gujrat District; Literate %=81.37407562483638; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "gujrat",
+          "name": "Gujrat",
+          "population_2023": 3219375,
+          "value": 84.808451,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C804; Gujrat District; Literate %=84.80845061623081; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "gujrat",
+          "name": "Gujrat",
+          "population_2023": 3219375,
+          "value": 77.947783,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D804; Gujrat District; Literate %=77.9477826054596; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "gujrat",
+          "name": "Gujrat",
+          "population_2023": 3219375,
+          "value": 118204,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B814; Gujrat District; Out of School Children (5-16)=118204; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "hafizabad",
+      "name": "Hafizabad",
+      "population_2023": 1319909,
+      "education": {
+        "literacy_total_pct": 65.766814,
+        "literacy_male_pct": 70.700889,
+        "literacy_female_pct": 60.645229,
+        "out_of_school_children_5_16": 78767
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "hafizabad-census-context",
+          "category": "context",
+          "text": "Population (2023) for Hafizabad is 1,319,909.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A179:C179; source row='HAFIZABAD DISTRICT', population=1319909; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "hafizabad-census-education",
+          "category": "education",
+          "text": "Total literacy for Hafizabad is 65.77%. Male literacy for Hafizabad is 70.70%. Female literacy for Hafizabad is 60.65%. Out-of-school children aged 5-16 for Hafizabad is 78,767.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B864; Hafizabad District; Literate %=65.76681370322756; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C864; Hafizabad District; Literate %=70.70088856773046; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D864; Hafizabad District; Literate %=60.64522915287376; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B874; Hafizabad District; Out of School Children (5-16)=78767; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "hafizabad",
+          "name": "Hafizabad",
+          "value": 1319909,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A179:C179; source row='HAFIZABAD DISTRICT', population=1319909; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "hafizabad",
+          "name": "Hafizabad",
+          "population_2023": 1319909,
+          "value": 65.766814,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B864; Hafizabad District; Literate %=65.76681370322756; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "hafizabad",
+          "name": "Hafizabad",
+          "population_2023": 1319909,
+          "value": 70.700889,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C864; Hafizabad District; Literate %=70.70088856773046; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "hafizabad",
+          "name": "Hafizabad",
+          "population_2023": 1319909,
+          "value": 60.645229,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D864; Hafizabad District; Literate %=60.64522915287376; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "hafizabad",
+          "name": "Hafizabad",
+          "population_2023": 1319909,
+          "value": 78767,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B874; Hafizabad District; Out of School Children (5-16)=78767; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "jhang",
+      "name": "Jhang",
+      "population_2023": 3065639,
+      "education": {
+        "literacy_total_pct": 59.449892,
+        "literacy_male_pct": 69.086772,
+        "literacy_female_pct": 49.14412,
+        "out_of_school_children_5_16": 245763
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "jhang-census-context",
+          "category": "context",
+          "text": "Population (2023) for Jhang is 3,065,639.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A188:C188; source row='JHANG DISTRICT', population=3065639; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "jhang-census-education",
+          "category": "education",
+          "text": "Total literacy for Jhang is 59.45%. Male literacy for Jhang is 69.09%. Female literacy for Jhang is 49.14%. Out-of-school children aged 5-16 for Jhang is 245,763.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B909; Jhang District; Literate %=59.449891629683144; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C909; Jhang District; Literate %=69.0867716286589; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D909; Jhang District; Literate %=49.14412004057834; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B919; Jhang District; Out of School Children (5-16)=245763; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "jhang",
+          "name": "Jhang",
+          "value": 3065639,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A188:C188; source row='JHANG DISTRICT', population=3065639; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "jhang",
+          "name": "Jhang",
+          "population_2023": 3065639,
+          "value": 59.449892,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B909; Jhang District; Literate %=59.449891629683144; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "jhang",
+          "name": "Jhang",
+          "population_2023": 3065639,
+          "value": 69.086772,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C909; Jhang District; Literate %=69.0867716286589; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "jhang",
+          "name": "Jhang",
+          "population_2023": 3065639,
+          "value": 49.14412,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D909; Jhang District; Literate %=49.14412004057834; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "jhang",
+          "name": "Jhang",
+          "population_2023": 3065639,
+          "value": 245763,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B919; Jhang District; Out of School Children (5-16)=245763; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "jhelum",
+      "name": "Jhelum",
+      "population_2023": 1382308,
+      "education": {
+        "literacy_total_pct": 80.651118,
+        "literacy_male_pct": 86.55382,
+        "literacy_female_pct": 74.525569,
+        "out_of_school_children_5_16": 42117
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "jhelum-census-context",
+          "category": "context",
+          "text": "Population (2023) for Jhelum is 1,382,308.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A203:C203; source row='JHELUM DISTRICT', population=1382308; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "jhelum-census-education",
+          "category": "education",
+          "text": "Total literacy for Jhelum is 80.65%. Male literacy for Jhelum is 86.55%. Female literacy for Jhelum is 74.53%. Out-of-school children aged 5-16 for Jhelum is 42,117.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B984; Jhelum District; Literate %=80.65111848858393; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C984; Jhelum District; Literate %=86.5538195704889; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D984; Jhelum District; Literate %=74.52556946749132; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B994; Jhelum District; Out of School Children (5-16)=42117; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "jhelum",
+          "name": "Jhelum",
+          "value": 1382308,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A203:C203; source row='JHELUM DISTRICT', population=1382308; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "jhelum",
+          "name": "Jhelum",
+          "population_2023": 1382308,
+          "value": 80.651118,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B984; Jhelum District; Literate %=80.65111848858393; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "jhelum",
+          "name": "Jhelum",
+          "population_2023": 1382308,
+          "value": 86.55382,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C984; Jhelum District; Literate %=86.5538195704889; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "jhelum",
+          "name": "Jhelum",
+          "population_2023": 1382308,
+          "value": 74.525569,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D984; Jhelum District; Literate %=74.52556946749132; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "jhelum",
+          "name": "Jhelum",
+          "population_2023": 1382308,
+          "value": 42117,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B994; Jhelum District; Out of School Children (5-16)=42117; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "kasur",
+      "name": "Kasur",
+      "population_2023": 4084286,
+      "education": {
+        "literacy_total_pct": 62.848653,
+        "literacy_male_pct": 67.970654,
+        "literacy_female_pct": 57.438519,
+        "out_of_school_children_5_16": 274362
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "kasur-census-context",
+          "category": "context",
+          "text": "Population (2023) for Kasur is 4,084,286.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A218:C218; source row='KASUR DISTRICT', population=4084286; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "kasur-census-education",
+          "category": "education",
+          "text": "Total literacy for Kasur is 62.85%. Male literacy for Kasur is 67.97%. Female literacy for Kasur is 57.44%. Out-of-school children aged 5-16 for Kasur is 274,362.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1059; Kasur District; Literate %=62.84865295885612; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1059; Kasur District; Literate %=67.97065447339617; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1059; Kasur District; Literate %=57.4385190712915; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1069; Kasur District; Out of School Children (5-16)=274362; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "kasur",
+          "name": "Kasur",
+          "value": 4084286,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A218:C218; source row='KASUR DISTRICT', population=4084286; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "kasur",
+          "name": "Kasur",
+          "population_2023": 4084286,
+          "value": 62.848653,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1059; Kasur District; Literate %=62.84865295885612; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "kasur",
+          "name": "Kasur",
+          "population_2023": 4084286,
+          "value": 67.970654,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1059; Kasur District; Literate %=67.97065447339617; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "kasur",
+          "name": "Kasur",
+          "population_2023": 4084286,
+          "value": 57.438519,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1059; Kasur District; Literate %=57.4385190712915; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "kasur",
+          "name": "Kasur",
+          "population_2023": 4084286,
+          "value": 274362,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1069; Kasur District; Out of School Children (5-16)=274362; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "khushab",
+      "name": "Khushab",
+      "population_2023": 1501089,
+      "education": {
+        "literacy_total_pct": 62.524008,
+        "literacy_male_pct": 75.591824,
+        "literacy_female_pct": 49.031526,
+        "out_of_school_children_5_16": 84809
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "khushab-census-context",
+          "category": "context",
+          "text": "Population (2023) for Khushab is 1,501,089.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A248:C248; source row='KHUSHAB DISTRICT', population=1501089; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "khushab-census-education",
+          "category": "education",
+          "text": "Total literacy for Khushab is 62.52%. Male literacy for Khushab is 75.59%. Female literacy for Khushab is 49.03%. Out-of-school children aged 5-16 for Khushab is 84,809.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1209; Khushab District; Literate %=62.5240080863751; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1209; Khushab District; Literate %=75.59182350141975; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1209; Khushab District; Literate %=49.03152646405011; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1219; Khushab District; Out of School Children (5-16)=84809; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "khushab",
+          "name": "Khushab",
+          "value": 1501089,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A248:C248; source row='KHUSHAB DISTRICT', population=1501089; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "khushab",
+          "name": "Khushab",
+          "population_2023": 1501089,
+          "value": 62.524008,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1209; Khushab District; Literate %=62.5240080863751; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "khushab",
+          "name": "Khushab",
+          "population_2023": 1501089,
+          "value": 75.591824,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1209; Khushab District; Literate %=75.59182350141975; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "khushab",
+          "name": "Khushab",
+          "population_2023": 1501089,
+          "value": 49.031526,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1209; Khushab District; Literate %=49.03152646405011; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "khushab",
+          "name": "Khushab",
+          "population_2023": 1501089,
+          "value": 84809,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1219; Khushab District; Out of School Children (5-16)=84809; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "lahore",
+      "name": "Lahore",
+      "population_2023": 13004135,
+      "education": {
+        "literacy_total_pct": 79.61901,
+        "literacy_male_pct": 81.41256,
+        "literacy_female_pct": 77.590789,
+        "out_of_school_children_5_16": 718199
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "lahore-census-context",
+          "category": "context",
+          "text": "Population (2023) for Lahore is 13,004,135.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A263:C263; source row='LAHORE DISTRICT', population=13004135; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "lahore-census-education",
+          "category": "education",
+          "text": "Total literacy for Lahore is 79.62%. Male literacy for Lahore is 81.41%. Female literacy for Lahore is 77.59%. Out-of-school children aged 5-16 for Lahore is 718,199.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1284; Lahore District; Literate %=79.61901042930452; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1284; Lahore District; Literate %=81.41256025416091; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1284; Lahore District; Literate %=77.59078922437138; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1294; Lahore District; Out of School Children (5-16)=718199; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "lahore",
+          "name": "Lahore",
+          "value": 13004135,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A263:C263; source row='LAHORE DISTRICT', population=13004135; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "lahore",
+          "name": "Lahore",
+          "population_2023": 13004135,
+          "value": 79.61901,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1284; Lahore District; Literate %=79.61901042930452; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "lahore",
+          "name": "Lahore",
+          "population_2023": 13004135,
+          "value": 81.41256,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1284; Lahore District; Literate %=81.41256025416091; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "lahore",
+          "name": "Lahore",
+          "population_2023": 13004135,
+          "value": 77.590789,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1284; Lahore District; Literate %=77.59078922437138; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "lahore",
+          "name": "Lahore",
+          "population_2023": 13004135,
+          "value": 718199,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1294; Lahore District; Out of School Children (5-16)=718199; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "mandi-bahauddin",
+      "name": "Mandi Bahauddin",
+      "population_2023": 1829486,
+      "education": {
+        "literacy_total_pct": 70.268991,
+        "literacy_male_pct": 74.894624,
+        "literacy_female_pct": 65.703571,
+        "out_of_school_children_5_16": 110399
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "mandi-bahauddin-census-context",
+          "category": "context",
+          "text": "Population (2023) for Mandi Bahauddin is 1,829,486.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A305:C305; source row='MANDI BAHAUDDIN DISTRICT', population=1829486; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "mandi-bahauddin-census-education",
+          "category": "education",
+          "text": "Total literacy for Mandi Bahauddin is 70.27%. Male literacy for Mandi Bahauddin is 74.89%. Female literacy for Mandi Bahauddin is 65.70%. Out-of-school children aged 5-16 for Mandi Bahauddin is 110,399.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1494; Mandi Bahauddin District; Literate %=70.26899143703909; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1494; Mandi Bahauddin District; Literate %=74.89462402821567; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1494; Mandi Bahauddin District; Literate %=65.70357130949948; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1504; Mandi Bahauddin District; Out of School Children (5-16)=110399; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "mandi-bahauddin",
+          "name": "Mandi Bahauddin",
+          "value": 1829486,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A305:C305; source row='MANDI BAHAUDDIN DISTRICT', population=1829486; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "mandi-bahauddin",
+          "name": "Mandi Bahauddin",
+          "population_2023": 1829486,
+          "value": 70.268991,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1494; Mandi Bahauddin District; Literate %=70.26899143703909; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "mandi-bahauddin",
+          "name": "Mandi Bahauddin",
+          "population_2023": 1829486,
+          "value": 74.894624,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1494; Mandi Bahauddin District; Literate %=74.89462402821567; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "mandi-bahauddin",
+          "name": "Mandi Bahauddin",
+          "population_2023": 1829486,
+          "value": 65.703571,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1494; Mandi Bahauddin District; Literate %=65.70357130949948; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "mandi-bahauddin",
+          "name": "Mandi Bahauddin",
+          "population_2023": 1829486,
+          "value": 110399,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1504; Mandi Bahauddin District; Out of School Children (5-16)=110399; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "mianwali",
+      "name": "Mianwali",
+      "population_2023": 1798268,
+      "education": {
+        "literacy_total_pct": 62.868762,
+        "literacy_male_pct": 77.583508,
+        "literacy_female_pct": 47.63108,
+        "out_of_school_children_5_16": 128246
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "mianwali-census-context",
+          "category": "context",
+          "text": "Population (2023) for Mianwali is 1,798,268.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A317:C317; source row='MIANWALI DISTRICT', population=1798268; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "mianwali-census-education",
+          "category": "education",
+          "text": "Total literacy for Mianwali is 62.87%. Male literacy for Mianwali is 77.58%. Female literacy for Mianwali is 47.63%. Out-of-school children aged 5-16 for Mianwali is 128,246.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1554; Mianwali District; Literate %=62.868762021202045; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1554; Mianwali District; Literate %=77.58350845415936; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1554; Mianwali District; Literate %=47.631080131546796; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1564; Mianwali District; Out of School Children (5-16)=128246; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "mianwali",
+          "name": "Mianwali",
+          "value": 1798268,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A317:C317; source row='MIANWALI DISTRICT', population=1798268; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "mianwali",
+          "name": "Mianwali",
+          "population_2023": 1798268,
+          "value": 62.868762,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1554; Mianwali District; Literate %=62.868762021202045; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "mianwali",
+          "name": "Mianwali",
+          "population_2023": 1798268,
+          "value": 77.583508,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1554; Mianwali District; Literate %=77.58350845415936; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "mianwali",
+          "name": "Mianwali",
+          "population_2023": 1798268,
+          "value": 47.63108,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1554; Mianwali District; Literate %=47.631080131546796; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "mianwali",
+          "name": "Mianwali",
+          "population_2023": 1798268,
+          "value": 128246,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1564; Mianwali District; Out of School Children (5-16)=128246; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "nankana-sahib",
+      "name": "Nankana Sahib",
+      "population_2023": 1634871,
+      "education": {
+        "literacy_total_pct": 63.120393,
+        "literacy_male_pct": 68.37957,
+        "literacy_female_pct": 57.630359,
+        "out_of_school_children_5_16": 108439
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "nankana-sahib-census-context",
+          "category": "context",
+          "text": "Population (2023) for Nankana Sahib is 1,634,871.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A362:C362; source row='NANKANA SAHIB DISTRICT', population=1634871; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "nankana-sahib-census-education",
+          "category": "education",
+          "text": "Total literacy for Nankana Sahib is 63.12%. Male literacy for Nankana Sahib is 68.38%. Female literacy for Nankana Sahib is 57.63%. Out-of-school children aged 5-16 for Nankana Sahib is 108,439.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1779; Nankana Sahib District; Literate %=63.12039334444748; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1779; Nankana Sahib District; Literate %=68.37957042989466; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1779; Nankana Sahib District; Literate %=57.63035938882542; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1789; Nankana Sahib District; Out of School Children (5-16)=108439; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "nankana-sahib",
+          "name": "Nankana Sahib",
+          "value": 1634871,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A362:C362; source row='NANKANA SAHIB DISTRICT', population=1634871; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "nankana-sahib",
+          "name": "Nankana Sahib",
+          "population_2023": 1634871,
+          "value": 63.120393,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1779; Nankana Sahib District; Literate %=63.12039334444748; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "nankana-sahib",
+          "name": "Nankana Sahib",
+          "population_2023": 1634871,
+          "value": 68.37957,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1779; Nankana Sahib District; Literate %=68.37957042989466; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "nankana-sahib",
+          "name": "Nankana Sahib",
+          "population_2023": 1634871,
+          "value": 57.630359,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1779; Nankana Sahib District; Literate %=57.63035938882542; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "nankana-sahib",
+          "name": "Nankana Sahib",
+          "population_2023": 1634871,
+          "value": 108439,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1789; Nankana Sahib District; Out of School Children (5-16)=108439; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "narowal",
+      "name": "Narowal",
+      "population_2023": 1950954,
+      "education": {
+        "literacy_total_pct": 75.283831,
+        "literacy_male_pct": 79.887554,
+        "literacy_female_pct": 70.492799,
+        "out_of_school_children_5_16": 79034
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "narowal-census-context",
+          "category": "context",
+          "text": "Population (2023) for Narowal is 1,950,954.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A374:C374; source row='NAROWAL DISTRICT', population=1950954; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "narowal-census-education",
+          "category": "education",
+          "text": "Total literacy for Narowal is 75.28%. Male literacy for Narowal is 79.89%. Female literacy for Narowal is 70.49%. Out-of-school children aged 5-16 for Narowal is 79,034.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1839; Narowal District; Literate %=75.28383139762495; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1839; Narowal District; Literate %=79.8875536180216; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1839; Narowal District; Literate %=70.49279865831103; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1849; Narowal District; Out of School Children (5-16)=79034; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "narowal",
+          "name": "Narowal",
+          "value": 1950954,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A374:C374; source row='NAROWAL DISTRICT', population=1950954; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "narowal",
+          "name": "Narowal",
+          "population_2023": 1950954,
+          "value": 75.283831,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1839; Narowal District; Literate %=75.28383139762495; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "narowal",
+          "name": "Narowal",
+          "population_2023": 1950954,
+          "value": 79.887554,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1839; Narowal District; Literate %=79.8875536180216; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "narowal",
+          "name": "Narowal",
+          "population_2023": 1950954,
+          "value": 70.492799,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1839; Narowal District; Literate %=70.49279865831103; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "narowal",
+          "name": "Narowal",
+          "population_2023": 1950954,
+          "value": 79034,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1849; Narowal District; Out of School Children (5-16)=79034; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "okara",
+      "name": "Okara",
+      "population_2023": 3515490,
+      "education": {
+        "literacy_total_pct": 60.252834,
+        "literacy_male_pct": 66.516354,
+        "literacy_female_pct": 53.705627,
+        "out_of_school_children_5_16": 264889
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "okara-census-context",
+          "category": "context",
+          "text": "Population (2023) for Okara is 3,515,490.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A386:C386; source row='OKARA DISTRICT', population=3515490; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "okara-census-education",
+          "category": "education",
+          "text": "Total literacy for Okara is 60.25%. Male literacy for Okara is 66.52%. Female literacy for Okara is 53.71%. Out-of-school children aged 5-16 for Okara is 264,889.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1899; Okara District; Literate %=60.25283448583169; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1899; Okara District; Literate %=66.51635382229578; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1899; Okara District; Literate %=53.705626626236146; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1909; Okara District; Out of School Children (5-16)=264889; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "okara",
+          "name": "Okara",
+          "value": 3515490,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A386:C386; source row='OKARA DISTRICT', population=3515490; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "okara",
+          "name": "Okara",
+          "population_2023": 3515490,
+          "value": 60.252834,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1899; Okara District; Literate %=60.25283448583169; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "okara",
+          "name": "Okara",
+          "population_2023": 3515490,
+          "value": 66.516354,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1899; Okara District; Literate %=66.51635382229578; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "okara",
+          "name": "Okara",
+          "population_2023": 3515490,
+          "value": 53.705627,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1899; Okara District; Literate %=53.705626626236146; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "okara",
+          "name": "Okara",
+          "population_2023": 3515490,
+          "value": 264889,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1909; Okara District; Out of School Children (5-16)=264889; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "pakpattan",
+      "name": "Pakpattan",
+      "population_2023": 2136170,
+      "education": {
+        "literacy_total_pct": 57.12538,
+        "literacy_male_pct": 64.696172,
+        "literacy_female_pct": 49.265178,
+        "out_of_school_children_5_16": 176009
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "pakpattan-census-context",
+          "category": "context",
+          "text": "Population (2023) for Pakpattan is 2,136,170.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A398:C398; source row='PAKPATTAN DISTRICT', population=2136170; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "pakpattan-census-education",
+          "category": "education",
+          "text": "Total literacy for Pakpattan is 57.13%. Male literacy for Pakpattan is 64.70%. Female literacy for Pakpattan is 49.27%. Out-of-school children aged 5-16 for Pakpattan is 176,009.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1959; Pakpattan District; Literate %=57.125379610684675; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C1959; Pakpattan District; Literate %=64.69617228274116; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D1959; Pakpattan District; Literate %=49.265177773520136; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B1969; Pakpattan District; Out of School Children (5-16)=176009; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "pakpattan",
+          "name": "Pakpattan",
+          "value": 2136170,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A398:C398; source row='PAKPATTAN DISTRICT', population=2136170; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "pakpattan",
+          "name": "Pakpattan",
+          "population_2023": 2136170,
+          "value": 57.12538,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1959; Pakpattan District; Literate %=57.125379610684675; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "pakpattan",
+          "name": "Pakpattan",
+          "population_2023": 2136170,
+          "value": 64.696172,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C1959; Pakpattan District; Literate %=64.69617228274116; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "pakpattan",
+          "name": "Pakpattan",
+          "population_2023": 2136170,
+          "value": 49.265178,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D1959; Pakpattan District; Literate %=49.265177773520136; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "pakpattan",
+          "name": "Pakpattan",
+          "population_2023": 2136170,
+          "value": 176009,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B1969; Pakpattan District; Out of School Children (5-16)=176009; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "rawalpindi",
+      "name": "Rawalpindi",
+      "population_2023": 6118911,
+      "education": {
+        "literacy_total_pct": 83.224528,
+        "literacy_male_pct": 87.900506,
+        "literacy_female_pct": 78.35529,
+        "out_of_school_children_5_16": 239415
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "rawalpindi-census-context",
+          "category": "context",
+          "text": "Population (2023) for Rawalpindi is 6,118,911.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A437:C437; source row='RAWALPINDI DISTRICT', population=6118911; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "rawalpindi-census-education",
+          "category": "education",
+          "text": "Total literacy for Rawalpindi is 83.22%. Male literacy for Rawalpindi is 87.90%. Female literacy for Rawalpindi is 78.36%. Out-of-school children aged 5-16 for Rawalpindi is 239,415.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2154; Rawalpindi District; Literate %=83.22452847502234; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C2154; Rawalpindi District; Literate %=87.90050599005691; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D2154; Rawalpindi District; Literate %=78.35528957064939; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B2164; Rawalpindi District; Out of School Children (5-16)=239415; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "rawalpindi",
+          "name": "Rawalpindi",
+          "value": 6118911,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A437:C437; source row='RAWALPINDI DISTRICT', population=6118911; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "rawalpindi",
+          "name": "Rawalpindi",
+          "population_2023": 6118911,
+          "value": 83.224528,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2154; Rawalpindi District; Literate %=83.22452847502234; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "rawalpindi",
+          "name": "Rawalpindi",
+          "population_2023": 6118911,
+          "value": 87.900506,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C2154; Rawalpindi District; Literate %=87.90050599005691; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "rawalpindi",
+          "name": "Rawalpindi",
+          "population_2023": 6118911,
+          "value": 78.35529,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D2154; Rawalpindi District; Literate %=78.35528957064939; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "rawalpindi",
+          "name": "Rawalpindi",
+          "population_2023": 6118911,
+          "value": 239415,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2164; Rawalpindi District; Out of School Children (5-16)=239415; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "sahiwal",
+      "name": "Sahiwal",
+      "population_2023": 2881811,
+      "education": {
+        "literacy_total_pct": 64.770727,
+        "literacy_male_pct": 71.05547,
+        "literacy_female_pct": 58.286375,
+        "out_of_school_children_5_16": 209761
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "sahiwal-census-context",
+          "category": "context",
+          "text": "Population (2023) for Sahiwal is 2,881,811.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A461:C461; source row='SAHIWAL DISTRICT', population=2881811; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "sahiwal-census-education",
+          "category": "education",
+          "text": "Total literacy for Sahiwal is 64.77%. Male literacy for Sahiwal is 71.06%. Female literacy for Sahiwal is 58.29%. Out-of-school children aged 5-16 for Sahiwal is 209,761.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2274; Sahiwal District; Literate %=64.77072697737209; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C2274; Sahiwal District; Literate %=71.05547038588095; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D2274; Sahiwal District; Literate %=58.28637505236355; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B2284; Sahiwal District; Out of School Children (5-16)=209761; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "sahiwal",
+          "name": "Sahiwal",
+          "value": 2881811,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A461:C461; source row='SAHIWAL DISTRICT', population=2881811; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "sahiwal",
+          "name": "Sahiwal",
+          "population_2023": 2881811,
+          "value": 64.770727,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2274; Sahiwal District; Literate %=64.77072697737209; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sahiwal",
+          "name": "Sahiwal",
+          "population_2023": 2881811,
+          "value": 71.05547,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C2274; Sahiwal District; Literate %=71.05547038588095; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sahiwal",
+          "name": "Sahiwal",
+          "population_2023": 2881811,
+          "value": 58.286375,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D2274; Sahiwal District; Literate %=58.28637505236355; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sahiwal",
+          "name": "Sahiwal",
+          "population_2023": 2881811,
+          "value": 209761,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2284; Sahiwal District; Out of School Children (5-16)=209761; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "sargodha",
+      "name": "Sargodha",
+      "population_2023": 4334448,
+      "education": {
+        "literacy_total_pct": 66.728183,
+        "literacy_male_pct": 73.629333,
+        "literacy_female_pct": 59.622954,
+        "out_of_school_children_5_16": 226673
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "sargodha-census-context",
+          "category": "context",
+          "text": "Population (2023) for Sargodha is 4,334,448.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A470:C470; source row='SARGODHA DISTRICT', population=4334448; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "sargodha-census-education",
+          "category": "education",
+          "text": "Total literacy for Sargodha is 66.73%. Male literacy for Sargodha is 73.63%. Female literacy for Sargodha is 59.62%. Out-of-school children aged 5-16 for Sargodha is 226,673.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2319; Sargodha District; Literate %=66.72818304804146; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C2319; Sargodha District; Literate %=73.62933275075474; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D2319; Sargodha District; Literate %=59.62295400791734; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B2329; Sargodha District; Out of School Children (5-16)=226673; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "sargodha",
+          "name": "Sargodha",
+          "value": 4334448,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A470:C470; source row='SARGODHA DISTRICT', population=4334448; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "sargodha",
+          "name": "Sargodha",
+          "population_2023": 4334448,
+          "value": 66.728183,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2319; Sargodha District; Literate %=66.72818304804146; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sargodha",
+          "name": "Sargodha",
+          "population_2023": 4334448,
+          "value": 73.629333,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C2319; Sargodha District; Literate %=73.62933275075474; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sargodha",
+          "name": "Sargodha",
+          "population_2023": 4334448,
+          "value": 59.622954,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D2319; Sargodha District; Literate %=59.62295400791734; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sargodha",
+          "name": "Sargodha",
+          "population_2023": 4334448,
+          "value": 226673,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2329; Sargodha District; Out of School Children (5-16)=226673; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "sheikhupura",
+      "name": "Sheikhupura",
+      "population_2023": 4049418,
+      "education": {
+        "literacy_total_pct": 68.883014,
+        "literacy_male_pct": 72.090557,
+        "literacy_female_pct": 65.460579,
+        "out_of_school_children_5_16": 262076
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "sheikhupura-census-context",
+          "category": "context",
+          "text": "Population (2023) for Sheikhupura is 4,049,418.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A494:C494; source row='SHEIKHUPURA DISTRICT', population=4049418; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "sheikhupura-census-education",
+          "category": "education",
+          "text": "Total literacy for Sheikhupura is 68.88%. Male literacy for Sheikhupura is 72.09%. Female literacy for Sheikhupura is 65.46%. Out-of-school children aged 5-16 for Sheikhupura is 262,076.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2439; Sheikhupura District; Literate %=68.88301409837194; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C2439; Sheikhupura District; Literate %=72.09055686056315; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D2439; Sheikhupura District; Literate %=65.46057852239286; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B2449; Sheikhupura District; Out of School Children (5-16)=262076; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "sheikhupura",
+          "name": "Sheikhupura",
+          "value": 4049418,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A494:C494; source row='SHEIKHUPURA DISTRICT', population=4049418; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "sheikhupura",
+          "name": "Sheikhupura",
+          "population_2023": 4049418,
+          "value": 68.883014,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2439; Sheikhupura District; Literate %=68.88301409837194; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sheikhupura",
+          "name": "Sheikhupura",
+          "population_2023": 4049418,
+          "value": 72.090557,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C2439; Sheikhupura District; Literate %=72.09055686056315; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sheikhupura",
+          "name": "Sheikhupura",
+          "population_2023": 4049418,
+          "value": 65.460579,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D2439; Sheikhupura District; Literate %=65.46057852239286; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sheikhupura",
+          "name": "Sheikhupura",
+          "population_2023": 4049418,
+          "value": 262076,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2449; Sheikhupura District; Out of School Children (5-16)=262076; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "sialkot",
+      "name": "Sialkot",
+      "population_2023": 4499394,
+      "education": {
+        "literacy_total_pct": 78.370021,
+        "literacy_male_pct": 80.23664,
+        "literacy_female_pct": 76.503693,
+        "out_of_school_children_5_16": 153560
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "sialkot-census-context",
+          "category": "context",
+          "text": "Population (2023) for Sialkot is 4,499,394.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A512:C512; source row='SIALKOT DISTRICT', population=4499394; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "sialkot-census-education",
+          "category": "education",
+          "text": "Total literacy for Sialkot is 78.37%. Male literacy for Sialkot is 80.24%. Female literacy for Sialkot is 76.50%. Out-of-school children aged 5-16 for Sialkot is 153,560.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2529; Sialkot District; Literate %=78.3700211220835; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C2529; Sialkot District; Literate %=80.23664039038151; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D2529; Sialkot District; Literate %=76.50369347186356; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B2539; Sialkot District; Out of School Children (5-16)=153560; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "sialkot",
+          "name": "Sialkot",
+          "value": 4499394,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A512:C512; source row='SIALKOT DISTRICT', population=4499394; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "sialkot",
+          "name": "Sialkot",
+          "population_2023": 4499394,
+          "value": 78.370021,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2529; Sialkot District; Literate %=78.3700211220835; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sialkot",
+          "name": "Sialkot",
+          "population_2023": 4499394,
+          "value": 80.23664,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C2529; Sialkot District; Literate %=80.23664039038151; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sialkot",
+          "name": "Sialkot",
+          "population_2023": 4499394,
+          "value": 76.503693,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D2529; Sialkot District; Literate %=76.50369347186356; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "sialkot",
+          "name": "Sialkot",
+          "population_2023": 4499394,
+          "value": 153560,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2539; Sialkot District; Out of School Children (5-16)=153560; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    },
+    {
+      "slug": "toba-tek-singh",
+      "name": "Toba Tek Singh",
+      "population_2023": 2524044,
+      "education": {
+        "literacy_total_pct": 71.38424,
+        "literacy_male_pct": 76.373834,
+        "literacy_female_pct": 66.131627,
+        "out_of_school_children_5_16": 142390
+      },
+      "health": {},
+      "accountability": {},
+      "evidence": [
+        {
+          "id": "toba-tek-singh-census-context",
+          "category": "context",
+          "text": "Population (2023) for Toba Tek Singh is 2,524,044.",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A527:C527; source row='TOBA TEK SINGH DISTRICT', population=2524044; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "id": "toba-tek-singh-census-education",
+          "category": "education",
+          "text": "Total literacy for Toba Tek Singh is 71.38%. Male literacy for Toba Tek Singh is 76.37%. Female literacy for Toba Tek Singh is 66.13%. Out-of-school children aged 5-16 for Toba Tek Singh is 142,390.",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2604; Toba Tek Singh District; Literate %=71.38424001854351; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!C2604; Toba Tek Singh District; Literate %=76.37383407348219; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!D2604; Toba Tek Singh District; Literate %=66.13162708035958; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f; Table 12; punjab!B2614; Toba Tek Singh District; Out of School Children (5-16)=142390; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ],
+      "observations": [
+        {
+          "slug": "toba-tek-singh",
+          "name": "Toba Tek Singh",
+          "value": 2524044,
+          "metric_key": "population_2023",
+          "unit": "count",
+          "period": "2023",
+          "source_id": "pbs_table_1",
+          "locator": "Table 1; Punjab Dist!A527:C527; source row='TOBA TEK SINGH DISTRICT', population=2524044; extraction=openpyxl; parser=pbs-table-1-v1; sha256=e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074"
+        },
+        {
+          "slug": "toba-tek-singh",
+          "name": "Toba Tek Singh",
+          "population_2023": 2524044,
+          "value": 71.38424,
+          "metric_key": "literacy_total_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2604; Toba Tek Singh District; Literate %=71.38424001854351; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "toba-tek-singh",
+          "name": "Toba Tek Singh",
+          "population_2023": 2524044,
+          "value": 76.373834,
+          "metric_key": "literacy_male_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!C2604; Toba Tek Singh District; Literate %=76.37383407348219; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "toba-tek-singh",
+          "name": "Toba Tek Singh",
+          "population_2023": 2524044,
+          "value": 66.131627,
+          "metric_key": "literacy_female_pct",
+          "unit": "percent",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!D2604; Toba Tek Singh District; Literate %=66.13162708035958; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        },
+        {
+          "slug": "toba-tek-singh",
+          "name": "Toba Tek Singh",
+          "population_2023": 2524044,
+          "value": 142390,
+          "metric_key": "out_of_school_children_5_16",
+          "unit": "count",
+          "category": "education",
+          "period": "2023",
+          "source_id": "pbs_table_12",
+          "locator": "Table 12; punjab!B2614; Toba Tek Singh District; Out of School Children (5-16)=142390; extraction=openpyxl; parser=pbs-table-12-v1; sha256=6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f"
+        }
+      ]
+    }
+  ]
+}

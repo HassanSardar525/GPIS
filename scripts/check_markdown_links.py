@@ -15,7 +15,7 @@ LINK = re.compile(r"\[[^]]*]\(([^)]+)\)")
 def main() -> int:
     failures: list[str] = []
     for document in ROOT.rglob("*.md"):
-        if ".git" in document.parts:
+        if {".git", ".venv", ".cache", "node_modules"}.intersection(document.relative_to(ROOT).parts):
             continue
         text = document.read_text(encoding="utf-8")
         for target in LINK.findall(text):

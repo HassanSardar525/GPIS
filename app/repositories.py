@@ -31,6 +31,7 @@ class GPISRepository(Protocol):
     def list_districts(self) -> list[dict]: ...
     def get_district(self, slug: str) -> dict: ...
     def rankings(self, category: str) -> list[dict]: ...
+    def census_ranking(self, metric: str) -> dict: ...
     def fact_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]: ...
     def keyword_search(
         self,
@@ -75,8 +76,15 @@ class JsonRepository:
             self.data["districts"], self.data["metadata"]["generated_on"]
         )
         self.by_slug = {district["slug"]: district for district in self.districts}
+        census_path = path.with_name("punjab_census.json")
+        if census_path.is_file():
+            from app.punjab_data import unscored_record
+            census = json.loads(census_path.read_text())
+            self.data["sources"].update(census["sources"])
+            for record in census["districts"]:
+                self.by_slug.setdefault(record["slug"], unscored_record(record))
         self.retriever = EvidenceRetriever(
-            self.districts, self.data["sources"], self.data.get("project_evidence", [])
+            list(self.by_slug.values()), self.data["sources"], self.data.get("project_evidence", [])
         )
         health_path = path.with_name("health_capacity_periods.json")
         self.health_capacity = load_health_capacity(health_path) if health_path.is_file() else None
@@ -116,7 +124,7 @@ class JsonRepository:
                 "scores": district["derived"]["scores"],
                 "score_details": district["derived"]["score_details"],
             }
-            for district in sorted(self.districts, key=lambda item: item["name"])
+            for district in sorted(self.by_slug.values(), key=lambda item: item["name"])
         ]
 
     def get_district(self, slug: str) -> dict:
@@ -131,6 +139,7 @@ class JsonRepository:
                     item for item in self.rankings(category) if item["slug"] == district["slug"]
                 )
                 for category in RANKING_CATEGORIES
+                if category in district["derived"]["score_details"]
             },
             "sources": self.data["sources"],
             "metadata": self.metadata(),
@@ -140,6 +149,22 @@ class JsonRepository:
         if category not in RANKING_CATEGORIES:
             raise InvalidCategory(f"Unknown ranking category: {category}")
         return calculate_rankings(self.districts, category)
+
+    def census_ranking(self, metric: str) -> dict:
+        from app.facts import CENSUS_METRICS, census_ranking
+        if metric not in CENSUS_METRICS:
+            raise InvalidCategory("Unknown census metric")
+        query = {"literacy_total_pct": "literacy", "literacy_male_pct": "male literacy",
+                 "literacy_female_pct": "female literacy", "population_2023": "population",
+                 "out_of_school_children_5_16": "out-of-school"}[metric]
+        citations = {item.district_slug: item.citation.model_dump() for item in self.fact_search(query, [], 1000)}
+        rows = []
+        for record in self.by_slug.values():
+            value = record.get(metric) if metric == "population_2023" else record["education"].get(metric)
+            if value is not None and record["slug"] in citations:
+                rows.append({"slug": record["slug"], "name": record["name"], "value": value,
+                             "citation": citations[record["slug"]]})
+        return census_ranking(metric, rows)
 
     def development_trend(self, slug: str) -> dict:
         district = self.by_slug.get(slug)
@@ -209,7 +234,12 @@ class JsonRepository:
 
     def trend_search(self, query: str, district_slugs: list[str], limit: int) -> list[RetrievedEvidence]:
         selected = district_slugs or list(self.by_slug)
-        trends = [self.development_trend(slug) for slug in selected]
+        trends = []
+        for slug in selected:
+            try:
+                trends.append(self.development_trend(slug))
+            except TrendUnavailable:
+                continue
         reverse = not any(word in query.casefold() for word in ("decline", "decrease", "least", "worst"))
         trends.sort(key=lambda item: item["change_percentage_points"], reverse=reverse)
         results = []
@@ -241,6 +271,7 @@ class JsonRepository:
     ) -> list[RetrievedEvidence]:
         selected = district_slugs or list(self.by_slug)
         score_category = requested_score_category(query, category)
+        selected = [slug for slug in selected if slug in self.by_slug and score_category in self.by_slug[slug]["derived"]["score_details"]]
         if not district_slugs and any(
             word in query.casefold() for word in ("best", "highest", "lowest", "rank", "worst")
         ):
@@ -321,6 +352,9 @@ class JsonRepository:
                     source_id = evidence_by_category[category]["source_id"]
                     locator = evidence_by_category[category]["locator"]
                     unit = "percent" if metric.endswith("_pct") else "count"
+                exact = next((item for item in district.get("observations", []) if item["metric_key"] == metric), None)
+                if exact:
+                    locator = exact["locator"]
                 source = self.data["sources"][source_id]
                 evidence_id = f"fact-{slug}-{metric}"
                 results.append(

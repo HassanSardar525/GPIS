@@ -102,3 +102,45 @@ def expand_semantic_query(question: str) -> str:
     if any(word in query for word in ("audit", "budget", "corruption", "accountability", "financial")):
         expansions.append("accountability audit budget lapse utilization financial management")
     return " ".join([question, *expansions])
+
+
+def resolve_request_districts(request, repository):
+    """Explicit names in the question take precedence over the UI's current selection."""
+    import re
+    question = request.question.casefold()
+    matches = []
+    for district in repository.list_districts():
+        names = [district['name'], district['slug'].replace('-', ' ')]
+        if district['slug'] == 'dera-ghazi-khan':
+            names += ['D.G. Khan', 'DG Khan', 'D.G.Khan']
+        for name in names:
+            match = re.search(r'(?<!\w)' + re.escape(name.casefold()) + r'(?!\w)', question)
+            if match:
+                matches.append((match.start(), district['slug']))
+                break
+    if matches:
+        return request.model_copy(update={'districts': [slug for _, slug in sorted(matches)], 'district': None})
+    return request
+
+
+def unavailable_data_reason(request, repository):
+    """Do not answer a missing district fact with another metric or a fabricated score."""
+    from app.facts import requested_metrics
+    route = classify_question(request.question)
+    if route in {QuestionRoute.METHODOLOGY, QuestionRoute.PROJECT, QuestionRoute.CONVERSATION, QuestionRoute.UNSUPPORTED}:
+        return None
+    question = request.question.casefold()
+    for slug in request.selected_districts():
+        record = repository.get_district(slug)
+        if record['score_details']:
+            continue
+        metrics = requested_metrics(question)
+        available = {'population_2023', *record['education'], *record['health'], *record['accountability']}
+        if (any(metric not in available for metric in metrics)
+                or route == QuestionRoute.TEMPORAL_COMPARISON
+                or any(word in question for word in ('score', 'rank', 'health', 'hospital', 'facilit', 'budget', 'accountability'))
+                or request.category in {'health', 'accountability'}):
+            return (f"{record['name']} has Census 2023 population, literacy and out-of-school figures. "
+                    'Reviewed GPIS scores, health facilities, budgets and comparable trends are not yet available '
+                    'for this district, so I cannot provide the requested measure.')
+    return None

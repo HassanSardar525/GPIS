@@ -1,0 +1,14 @@
+{
+  "source_id": "pbs_table_1",
+  "sha256": "e082a05c5485908a3fba22392ae222db084458842e26704b4193352ed768a074",
+  "sheet": "Punjab Dist",
+  "row": 8,
+  "cells": [
+    "ATTOCK DISTRICT",
+    6857,
+    2170423
+  ],
+  "slug": "attock",
+  "metric_key": "population_2023",
+  "value": 2170423
+}

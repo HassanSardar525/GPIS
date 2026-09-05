@@ -27,9 +27,9 @@ def test_health_contract_reports_fallbacks():
 def test_district_list_contract_is_versioned():
     response = CLIENT.get("/api/v1/districts")
     assert response.status_code == 200
-    assert len(response.json()["districts"]) == 10
+    assert len(response.json()["districts"]) == 36
     body = response.json()
-    detail = body["districts"][0]["score_details"]["health"]
+    detail = next(item for item in body["districts"] if item["slug"] == "multan")["score_details"]["health"]
     assert detail["version"] == "prototype-v1"
     assert detail["coverage"] == 1.0
     assert detail["confidence"] == 0.8125

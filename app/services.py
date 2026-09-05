@@ -16,11 +16,12 @@ from app.comparisons import (
     format_comparison_summary,
     requested_comparison_category,
 )
+from app.errors import TrendUnavailable
 from app.embeddings import EMBEDDING_DIMENSION, Embedder
 from app.llm import LLMProvider, validate_generated_answer
 from app.observability import NoopObservability, Observability
 from app.repositories import GPISRepository
-from app.routing import classify_question, expand_semantic_query
+from app.routing import classify_question, expand_semantic_query, resolve_request_districts, unavailable_data_reason
 from app.schemas import (
     AnswerMode,
     ChatRequest,
@@ -350,6 +351,7 @@ class ChatService:
         self.observability = observability or NoopObservability()
 
     async def answer(self, request: ChatRequest) -> ChatResponse:
+        request = resolve_request_districts(request, self.repository)
         started = time.perf_counter()
         trace_id = str(uuid.uuid4())
         route = classify_question(request.question)
@@ -386,6 +388,12 @@ class ChatService:
     ) -> ChatResponse:
         for slug in request.selected_districts():
             self.repository.get_district(slug)
+        unavailable = unavailable_data_reason(request, self.repository)
+        if unavailable:
+            response = ChatResponse(answer=unavailable, mode=AnswerMode.ABSTAINED, route=route,
+                citations=[], warnings=["Missing data is not treated as zero."], trace_id=trace_id, abstained=True)
+            self._record_trace(request, response, [], started)
+            return response
         if route == QuestionRoute.CONVERSATION:
             response = ChatResponse(
                 answer=(
@@ -515,7 +523,10 @@ class ChatService:
             slugs = selected or [item["slug"] for item in self.repository.list_districts()]
             lines = []
             for slug in slugs:
-                trend = self.repository.development_trend(slug)
+                try:
+                    trend = self.repository.development_trend(slug)
+                except TrendUnavailable:
+                    continue
                 previous, current = trend["periods"]
                 lines.append(
                     f"{trend['district_name']}: {previous['period']} utilization={previous['utilization_pct']}%; "
@@ -534,8 +545,8 @@ class ChatService:
             scores = district["derived"]["scores"]
             lines.append(
                 f"{district['name']}: population={district['population_2023']}; "
-                f"education_score={scores['education']}; health_score={scores['health']}; "
-                f"accountability_score={scores['accountability']}; overall_score={scores['overall']}; "
+                f"education_score={scores.get('education', 'unavailable')}; health_score={scores.get('health', 'unavailable')}; "
+                f"accountability_score={scores.get('accountability', 'unavailable')}; overall_score={scores.get('overall', 'unavailable')}; "
                 f"score_details={district['score_details']}"
             )
         return "\n".join(lines)
@@ -653,7 +664,7 @@ class ChatService:
             if selected:
                 for slug in selected:
                     warnings.extend(
-                        self.repository.get_district(slug)["score_details"][category]["warnings"]
+                        self.repository.get_district(slug)["score_details"].get(category, {}).get("warnings", [])
                     )
             else:
                 ranked = self.repository.rankings(category)

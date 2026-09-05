@@ -62,7 +62,7 @@ async def test_agent_calls_structured_district_tool_for_capabilities():
                     }
                 ],
             ),
-            AIMessage(content="You can currently query 10 districts."),
+            AIMessage(content="You can currently query 36 districts."),
         ]
     )
     response = await service_for(model).answer(
@@ -71,7 +71,7 @@ async def test_agent_calls_structured_district_tool_for_capabilities():
 
     assert response.route == QuestionRoute.EXACT_FACT
     assert response.tools_used == ["district_data"]
-    assert "10 districts" in response.answer
+    assert "36 districts" in response.answer
 
 
 @pytest.mark.asyncio
@@ -441,6 +441,6 @@ async def test_all_three_tools_return_structured_payloads():
         await tools["project_knowledge"].ainvoke({"query": "What is the GPIS project?"})
     )
 
-    assert district_payload["count"] == 10
+    assert district_payload["count"] == 36
     assert evidence_payload["evidence"]
     assert any(item["evidence_id"] == "gpis-project-scope" for item in project_payload["citations"])

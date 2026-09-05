@@ -165,3 +165,43 @@ footer { padding: 28px; border-top: 1px solid var(--line); text-align: center; c
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+#overall-score[data-available="false"] { font-size: 1.8rem; overflow-wrap: anywhere; }
+
+/* Separate page views retain selection and chat state without a framework. */
+[hidden] { display: none !important; }
+.page-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.page-nav a, .profile-link, .overview-links a { color: var(--green); text-decoration: none; padding: 10px 14px; border-radius: 10px; font-weight: 650; }
+.page-nav a[aria-current="page"] { background: var(--green); color: white; }
+.page-intro { padding: 28px 0 20px; }
+.page-intro h1 { font-family: Georgia, serif; font-size: clamp(2rem, 5vw, 3.6rem); margin: 8px 0 16px; }
+.page-intro p { max-width: 760px; line-height: 1.6; }
+.overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
+.overview-grid h2 { margin-top: 0; color: var(--green); }
+.overview-grid p { color: var(--muted); line-height: 1.6; }
+.district-toolbar { display: flex; align-items: end; gap: 24px; padding: 24px 0; }
+.district-toolbar .district-search { flex: 1; max-width: 560px; }
+.profile-link { border: 1px solid var(--line); background: var(--panel); }
+.overview-links { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 32px; }
+#district-page > .chat-panel { margin-bottom: 32px; }
+#compare-page > .panel { margin-bottom: 24px; }
+.fact-comparison > select { max-width: 420px; display: block; margin: 8px 0 20px; }
+.coverage-note { color: var(--muted); line-height: 1.6; font-size: .88rem; }
+#ranking-list { max-height: 650px; overflow-y: auto; padding-right: 8px; }
+#ranking-list .census-bar { grid-template-columns: 30px minmax(100px, 1fr) minmax(90px, auto); }
+.census-bar a { color: var(--green); }
+.bar-value { text-align: right; }
+.bar-value .source-link { display: block; font-size: .72rem; }
+#ranking-list .chart-scale { display: flex; justify-content: space-between; padding-left: 48px; color: var(--muted); font-size: .75rem; }
+.year-chart svg { width: 100%; max-height: 340px; color: var(--ink); }
+.year-chart text { fill: currentColor; font-family: inherit; font-size: 12px; }
+.chart-grid { stroke: var(--line); stroke-width: 1; }
+.chart-line { stroke: var(--green); stroke-width: 3; }
+.chart-point { fill: var(--green); }
+@media (max-width: 800px) {
+  .site-header { align-items: start; flex-direction: column; gap: 16px; }
+  .overview-grid { grid-template-columns: 1fr; }
+  .district-toolbar { align-items: stretch; flex-direction: column; gap: 12px; }
+  .district-toolbar .district-search { max-width: none; width: 100%; }
+  .page-nav a { font-size: .82rem; padding: 9px; }
+}

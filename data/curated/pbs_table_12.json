@@ -1,0 +1,17 @@
+{
+  "source_id": "pbs_table_12",
+  "parser_version": "pbs-table-12-v1",
+  "sha256": "6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f",
+  "sheet": "punjab",
+  "period": "2023",
+  "rows": {
+    "Literate %": {
+      "B": "literacy_total_pct",
+      "C": "literacy_male_pct",
+      "D": "literacy_female_pct"
+    },
+    "Out of School Children (5-16)": {
+      "B": "out_of_school_children_5_16"
+    }
+  }
+}

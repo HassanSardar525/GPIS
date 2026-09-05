@@ -191,3 +191,27 @@ The external live Groq evaluator was not rerun during Phase 4 because it sends p
 - Automatic PDF/XLSX ingestion.
 - React migration or major redesign.
 - Urdu interface.
+
+## Source-specific PBS Table 1 ingestion
+
+- Implemented the checksum-pinned Census 2023 Punjab XLSX parser for all 36 district population totals.
+- Reused Source/District/Observation persistence, canonical pilot slugs, and observation uniqueness; retained exact cell and parser provenance without replacing reviewed records.
+- Added validation-only/load CLI, concise JSON reports, deterministic aliases/count validation, duplicate rejection, and conflict preservation.
+- All 36 source districts are queryable for population and education facts; missing health/budget values and scores remain explicit and unranked.
+- Added source golden, malformed-input, and transactional PostgreSQL idempotency/regression tests. Run commands and current limitations are in README.
+
+- Extended source-specific extraction to PBS Table 12 literacy and out-of-school district totals; verified the existing ten-district pilot against both sources.
+- Added 26 factual district records, 130 observations and 52 source evidence chunks, reproducible through normal seeding and the checked-in census snapshot.
+- Updated API/UI/chat to accept unscored districts and resolve district names in questions without changing the fixed scoring cohort.
+
+## Page split and visual comparisons
+
+Implementation plan: split the existing frontend into navigable Overview, District Profile (including Ask GPIS), and Compare & Trends views using bookmarkable hash routes. Preserve selected district and chat state. Add a validated census-ranking endpoint shared by JSON/PostgreSQL, horizontal bars for all 36 source districts, side-by-side factual comparisons, and a labelled two-period budget-utilization graph with an accessible data table. Keep the ten-district score cohort unchanged and unavailable trends explicit. Verify APIs, navigation, charts and regressions, then commit the task changes.
+
+
+Implemented: three hash-routed views, Profile with Ask GPIS, canonical census
+rankings with citations and ties, 36-district factual comparison bars/table, and
+an accessible two-period utilization graph. Verification: 144 regression tests
+passed on the separate current-schema test database; live Chrome checks passed
+for navigation, preserved state, 36/10 coverage, trends, deep links and mobile
+layout. Browser regression is available as an opt-in test.

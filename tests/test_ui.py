@@ -14,7 +14,7 @@ def test_dashboard_exposes_trend_comparison_and_rag_states():
     assert 'id="compare-district"' not in html
     assert "/trends/development-budget" in script
     assert "data.mode" in script and "data.route" in script and "data.trace_id" in script
-    assert "Rank ${rank.rank} of ${state.districts.length}" in script
+    assert "Rank ${rank.rank} of ${state.districts.filter(item => item.scores[category] != null).length}" in script
     assert "of 5" not in script
 
 

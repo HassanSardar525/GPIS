@@ -176,11 +176,17 @@ def build_agent_tools(
         evidence = repository.score_search(
             f"explain {category} score components", selected, category, max(1, min(6, len(selected)))
         )
+        if any(not record["score_details"] for record in records):
+            request = CURRENT_REQUEST.get()
+            query = request.question if request else "population literacy out-of-school"
+            evidence += repository.fact_search(query, selected, 6)
         compact = [
             {
                 "slug": item["slug"],
                 "name": item["name"],
                 "population_2023": item["population_2023"],
+                "education": item["education"],
+                "data_warnings": item.get("data_warnings", []),
                 "scores": item["derived"]["scores"],
                 "score_details": item["score_details"],
                 "rankings": item["rankings"],
@@ -323,6 +329,10 @@ class AgentChatService:
         return builder.compile(checkpointer=checkpointer)
 
     async def answer(self, request: ChatRequest) -> ChatResponse:
+        from app.routing import resolve_request_districts, unavailable_data_reason
+        request = resolve_request_districts(request, self.repository)
+        if unavailable_data_reason(request, self.repository):
+            return await self.fallback.answer(request)
         for slug in request.selected_districts():
             self.repository.get_district(slug)
         session_id = request.session_id or str(uuid.uuid4())

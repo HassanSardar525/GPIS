@@ -8,25 +8,50 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#">GPIS <span>Prototype</span></a>
-    <p>Government Performance Intelligence System</p>
+    <a class="brand" href="#/overview">GPIS <span>Prototype</span></a>
+    <nav class="page-nav" aria-label="Main navigation">
+      <a href="#/overview" data-nav="overview">Overview</a>
+      <a href="#/district" data-nav="district">District Profile &amp; Ask GPIS</a>
+      <a href="#/compare" data-nav="compare">Compare &amp; Trends</a>
+    </nav>
   </header>
 
   <main>
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Evidence before slogans</p>
-        <h1>See what official data says about your district.</h1>
-        <p class="lede">Compare education, health access and public financial management across ten South Punjab districts. Every claim links back to its source.</p>
+    <section data-page="overview" id="overview-page">
+      <div class="hero page-intro"><div><p class="eyebrow">Evidence before slogans</p>
+        <h1>Explore Punjab, district by district.</h1>
+        <p class="lede">Population and education facts for 36 census districts. Reviewed performance scores for the ten-district pilot. Every figure has a source.</p></div></div>
+      <div class="overview-grid">
+        <article class="panel"><h2>36 districts</h2><p>Census 2023 population, literacy and out-of-school figures.</p></article>
+        <article class="panel"><h2>10 scored districts</h2><p>Reviewed education, health and financial-management indicators.</p></article>
+        <article class="panel"><h2>2 budget periods</h2><p>Verified FY 2022–23 and FY 2023–24 utilization for the pilot districts.</p></article>
       </div>
-      <label class="district-search">
-        <span>Choose a district</span>
-        <select id="district-select" aria-label="Choose a district"></select>
-      </label>
     </section>
-
+    <section class="district-toolbar" aria-label="District selection">
+      <div class="district-search">
+        <label for="district-query">Search city / district</label>
+        <input id="district-query" type="search" placeholder="Type a name, e.g. Lahore" autocomplete="off" aria-controls="district-results" aria-describedby="district-search-status">
+        <select id="district-results" aria-label="Search results" hidden></select>
+        <small id="district-search-status" role="status" aria-live="polite">District-level census data</small>
+        <label for="district-select">Or choose from the full list</label>
+        <select id="district-select" aria-label="Choose a district from the full list"></select>
+      </div>
+      <a class="profile-link" href="#/district" id="open-profile">Open district profile &amp; Ask GPIS →</a>
+    </section>
     <section id="notice" class="notice" role="status" aria-live="polite"></section>
-
+    <div data-page="overview">
+      <div class="overview-links"><a href="#/district">Explore district facts and ask questions →</a><a href="#/compare">Compare districts and view charts →</a></div>
+    <section class="panel methodology">
+      <p class="eyebrow">Read scores responsibly</p>
+      <h2>What the prototype measures</h2>
+      <div class="method-grid">
+        <div><strong>Education</strong><p>Average of total literacy, female literacy and gender parity. Census 2023.</p></div>
+        <div><strong>Health</strong><p>Relative index of listed public health facilities per 100,000 people within these ten districts. It does not measure care quality.</p></div>
+        <div><strong>Accountability</strong><p>Average overall and development-budget utilization. Spending money is not proof that it was spent well.</p></div>
+      </div>
+    </section>
+    </div>
+    <div data-page="district" id="district-page" hidden>
     <section id="district-summary" class="district-heading" aria-busy="true">
       <div>
         <p class="eyebrow">District scorecard · Census 2023 / FY 2023–24</p>
@@ -43,41 +68,11 @@
 
     <section id="scorecards" class="score-grid" aria-label="Performance scores"></section>
 
-    <section id="trend-panel" class="panel trend-panel" aria-labelledby="trend-title" aria-busy="true">
-      <div class="panel-title">
-        <div>
-          <p class="eyebrow">Verified two-period comparison</p>
-          <h2 id="trend-title">Development-budget utilization</h2>
-        </div>
-        <strong id="trend-change" class="trend-change">Loading…</strong>
-      </div>
-      <div id="trend-periods" class="trend-periods"></div>
-      <p id="trend-warning" class="trend-warning"></p>
-      <a id="trend-source" class="source-link" target="_blank" rel="noreferrer">View comparison source ↗</a>
-    </section>
-
-    <section class="two-column">
-      <article class="panel">
-        <div class="panel-title">
-          <div>
-            <p class="eyebrow">Ten-district comparison</p>
-            <h2>Ranking</h2>
-          </div>
-          <select id="ranking-category" aria-label="Ranking category">
-            <option value="overall">Overall</option>
-            <option value="education">Education</option>
-            <option value="health">Health access</option>
-            <option value="accountability">Financial management</option>
-          </select>
-        </div>
-        <ol id="ranking-list" class="ranking-list" aria-live="polite" aria-busy="true"></ol>
-      </article>
-
       <article class="panel chat-panel" aria-labelledby="chat-title">
         <div class="chat-heading">
           <div>
             <p class="eyebrow">Citation-grounded assistant</p>
-            <h2 id="chat-title">Ask about the evidence</h2>
+            <h2 id="chat-title">Ask GPIS</h2>
           </div>
           <div class="chat-actions">
             <button id="new-chat" class="secondary-button" type="button">New Chat</button>
@@ -99,20 +94,60 @@
           <button id="chat-submit" type="submit">Ask</button>
         </form>
       </article>
-    </section>
+    </div>
+    <div data-page="compare" id="compare-page" hidden>
+      <div class="page-intro"><p class="eyebrow">Compare like with like</p><h1>Compare &amp; Trends</h1>
+      <p>Census comparisons cover all 36 source districts. Scores and budget trends cover only districts with reviewed evidence.</p></div>
+      <section class="panel fact-comparison" aria-labelledby="facts-title">
+        <h2 id="facts-title">Side-by-side census facts</h2>
+        <label for="compare-other">Compare the selected district with</label>
+        <select id="compare-other"></select>
+        <div id="fact-comparison" aria-live="polite" aria-busy="false"></div>
+      </section>
+      <article class="panel">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">Positions by selected measure</p>
+            <h2>District positions</h2>
+          </div>
+          <select id="ranking-category" aria-label="Ranking category">
+            <optgroup label="Census facts · 36 districts">
+            <option value="census:literacy_total_pct">Total literacy</option>
+            <option value="census:literacy_female_pct">Female literacy</option>
+            <option value="census:literacy_male_pct">Male literacy</option>
+            <option value="census:population_2023">Population size</option>
+            <option value="census:out_of_school_children_5_16">Out-of-school children</option>
+            </optgroup><optgroup label="Reviewed scores · 10 districts">
+            <option value="overall">Overall score</option>
+            <option value="education">Education</option>
+            <option value="health">Health access</option>
+            <option value="accountability">Financial management</option>
+            </optgroup>
+          </select>
+        </div>
+        <p id="ranking-note" class="coverage-note"></p>
+        <ol id="ranking-list" class="ranking-list" aria-live="polite" aria-busy="true"></ol>
+      </article>
 
-    <section class="panel methodology">
-      <p class="eyebrow">Read scores responsibly</p>
-      <h2>What the prototype measures</h2>
-      <div class="method-grid">
-        <div><strong>Education</strong><p>Average of total literacy, female literacy and gender parity. Census 2023.</p></div>
-        <div><strong>Health</strong><p>Relative index of listed public health facilities per 100,000 people within these ten districts. It does not measure care quality.</p></div>
-        <div><strong>Accountability</strong><p>Average overall and development-budget utilization. Spending money is not proof that it was spent well.</p></div>
+    <section id="trend-panel" class="panel trend-panel" aria-labelledby="trend-title" aria-busy="true">
+      <div class="panel-title">
+        <div>
+          <p class="eyebrow">Verified two-period comparison</p>
+          <h2 id="trend-title">Development-budget utilization</h2>
+        </div>
+        <strong id="trend-change" class="trend-change">Loading…</strong>
       </div>
+      <p id="trend-district-label"></p>
+      <div id="year-chart" class="year-chart"></div>
+      <div id="trend-periods" class="trend-periods"></div>
+      <p id="trend-warning" class="trend-warning"></p>
+      <a id="trend-source" class="source-link" target="_blank" rel="noreferrer">View comparison source ↗</a>
     </section>
-  </main>
 
+    </div>
+  </main>
   <footer>Architecture v0.2 · Scores and period changes are deterministic; RAG retrieves and explains them.</footer>
+  <script src="/static/workspace.js" defer></script>
   <script src="/static/app.js" defer></script>
 </body>
 </html>
