@@ -22,8 +22,8 @@
         <h1>Explore Punjab, district by district.</h1>
         <p class="lede">Population and education facts for 36 census districts. Reviewed performance scores for the ten-district pilot. Every figure has a source.</p></div></div>
       <div class="overview-grid">
-        <article class="panel"><h2>36 districts</h2><p>Census 2023 population, literacy and out-of-school figures.</p></article>
-        <article class="panel"><h2>10 scored districts</h2><p>Reviewed education, health and financial-management indicators.</p></article>
+        <article class="panel"><h2>36 districts with facts</h2><p>Compare Census 2023 population, literacy and out-of-school figures across all 36 source districts.</p></article>
+        <article class="panel"><h2>10 performance profiles</h2><p>Only these districts have the reviewed education, health and budget inputs for GPIS scores. The other 26 have census facts, not performance scores.</p></article>
         <article class="panel"><h2>2 budget periods</h2><p>Verified FY 2022–23 and FY 2023–24 utilization for the pilot districts.</p></article>
       </div>
     </section>
@@ -49,6 +49,29 @@
         <div><strong>Health</strong><p>Relative index of listed public health facilities per 100,000 people within these ten districts. It does not measure care quality.</p></div>
         <div><strong>Accountability</strong><p>Average overall and development-budget utilization. Spending money is not proof that it was spent well.</p></div>
       </div>
+    </section>
+    <section class="panel overview-about" aria-labelledby="motivation-title">
+      <p class="eyebrow">Why GPIS exists</p>
+      <h2 id="motivation-title">Democracy needs an informed public.</h2>
+      <p class="mission-statement">Accountability is harder when people cannot see how public services are performing or how public money is used. When evidence is difficult to access, slogans and selective claims can take the place of informed debate.</p>
+      <p>GPIS aims to make official information easier to find, compare and question, so citizens can assess claims, ask better questions of their representatives and take part in public life with evidence in hand.</p>
+      <p class="coverage-note">District indicators describe measured conditions and selected financial records. They do not, on their own, establish which politician caused an outcome, prove misconduct or tell anyone how to vote.</p>
+    </section>
+    <section class="panel overview-about" aria-labelledby="architecture-title">
+      <p class="eyebrow">From official records to answers</p>
+      <h2 id="architecture-title">How GPIS and Ask GPIS work</h2>
+      <p>Ask GPIS uses retrieval-augmented generation (RAG): it looks up relevant evidence before an AI model writes an explanation. You can open the citations to inspect the sources behind an answer.</p>
+      <ol class="architecture-flow">
+        <li><h3>1. Collect and validate</h3><p>Source-specific parsers read supported official census files. Other evidence is manually reviewed. District names, values and periods are checked, and source locations are preserved.</p></li>
+        <li><h3>2. Store and calculate</h3><p>PostgreSQL stores observations, sources and evidence. Python calculates scores and period changes using defined rules. Missing inputs stay missing; the AI does not calculate or change scores.</p></li>
+        <li><h3>3. Retrieve the evidence</h3><p>Structured queries supply exact facts, rankings and trends. For explanations, keyword search and semantic search find relevant passages by wording and meaning.</p></li>
+        <li><h3>4. Explain with citations</h3><p>The assistant uses the retrieved results to answer, with links to the evidence. If the AI is unavailable or its answer fails validation, GPIS uses a source-based fallback or says there is not enough evidence.</p></li>
+      </ol>
+      <details class="architecture-details">
+        <summary>Technical architecture</summary>
+        <p>The HTML, CSS and JavaScript interface calls a FastAPI backend. LangGraph coordinates a bounded assistant with three LangChain tools: district data, evidence search and project knowledge. PostgreSQL full-text search and pgvector similarity search using MiniLM embeddings provide hybrid retrieval; reciprocal-rank fusion combines their results. Groq supplies the language model when configured.</p>
+        <p>PostgreSQL checkpoints retain conversations, and optional Redis caching speeds up repeated retrieval. The JSON repository supports development without a database. Citations retain source titles, publishers, reporting periods and table or page locations so answers can be checked. Citations improve traceability; they do not guarantee that every explanation is correct.</p>
+      </details>
     </section>
     </div>
     <div data-page="district" id="district-page" hidden>

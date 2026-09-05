@@ -205,3 +205,15 @@ footer { padding: 28px; border-top: 1px solid var(--line); text-align: center; c
   .district-toolbar .district-search { max-width: none; width: 100%; }
   .page-nav a { font-size: .82rem; padding: 9px; }
 }
+
+.overview-about { margin-bottom: 28px; }
+.overview-about > p { max-width: 900px; line-height: 1.75; }
+.overview-about h2 { margin-top: 0; }
+.mission-statement { font-size: 1.12rem; }
+.architecture-flow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; list-style: none; padding: 0; margin: 24px 0; }
+.architecture-flow li { border: 1px solid var(--line); border-radius: 12px; padding: 20px; background: var(--paper); }
+.architecture-flow h3 { margin: 0 0 10px; color: var(--green); }
+.architecture-flow p, .architecture-details p { margin-bottom: 0; line-height: 1.7; }
+.architecture-details { border-top: 1px solid var(--line); padding-top: 18px; }
+.architecture-details summary { color: var(--green); font-weight: 700; cursor: pointer; }
+@media (max-width: 800px) { .architecture-flow { grid-template-columns: 1fr; } }
