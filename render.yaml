@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: gpis
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: GPIS_ENV
+        value: production
+      - key: GPIS_REPOSITORY
+        value: postgres
+      - key: GPIS_SCORE_VERSION
+        value: prototype-v1
+      - key: GPIS_EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: GPIS_SEMANTIC_THRESHOLD
+        value: "0.35"
+      - key: GPIS_SESSION_TTL_HOURS
+        value: "24"
+      - key: GPIS_RETRIEVAL_CACHE_TTL_SECONDS
+        value: "900"
+      - key: GPIS_EMBEDDING_CACHE_TTL_SECONDS
+        value: "86400"
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-20b
+      - key: GROQ_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: LANGGRAPH_STRICT_MSGPACK
+        value: "true"
+      - key: PHOENIX_ENABLED
+        value: "false"
+      - key: GPIS_DATABASE_URL
+        sync: false
+      - key: GPIS_REDIS_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
