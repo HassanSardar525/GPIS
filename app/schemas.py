@@ -25,6 +25,7 @@ FacilityKind = Literal[
 
 class AnswerMode(StrEnum):
     GROQ = "groq"
+    GEMINI = "gemini"
     EXTRACTIVE = "extractive"
     ABSTAINED = "abstained"
 
@@ -204,6 +205,20 @@ class ComparisonResult(BaseModel):
     limitations: list[str] = Field(default_factory=list)
 
 
+class ModelOption(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    name: str
+    provider: Literal["groq", "gemini", "fallback"]
+    is_default: bool = False
+
+
+class ModelListResponse(BaseModel):
+    models: list[ModelOption]
+    default_model: str
+
+
 class ChatRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -218,6 +233,7 @@ class ChatRequest(BaseModel):
         max_length=100,
         pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]+$",
     )
+    model: str | None = Field(default=None, max_length=80, description="Selected AI model ID or fallback")
 
     @field_validator("question")
     @classmethod
@@ -270,6 +286,7 @@ class ChatResponse(BaseModel):
     session_id: str | None = None
     tools_used: list[str] = Field(default_factory=list)
     comparison: ComparisonResult | None = None
+    model: str | None = None
 
 
 class SessionResponse(BaseModel):
@@ -291,6 +308,7 @@ class HealthResponse(BaseModel):
     repository: Literal["json", "postgres"]
     database: Literal["available", "not_configured", "unavailable"]
     groq: Literal["configured", "fallback"]
+    gemini: Literal["configured", "not_configured"] = "not_configured"
     embedding_model: str
     phoenix: Literal["configured", "disabled", "unavailable"]
     cache: Literal["available", "unavailable", "disabled"]

@@ -54,6 +54,10 @@ class Settings:
     groq_model: str = "openai/gpt-oss-20b"
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_timeout_seconds: float = 15.0
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-1.5-flash"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    gemini_timeout_seconds: float = 15.0
     phoenix_enabled: bool = False
     phoenix_endpoint: str | None = None
     phoenix_project_name: str = "gpis-local"
@@ -83,6 +87,10 @@ class Settings:
             groq_model=os.getenv("GROQ_MODEL", defaults.groq_model),
             groq_base_url=os.getenv("GROQ_BASE_URL", defaults.groq_base_url),
             groq_timeout_seconds=_float("GROQ_TIMEOUT_SECONDS", 15.0),
+            gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
+            gemini_model=os.getenv("GEMINI_MODEL", defaults.gemini_model),
+            gemini_base_url=os.getenv("GEMINI_BASE_URL", defaults.gemini_base_url),
+            gemini_timeout_seconds=_float("GEMINI_TIMEOUT_SECONDS", 15.0),
             phoenix_enabled=_bool("PHOENIX_ENABLED", False),
             phoenix_endpoint=os.getenv("PHOENIX_COLLECTOR_ENDPOINT") or None,
             phoenix_project_name=os.getenv("PHOENIX_PROJECT_NAME", defaults.phoenix_project_name),

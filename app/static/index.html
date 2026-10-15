@@ -98,6 +98,10 @@
             <h2 id="chat-title">Ask GPIS</h2>
           </div>
           <div class="chat-actions">
+            <label for="model-select" class="sr-only">Select AI Model</label>
+            <select id="model-select" class="model-select" aria-label="Select AI Model">
+              <option value="" disabled selected>Loading models…</option>
+            </select>
             <button id="new-chat" class="secondary-button" type="button">New Chat</button>
             <button id="delete-chat" class="danger-button" type="button" disabled>Delete conversation</button>
           </div>

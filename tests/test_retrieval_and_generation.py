@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from app.config import Settings
-from app.llm import FailingProvider, GeneratedAnswer, GroqProvider, validate_generated_answer
+from app.llm import FailingProvider, GeminiProvider, GeneratedAnswer, GroqProvider, validate_generated_answer
 from app.repositories import JsonRepository
 from app.routing import classify_question
 from app.schemas import ChatRequest, QuestionRoute
@@ -170,3 +170,65 @@ async def test_unsupported_question_abstains_without_citations():
     assert response.mode == "abstained"
     assert response.citations == []
     assert response.abstained is True
+
+
+@pytest.mark.asyncio
+async def test_gemini_provider_parses_json_and_citations(monkeypatch):
+    class FakeClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return None
+
+        async def post(self, *args, **kwargs):
+            import httpx
+            content = json.dumps({
+                "answer": "Multan has a total literacy rate of 60.1% [fact-multan-literacy_total_pct].",
+                "evidence_ids": ["fact-multan-literacy_total_pct"],
+                "warnings": [],
+            })
+            return httpx.Response(
+                200,
+                json={"choices": [{"message": {"content": content}}]},
+                request=httpx.Request("POST", "https://example.test"),
+            )
+
+    monkeypatch.setattr("app.llm.httpx.AsyncClient", lambda **kwargs: FakeClient())
+    provider = GeminiProvider("key", "gemini-1.5-flash", "https://example.test", timeout_seconds=0.1)
+    evidence = REPOSITORY.fact_search("literacy", ["multan"], 1)
+    result = await provider.generate("What is literacy?", evidence, "")
+
+    assert result.evidence_ids == ["fact-multan-literacy_total_pct"]
+    assert validate_generated_answer(result, evidence) is True
+
+
+@pytest.mark.asyncio
+async def test_gemini_provider_retries_and_raises_on_error(monkeypatch):
+    calls = 0
+
+    class FakeClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return None
+
+        async def post(self, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            import httpx
+            return httpx.Response(500, request=httpx.Request("POST", "https://example.test"))
+
+    async def no_sleep(_delay):
+        return None
+
+    monkeypatch.setattr("app.llm.httpx.AsyncClient", lambda **kwargs: FakeClient())
+    monkeypatch.setattr("app.llm.asyncio.sleep", no_sleep)
+    provider = GeminiProvider("key", "gemini-1.5-flash", "https://example.test", timeout_seconds=0.1)
+    evidence = REPOSITORY.fact_search("literacy", ["multan"], 1)
+
+    with pytest.raises(RuntimeError):
+        await provider.generate("What is literacy?", evidence, "")
+
+    assert calls == 2

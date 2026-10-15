@@ -167,3 +167,47 @@ def test_health_capacity_trend_contract_preserves_periods_and_citations():
 def test_health_capacity_trend_rejects_unknown_facility():
     response = CLIENT.get("/api/v1/districts/multan/trends/health-capacity?facility=doctors")
     assert response.status_code == 422
+
+
+def test_available_models_endpoint_default():
+    response = CLIENT.get("/api/v1/models")
+    assert response.status_code == 200
+    body = response.json()
+    assert "models" in body
+    assert "default_model" in body
+    ids = [m["id"] for m in body["models"]]
+    assert "fallback" in ids
+
+
+def test_available_models_with_gemini_and_groq_keys():
+    settings = Settings(
+        curated_data_path=ROOT / "data/curated/districts.json",
+        groq_api_key="gsk-test",
+        gemini_api_key="gem-test",
+        gemini_model="gemini-1.5-flash",
+    )
+    client = TestClient(create_app(settings=settings, repository=JsonRepository(settings.curated_data_path)))
+    response = client.get("/api/v1/models")
+    assert response.status_code == 200
+    body = response.json()
+    ids = [m["id"] for m in body["models"]]
+    assert f"groq:{settings.groq_model}" in ids
+    assert "gemini:gemini-1.5-flash" in ids
+    assert "gemini:gemini-2.0-flash" in ids
+    assert "fallback" in ids
+    assert body["default_model"] == "gemini:gemini-1.5-flash"
+
+
+def test_chat_with_explicit_fallback_model():
+    response = CLIENT.post(
+        "/api/v1/chat",
+        json={
+            "question": "What is the literacy rate in Multan?",
+            "districts": ["multan"],
+            "model": "fallback",
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["mode"] == "extractive"
+    assert body["model"] == "extractive"

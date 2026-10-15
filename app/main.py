@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import sys
 import uuid
 from contextlib import asynccontextmanager
 from typing import Any
+
+if sys.platform == "win32":
+    import asyncio
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from fastapi import FastAPI, Path as ApiPath, Query, Request
 from fastapi.exceptions import RequestValidationError
@@ -12,13 +17,18 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from langchain_groq import ChatGroq
 
+try:
+    from langchain_google_genai import ChatGoogleGenerativeAI
+except ImportError:
+    ChatGoogleGenerativeAI = None
+
 from app.agent import AgentChatService
 from app.cache import CacheBackend, build_cache
 from app.schemas import CensusRankingResponse
 from app.config import ROOT, Settings
 from app.embeddings import MiniLMEmbedder
 from app.errors import GPISException
-from app.llm import FailingProvider, GroqProvider
+from app.llm import FailingProvider, GeminiProvider, GroqProvider, LLMProvider
 from app.observability import Observability, build_observability
 from app.repositories import GPISRepository, JsonRepository
 from app.schemas import (
@@ -29,6 +39,8 @@ from app.schemas import (
     FacilityKind,
     HealthCapacityTrendResponse,
     HealthResponse,
+    ModelListResponse,
+    ModelOption,
     RankingResponse,
     SessionDeleteResponse,
     SessionResponse,
@@ -67,34 +79,77 @@ def build_chat_service(
         retrieval_cache_ttl_seconds=settings.retrieval_cache_ttl_seconds,
         embedding_cache_ttl_seconds=settings.embedding_cache_ttl_seconds,
     )
-    provider = (
-        GroqProvider(
+    providers: dict[str, LLMProvider] = {}
+    models: dict[str, Any] = {}
+
+    if settings.groq_api_key:
+        groq_provider = GroqProvider(
             settings.groq_api_key,
             settings.groq_model,
             settings.groq_base_url,
             settings.groq_timeout_seconds,
         )
-        if settings.groq_api_key
-        else FailingProvider()
-    )
-    fallback = ChatService(repository, retriever, provider, observability)
-    if not settings.groq_api_key:
+        providers[f"groq:{settings.groq_model}"] = groq_provider
+        providers["groq"] = groq_provider
+        groq_model = ChatGroq(
+            api_key=settings.groq_api_key,
+            model=settings.groq_model,
+            base_url=settings.groq_base_url.removesuffix("/openai/v1"),
+            temperature=0.1,
+            timeout=settings.groq_timeout_seconds,
+            max_retries=1,
+        )
+        models[f"groq:{settings.groq_model}"] = groq_model
+        models["groq"] = groq_model
+
+    if settings.gemini_api_key:
+        for g_model in ["gemini-1.5-flash", "gemini-2.0-flash"]:
+            gemini_provider = GeminiProvider(
+                api_key=settings.gemini_api_key,
+                model=g_model,
+                base_url=settings.gemini_base_url,
+                timeout_seconds=settings.gemini_timeout_seconds,
+            )
+            providers[f"gemini:{g_model}"] = gemini_provider
+            if g_model == settings.gemini_model:
+                providers["gemini"] = gemini_provider
+            if ChatGoogleGenerativeAI:
+                try:
+                    chat_gemini = ChatGoogleGenerativeAI(
+                        model=g_model,
+                        google_api_key=settings.gemini_api_key,
+                        temperature=0.1,
+                        timeout=settings.gemini_timeout_seconds,
+                        max_retries=1,
+                    )
+                    models[f"gemini:{g_model}"] = chat_gemini
+                    if g_model == settings.gemini_model:
+                        models["gemini"] = chat_gemini
+                except Exception:
+                    pass
+
+    primary_provider = next(iter(providers.values()), FailingProvider())
+    fallback = ChatService(repository, retriever, primary_provider, observability, providers=providers)
+    if not models:
         return fallback
-    model = ChatGroq(
-        api_key=settings.groq_api_key,
-        model=settings.groq_model,
-        base_url=settings.groq_base_url.removesuffix("/openai/v1"),
-        temperature=0.1,
-        timeout=settings.groq_timeout_seconds,
-        max_retries=1,
-    )
+
+    default_model = None
+    if settings.gemini_api_key and settings.gemini_model in ("gemini-1.5-flash", "gemini-2.0-flash"):
+        default_model = f"gemini:{settings.gemini_model}"
+    elif settings.groq_api_key:
+        default_model = f"groq:{settings.groq_model}"
+    else:
+        default_model = next(iter(models.keys()))
+
     return AgentChatService(
         repository,
         retriever,
-        model,
+        None,
         fallback,
         checkpointer=checkpointer,
         observability=observability,
+        models=models,
+        default_model=default_model,
     )
 
 
@@ -199,10 +254,53 @@ def create_app(
             repository=repository.name,
             database=("available" if available else "unavailable") if repository.name == "postgres" else "not_configured",
             groq="configured" if settings.groq_api_key else "fallback",
+            gemini="configured" if settings.gemini_api_key else "not_configured",
             embedding_model=settings.embedding_model,
             phoenix=observability.status,
             cache=cache.status,
         )
+
+    @application.get("/api/v1/models", response_model=ModelListResponse)
+    def available_models() -> ModelListResponse:
+        options: list[ModelOption] = []
+        if settings.groq_api_key:
+            options.append(
+                ModelOption(
+                    id=f"groq:{settings.groq_model}",
+                    name=f"Groq ({settings.groq_model})",
+                    provider="groq",
+                    is_default=(not settings.gemini_api_key),
+                )
+            )
+        if settings.gemini_api_key:
+            options.append(
+                ModelOption(
+                    id="gemini:gemini-1.5-flash",
+                    name="Gemini 1.5 Flash",
+                    provider="gemini",
+                    is_default=(settings.gemini_model == "gemini-1.5-flash" or not settings.groq_api_key),
+                )
+            )
+            options.append(
+                ModelOption(
+                    id="gemini:gemini-2.0-flash",
+                    name="Gemini 2.0 Flash",
+                    provider="gemini",
+                    is_default=(settings.gemini_model == "gemini-2.0-flash"),
+                )
+            )
+        options.append(
+            ModelOption(
+                id="fallback",
+                name="Deterministic Fallback (Extractive)",
+                provider="fallback",
+                is_default=(len(options) == 0),
+            )
+        )
+        if not any(opt.is_default for opt in options):
+            options[0].is_default = True
+        default_id = next(opt.id for opt in options if opt.is_default)
+        return ModelListResponse(models=options, default_model=default_id)
 
     @application.get("/api/v1/districts", response_model=DistrictListResponse)
     def districts() -> DistrictListResponse:

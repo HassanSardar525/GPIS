@@ -272,10 +272,12 @@ class AgentChatService:
         self,
         repository: GPISRepository,
         retriever: HybridRetriever,
-        model: Any,
+        model: Any | None,
         fallback: ChatService,
         checkpointer: Any | None = None,
         observability: Observability | None = None,
+        models: dict[str, Any] | None = None,
+        default_model: str | None = None,
     ):
         self.repository = repository
         self.retriever = retriever
@@ -283,9 +285,36 @@ class AgentChatService:
         self.fallback = fallback
         self.observability = observability or NoopObservability()
         self.tools = build_agent_tools(repository, retriever, self.observability)
-        self.tool_model = model.bind_tools(self.tools, parallel_tool_calls=False)
         self.checkpointer = checkpointer or InMemorySaver()
+        self.models = dict(models) if models else {}
+        if model is not None and not any(k in self.models for k in ("default", "groq")):
+            self.models["groq"] = model
+        self.tool_models = {
+            key: m.bind_tools(self.tools, parallel_tool_calls=False)
+            for key, m in self.models.items()
+        }
+        self.default_model_id = default_model or (next(iter(self.models.keys())) if self.models else "groq")
+        if self.model is None and self.default_model_id in self.models:
+            self.model = self.models[self.default_model_id]
+        self.tool_model = (
+            self.tool_models.get(self.default_model_id)
+            or (self.model.bind_tools(self.tools, parallel_tool_calls=False) if self.model else None)
+        )
         self.graph = self._build_graph(self.checkpointer)
+
+    def _resolve_model(self, requested: str | None) -> tuple[Any, Any, str, str]:
+        if requested and requested in self.models:
+            model_id = requested
+        elif requested:
+            matched = next((k for k in self.models if requested in k or k.endswith(requested)), None)
+            model_id = matched or self.default_model_id
+        else:
+            model_id = self.default_model_id
+
+        base_model = self.models.get(model_id, self.model)
+        tool_model = self.tool_models.get(model_id, self.tool_model)
+        provider = "gemini" if "gemini" in model_id.lower() else "groq"
+        return base_model, tool_model, model_id, provider
 
     def _build_graph(self, checkpointer: Any):
         async def call_model(state: MessagesState):
@@ -299,12 +328,15 @@ class AgentChatService:
             tool_rounds = sum(
                 1 for message in current_turn if isinstance(message, AIMessage) and message.tool_calls
             )
-            active_model = self.model if tool_rounds >= 2 else self.tool_model
+            req_model = request.model if request else None
+            base_model, tool_model, model_id, provider = self._resolve_model(req_model)
+            active_model = base_model if tool_rounds >= 2 else tool_model
             with self.observability.span(
                 "gpis.agent.generate",
                 "LLM",
                 {
-                    "llm.provider": "groq",
+                    "llm.provider": provider,
+                    "llm.model": model_id,
                     "gpis.agent.tool_round": tool_rounds,
                     "gpis.agent.message_count": len(state["messages"]),
                 },
@@ -331,7 +363,7 @@ class AgentChatService:
     async def answer(self, request: ChatRequest) -> ChatResponse:
         from app.routing import resolve_request_districts, unavailable_data_reason
         request = resolve_request_districts(request, self.repository)
-        if unavailable_data_reason(request, self.repository):
+        if request.model in {"fallback", "extractive"} or unavailable_data_reason(request, self.repository):
             return await self.fallback.answer(request)
         for slug in request.selected_districts():
             self.repository.get_district(slug)
@@ -388,9 +420,12 @@ class AgentChatService:
                 )
             route = self._route(request.question, tools_used)
             warnings = self.fallback._response_warnings(request, route, comparison)
+            _, _, active_model_id, provider = self._resolve_model(request.model)
+            mode = AnswerMode.GEMINI if provider == "gemini" else AnswerMode.GROQ
+            display_model = active_model_id.split(":", 1)[-1] if ":" in active_model_id else active_model_id
             response = ChatResponse(
                 answer=answer,
-                mode=AnswerMode.GROQ,
+                mode=mode,
                 route=route,
                 citations=citations,
                 warnings=warnings,
@@ -399,6 +434,7 @@ class AgentChatService:
                 session_id=session_id,
                 tools_used=tools_used,
                 comparison=comparison,
+                model=display_model,
             )
             self.repository.record_trace(
                 {
@@ -414,7 +450,8 @@ class AgentChatService:
                     "provider_status": "generated",
                     "failure_category": None,
                     "details": {
-                        "provider": "langgraph-groq",
+                        "provider": f"langgraph-{provider}",
+                        "model": display_model,
                         "session_id": session_id,
                         "tools_used": tools_used,
                         "comparison_category": comparison.category if comparison else None,

@@ -344,11 +344,27 @@ class ChatService:
         retriever: HybridRetriever,
         provider: LLMProvider,
         observability: Observability | None = None,
+        providers: dict[str, LLMProvider] | None = None,
     ):
         self.repository = repository
         self.retriever = retriever
         self.provider = provider
         self.observability = observability or NoopObservability()
+        self.providers = dict(providers) if providers else {}
+        if provider and provider.name not in self.providers:
+            self.providers[provider.name] = provider
+
+    def _select_provider(self, model_id: str | None) -> tuple[LLMProvider | None, str]:
+        if model_id in {"fallback", "extractive"}:
+            return None, "extractive"
+        if model_id:
+            if model_id in self.providers:
+                p = self.providers[model_id]
+                return p, getattr(p, "model", p.name)
+            for key, p in self.providers.items():
+                if model_id in key or key.endswith(model_id):
+                    return p, getattr(p, "model", p.name)
+        return self.provider, getattr(self.provider, "model", self.provider.name)
 
     async def answer(self, request: ChatRequest) -> ChatResponse:
         request = resolve_request_districts(request, self.repository)
@@ -406,6 +422,7 @@ class ChatService:
                 warnings=[],
                 trace_id=trace_id,
                 abstained=False,
+                model="extractive",
             )
             self._record_trace(request, response, [], started)
             return response
@@ -421,6 +438,7 @@ class ChatService:
                 warnings=["The question is outside the current evidence scope."],
                 trace_id=trace_id,
                 abstained=True,
+                model="abstained",
             )
             self._record_trace(request, response, [], started)
             return response
@@ -436,69 +454,88 @@ class ChatService:
                 warnings=["No evidence passed the retrieval threshold."],
                 trace_id=trace_id,
                 abstained=True,
+                model="abstained",
             )
             self._record_trace(request, response, [], started)
             return response
 
         structured_context = self._structured_context(request, route, comparison)
-        try:
-            with self.observability.span(
-                "gpis.generate",
-                "LLM",
-                {
-                    "llm.provider": self.provider.name,
-                    "gpis.question_length": len(request.question),
-                    "gpis.evidence_ids": [item.id for item in evidence],
-                },
-            ) as generation_span:
-                generated = await self.provider.generate(request.question, evidence, structured_context)
-                valid = validate_generated_answer(generated, evidence) and (
-                    comparison is None
-                    or (
-                        comparison_numbers_are_grounded(generated.answer, comparison)
-                        and comparison_language_is_safe(generated.answer)
-                    )
-                )
-                generation_span.set_attributes(
+        active_provider, selected_model_name = self._select_provider(request.model)
+        if active_provider is not None:
+            try:
+                with self.observability.span(
+                    "gpis.generate",
+                    "LLM",
                     {
-                        "gpis.generated_evidence_ids": generated.evidence_ids,
-                        "gpis.citation_validation": valid,
-                    }
-                )
-                if valid:
-                    selected = [item for item in evidence if item.id in set(generated.evidence_ids)]
-                    response = ChatResponse(
-                        answer=generated.answer,
-                        mode=AnswerMode.GROQ,
-                        route=route,
-                        citations=self._citations_with_comparison(selected, comparison),
-                        warnings=generated.warnings
-                        + self._response_warnings(request, route, comparison),
-                        trace_id=trace_id,
-                        abstained=False,
-                        comparison=comparison,
+                        "llm.provider": active_provider.name,
+                        "llm.model": selected_model_name,
+                        "gpis.question_length": len(request.question),
+                        "gpis.evidence_ids": [item.id for item in evidence],
+                    },
+                ) as generation_span:
+                    generated = await active_provider.generate(request.question, evidence, structured_context)
+                    valid = validate_generated_answer(generated, evidence) and (
+                        comparison is None
+                        or (
+                            comparison_numbers_are_grounded(generated.answer, comparison)
+                            and comparison_language_is_safe(generated.answer)
+                        )
                     )
-                    self._record_trace(request, response, evidence, started)
-                    return response
-                LOGGER.warning("LLM response failed citation validation", extra={"trace_id": trace_id})
-        except Exception as error:
-            if self.provider.name != "unavailable":
-                LOGGER.warning(
-                    "LLM generation failed: %s", type(error).__name__, extra={"trace_id": trace_id}
-                )
+                    generation_span.set_attributes(
+                        {
+                            "gpis.generated_evidence_ids": generated.evidence_ids,
+                            "gpis.citation_validation": valid,
+                        }
+                    )
+                    if valid:
+                        selected = [item for item in evidence if item.id in set(generated.evidence_ids)]
+                        mode = AnswerMode.GEMINI if active_provider.name == "gemini" else AnswerMode.GROQ
+                        response = ChatResponse(
+                            answer=generated.answer,
+                            mode=mode,
+                            route=route,
+                            citations=self._citations_with_comparison(selected, comparison),
+                            warnings=generated.warnings
+                            + self._response_warnings(request, route, comparison),
+                            trace_id=trace_id,
+                            abstained=False,
+                            comparison=comparison,
+                            model=selected_model_name,
+                        )
+                        self._record_trace(request, response, evidence, started, provider_name=active_provider.name)
+                        return response
+                    LOGGER.warning("LLM response failed citation validation", extra={"trace_id": trace_id})
+            except Exception as error:
+                if active_provider.name != "unavailable":
+                    LOGGER.warning(
+                        "LLM generation failed: %s", type(error).__name__, extra={"trace_id": trace_id}
+                    )
 
+        is_requested_fallback = request.model in {"fallback", "extractive"}
+        fallback_warnings = (
+            self._response_warnings(request, route, comparison)
+            if is_requested_fallback
+            else ["The LLM was unavailable or returned invalid citations."]
+            + self._response_warnings(request, route, comparison)
+        )
         response = ChatResponse(
             answer=self._fallback_answer(request, route, evidence, comparison),
             mode=AnswerMode.EXTRACTIVE,
             route=route,
             citations=self._citations_with_comparison(evidence[:3], comparison),
-            warnings=["The LLM was unavailable or returned invalid citations."]
-            + self._response_warnings(request, route, comparison),
+            warnings=fallback_warnings,
             trace_id=trace_id,
             abstained=False,
             comparison=comparison,
+            model="extractive",
         )
-        self._record_trace(request, response, evidence, started)
+        self._record_trace(
+            request,
+            response,
+            evidence,
+            started,
+            provider_name="fallback" if is_requested_fallback else getattr(active_provider, "name", "unavailable"),
+        )
         return response
 
     def _structured_context(
@@ -678,7 +715,9 @@ class ChatService:
         response: ChatResponse,
         evidence: list[RetrievedEvidence],
         started: float,
+        provider_name: str | None = None,
     ) -> None:
+        active_provider_name = provider_name or self.provider.name
         self.repository.record_trace(
             {
                 "id": response.trace_id,
@@ -694,18 +733,19 @@ class ChatService:
                 "mode": response.mode.value,
                 "latency_ms": round((time.perf_counter() - started) * 1000, 2),
                 "outcome": "abstained" if response.abstained else "success",
-                "provider_status": "generated" if response.mode == AnswerMode.GROQ else "fallback",
+                "provider_status": "generated" if response.mode in {AnswerMode.GROQ, AnswerMode.GEMINI} else "fallback",
                 "failure_category": (
                     "unsupported_question"
                     if response.route == QuestionRoute.UNSUPPORTED
                     else "no_evidence"
                     if response.abstained
                     else "provider_fallback"
-                    if response.mode == AnswerMode.EXTRACTIVE and self.provider.name != "unavailable"
+                    if response.mode == AnswerMode.EXTRACTIVE and active_provider_name not in {"unavailable", "fallback"}
                     else None
                 ),
                 "details": {
-                    "provider": self.provider.name,
+                    "provider": active_provider_name,
+                    "model": response.model,
                     "citations": [item.evidence_id for item in response.citations],
                     "warning_count": len(response.warnings),
                     "abstained": response.abstained,

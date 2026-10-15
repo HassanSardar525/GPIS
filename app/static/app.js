@@ -10,6 +10,14 @@ function saveSessionId(sessionId) {
   try { window.localStorage.setItem('gpis.sessionId', sessionId); } catch { /* storage is optional */ }
 }
 
+function savedModel() {
+  try { return window.localStorage.getItem('gpis.selectedModel'); } catch { return null; }
+}
+
+function saveModel(model) {
+  try { window.localStorage.setItem('gpis.selectedModel', model); } catch { /* optional */ }
+}
+
 const restoredSessionId = savedSessionId();
 const state = {
   district: null,
@@ -17,6 +25,8 @@ const state = {
   trend: null,
   sessionId: restoredSessionId || createSessionId(),
   sessionStarted: Boolean(restoredSessionId),
+  selectedModel: savedModel() || '',
+  models: [],
   districtRequest: 0,
   rankingRequest: 0,
   chatRequest: 0,
@@ -89,6 +99,32 @@ function setChatControlsDisabled(disabled) {
   document.querySelectorAll('.chat-prompts button').forEach(button => { button.disabled = disabled; });
   document.querySelectorAll('[data-score-category]').forEach(button => { button.disabled = disabled; });
   document.querySelector('#delete-chat').disabled = disabled || !state.sessionStarted;
+  const modelSelect = document.querySelector('#model-select');
+  if (modelSelect) modelSelect.disabled = disabled;
+}
+
+async function loadModels() {
+  const modelSelect = document.querySelector('#model-select');
+  if (!modelSelect) return;
+  try {
+    const data = await json('/api/v1/models');
+    state.models = data.models || [];
+    if (!state.models.length) return;
+
+    const validModel = state.models.some(m => m.id === state.selectedModel);
+    if (!validModel) {
+      state.selectedModel = data.default_model || state.models[0].id;
+      saveModel(state.selectedModel);
+    }
+
+    modelSelect.innerHTML = state.models.map(m => {
+      const selected = m.id === state.selectedModel ? 'selected' : '';
+      return `<option value="${escapeHtml(m.id)}" ${selected}>${escapeHtml(m.name)}</option>`;
+    }).join('');
+  } catch (error) {
+    modelSelect.innerHTML = '<option value="fallback" selected>Deterministic Fallback (Extractive)</option>';
+    state.selectedModel = 'fallback';
+  }
 }
 
 function showDistrictError(error) {
@@ -392,7 +428,12 @@ async function askQuestion(question, districts = [state.district.slug]) {
     const data = await json('/api/v1/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, districts, session_id: state.sessionId }),
+      body: JSON.stringify({
+        question,
+        districts,
+        session_id: state.sessionId,
+        model: state.selectedModel || undefined,
+      }),
     });
     if (requestId !== state.chatRequest) return;
     state.sessionId = data.session_id || state.sessionId;
@@ -401,8 +442,9 @@ async function askQuestion(question, districts = [state.district.slug]) {
     const warnings = data.warnings.map(warning => `<li>${escapeHtml(warning)}</li>`).join('');
     const tools = data.tools_used?.length ? `<span>tools: ${escapeHtml(data.tools_used.join(', '))}</span>` : '';
     const comparison = renderComparison(data.comparison);
-    const mode = ['groq', 'extractive', 'abstained'].includes(data.mode) ? data.mode : 'extractive';
-    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${mode}">${escapeHtml(data.mode)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(String(data.trace_id).slice(0, 8))}</span></div>${renderAnswerStatus(data)}<p>${escapeHtml(data.answer)}</p>${comparison}${renderCitations(data.citations)}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
+    const mode = ['groq', 'gemini', 'extractive', 'abstained'].includes(data.mode) ? data.mode : 'extractive';
+    const modelBadge = data.model || data.mode;
+    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${mode}">${escapeHtml(modelBadge)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(String(data.trace_id).slice(0, 8))}</span></div>${renderAnswerStatus(data)}<p>${escapeHtml(data.answer)}</p>${comparison}${renderCitations(data.citations)}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
     setBusy(answer, false);
     answer.focus({ preventScroll: true });
   } catch (error) {
@@ -470,7 +512,7 @@ async function init() {
   const initialSlug = data.districts.some(item => item.slug === requestedSlug) ? requestedSlug : data.districts[0].slug;
   select.value = initialSlug;
   initWorkspaceNavigation();
-  await loadDistrict(initialSlug);
+  await Promise.all([loadDistrict(initialSlug), loadModels()]);
 }
 
 select.addEventListener('change', () => {
@@ -503,19 +545,28 @@ document.querySelector('#district-query').addEventListener('keydown', event => {
 });
 rankingCategory.addEventListener('change', () => loadRankings().catch(showRankingError));
 
+document.querySelector('#model-select')?.addEventListener('change', event => {
+  state.selectedModel = event.target.value;
+  saveModel(state.selectedModel);
+});
+
 document.querySelector('#scorecards').addEventListener('click', event => {
   const button = event.target.closest('[data-score-category]');
   if (!button) return;
   const category = button.dataset.scoreCategory;
   const question = `Why did ${state.district.name} receive its ${category} score?`;
-  document.querySelector('#chat-question').value = question;
+  document.querySelector('#chat-question').value = '';
   askQuestion(question);
 });
 
 document.querySelector('#chat-form').addEventListener('submit', async event => {
   event.preventDefault();
-  const question = document.querySelector('#chat-question').value.trim();
-  if (question) await askQuestion(question);
+  const input = document.querySelector('#chat-question');
+  const question = input.value.trim();
+  if (question) {
+    input.value = '';
+    await askQuestion(question);
+  }
 });
 
 document.querySelector('#new-chat').addEventListener('click', () => startNewChat());
@@ -541,7 +592,7 @@ document.addEventListener('click', event => {
 document.querySelectorAll('.chat-prompts button').forEach(button => {
   button.addEventListener('click', () => {
     const question = button.dataset.question.replace('this district', state.district.name);
-    document.querySelector('#chat-question').value = question;
+    document.querySelector('#chat-question').value = '';
     askQuestion(question, button.dataset.allDistricts === 'true' ? [] : [state.district.slug]);
   });
 });
