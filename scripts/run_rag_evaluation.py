@@ -35,7 +35,8 @@ async def evaluate(enforce: bool) -> int:
     embedder = MiniLMEmbedder(settings.embedding_model) if repository.name == "postgres" else None
     retriever = HybridRetriever(repository, embedder, settings.semantic_threshold)
     service = ChatService(repository, retriever, FailingProvider())
-    cases = json.loads(CASES.read_text(encoding="utf-8"))
+    cases_path = CASES.with_name('punjab_rag_evaluation.json') if settings.score_version == 'punjab-v1' else CASES
+    cases = json.loads(cases_path.read_text(encoding="utf-8"))
 
     route_hits = 0
     expected_total = 0

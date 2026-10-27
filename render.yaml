@@ -10,7 +10,7 @@ services:
       - key: GPIS_REPOSITORY
         value: postgres
       - key: GPIS_SCORE_VERSION
-        value: prototype-v1
+        value: punjab-v1
       - key: GPIS_EMBEDDING_MODEL
         value: sentence-transformers/all-MiniLM-L6-v2
       - key: GPIS_SEMANTIC_THRESHOLD

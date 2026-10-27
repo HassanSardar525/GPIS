@@ -13,7 +13,8 @@ This directory is the source of truth for product, technical, and evidence decis
 | [DECISIONS.md](DECISIONS.md) | Short architecture decision log |
 | [DOCUMENT_SURVEY.md](DOCUMENT_SURVEY.md) | Assessment of trustworthy official sources |
 | [SOURCE_COVERAGE.md](SOURCE_COVERAGE.md) | Ten-district and two-period evidence coverage |
-| [RAG_ROADMAP.md](RAG_ROADMAP.md) | Phased RAG-first expansion and acceptance gates |
+| [PUNJAB_SCORING.md](PUNJAB_SCORING.md) | Active 36-district methodology, sources and limitations |
+| [PUNJAB_EXPANSION.md](PUNJAB_EXPANSION.md) | Current expansion plan and acceptance checks |
 | [KNOWLEDGE_BASE.md](KNOWLEDGE_BASE.md) | Versioned project and formula passages cited by RAG |
 
 Update `STATUS.md` after meaningful work, `DECISIONS.md` when a choice changes architecture or methodology, and `CHANGELOG.md` when a user-visible release is made. Run `python scripts/check_markdown_links.py` after moving or renaming documentation.

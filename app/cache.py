@@ -184,6 +184,7 @@ def retrieval_corpus_version(data_path: Path, score_version: str) -> str:
             data_path.with_name("health_capacity_periods.json"),
             data_path.with_name("punjab_census.json"),
             data_path.with_name("punjab_services.json"),
+            data_path.with_name("punjab_districts.json"),
             data_path.with_name("evidence_qualification.json"),
         ],
         key=lambda item: item.name,

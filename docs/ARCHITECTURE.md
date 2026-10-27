@@ -1,5 +1,7 @@
 # Architecture
 
+Current scoring: punjab-v1 covers 36 census districts; prototype-v1 remains available explicitly. Gemini and Groq are selectable providers. See [Punjab methodology](PUNJAB_SCORING.md).
+
 ## Implemented architecture
 
 ```mermaid

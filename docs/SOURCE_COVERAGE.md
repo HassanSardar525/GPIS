@@ -1,4 +1,15 @@
-# Source coverage for the RAG-first expansion
+# Source coverage
+
+## Active Punjab-wide contract (2026-10-22)
+
+`punjab_districts.json` supplies complete scoring inputs for 36 Census 2023
+districts, using PHS capacity as at 2023-12-31 and FY 2023-24 DHA budgets
+for all 36. The newly acquired North audit and exact source conflicts are
+documented in [Punjab methodology](PUNJAB_SCORING.md).
+
+The sections below retain acquisition history and the older snapshots.
+Their ten-district limitations apply to prototype-v1 or temporal series,
+not the new current-period punjab-v1 score contract.
 
 ## Verified current-period coverage
 

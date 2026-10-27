@@ -12,7 +12,7 @@ services:
       - --maxmemory-policy
       - allkeys-lru
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -26,7 +26,7 @@ services:
       POSTGRES_USER: gpis
       POSTGRES_PASSWORD: gpis
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gpis -d gpis"]
+      test: [ "CMD-SHELL", "pg_isready -U gpis -d gpis" ]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -41,7 +41,7 @@ services:
       GPIS_ENV: development
       GPIS_DATABASE_URL: postgresql+psycopg://gpis:gpis@database:5432/gpis
       GPIS_REPOSITORY: postgres
-      GPIS_SCORE_VERSION: prototype-v1
+      GPIS_SCORE_VERSION: punjab-v1
       GPIS_EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
       GPIS_SEMANTIC_THRESHOLD: "0.35"
       GPIS_SESSION_TTL_HOURS: ${GPIS_SESSION_TTL_HOURS:-24}
@@ -52,6 +52,9 @@ services:
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-20b}
       GROQ_BASE_URL: https://api.groq.com/openai/v1
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-1.5-flash}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta}
       PHOENIX_ENABLED: ${PHOENIX_ENABLED:-false}
       PHOENIX_COLLECTOR_ENDPOINT: http://phoenix:6006/v1/traces
       PHOENIX_PROJECT_NAME: ${PHOENIX_PROJECT_NAME:-gpis-local}
@@ -64,10 +67,11 @@ services:
       - "8000:8000"
     volumes:
       - huggingface_cache:/models/huggingface
+      - ./app/static:/workspace/app/static:ro
 
   phoenix:
     image: arizephoenix/phoenix:latest
-    profiles: ["observability"]
+    profiles: [ "observability" ]
     environment:
       PHOENIX_WORKING_DIR: /mnt/data
     ports:

@@ -1,5 +1,7 @@
 # RAG design
 
+Current scoring: punjab-v1 covers 36 census districts; prototype-v1 remains available explicitly. Gemini and Groq are selectable providers. See [Punjab methodology](PUNJAB_SCORING.md).
+
 ## Purpose
 
 The evidence assistant helps a user understand official district data without asking them to read large spreadsheets or audit reports. Retrieval-augmented generation is used for explanation, not scoring.

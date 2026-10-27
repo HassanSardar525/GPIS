@@ -42,7 +42,7 @@ def format_score_explanation(
         return (
             f"{district_name}'s health score is {score:.1f}. It has {int(components['facility_count'])} listed "
             f"public facilities, or {components['facilities_per_100k']:.2f} per 100,000 residents. That rate is "
-            f"min-max normalized against the ten-district range {components['cohort_min']:.2f} to "
+            f"min-max normalized against the {'36-district' if detail and detail['version'] == 'punjab-v1' else 'ten-district'} range {components['cohort_min']:.2f} to "
             f"{components['cohort_max']:.2f} facilities per 100,000."
             + quality
         )
@@ -50,7 +50,8 @@ def format_score_explanation(
         return (
             f"{district_name}'s accountability score is {score:.1f}. Overall budget utilization is "
             f"{components['overall_budget_utilization_pct']:.2f}% and development-budget utilization is "
-            f"{components['development_budget_utilization_pct']:.2f}%; the score is their arithmetic mean."
+            f"{components['development_budget_utilization_pct']:.2f}%; the score is their arithmetic mean"
+            + (" after bounding each contribution to 0–100." if detail and detail['version'] == 'punjab-v1' else ".")
             + quality
         )
     return (

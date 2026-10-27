@@ -250,7 +250,7 @@ class HybridRetriever:
         districts = request.selected_districts()
         if route == QuestionRoute.TEMPORAL_COMPARISON:
             facts = self.repository.trend_search(request.question, districts, limit)
-        elif route == QuestionRoute.SCORE_EXPLANATION or (
+        elif route == QuestionRoute.SCORE_EXPLANATION or (route == QuestionRoute.EXACT_FACT and 'score' in request.question.casefold()) or (
             route == QuestionRoute.COMPARISON
             and (
                 request.category is not None
@@ -276,7 +276,7 @@ class HybridRetriever:
                     (category for category in ("education", "health", "accountability") if category in lowered),
                     "education health accountability",
                 )
-            keyword += self.repository.keyword_search(method_query, districts, None, request.period, limit)
+            keyword = self.repository.keyword_search(method_query, districts, 'methodology', request.period, limit) + keyword
         elif route == QuestionRoute.SCORE_EXPLANATION:
             score_category = requested_score_category(request.question, request.category)
             keyword += self.repository.keyword_search(
@@ -577,7 +577,9 @@ class ChatService:
             records = [self.repository.get_district(item["slug"]) for item in self.repository.list_districts()]
         lines = []
         if route == QuestionRoute.METHODOLOGY:
-            lines.extend(f"{name}_formula={formula}" for name, formula in METHODOLOGY_TEXT.items())
+            from app.punjab_scoring import METHODS
+            methods = METHODS if self.repository.score_version == 'punjab-v1' else METHODOLOGY_TEXT
+            lines.extend(f"{name}_formula={formula}" for name, formula in methods.items())
         for district in records:
             scores = district["derived"]["scores"]
             lines.append(
@@ -603,7 +605,9 @@ class ChatService:
                 "overall",
             )
             markers = " ".join(f"[{item.id}]" for item in evidence[:3])
-            return f"{METHODOLOGY_TEXT[category]} {markers}".strip()
+            from app.punjab_scoring import METHODS
+            methods = METHODS if self.repository.score_version == 'punjab-v1' else METHODOLOGY_TEXT
+            return f"{methods[category]} {markers}".strip()
         if route in {QuestionRoute.SCORE_EXPLANATION, QuestionRoute.PROJECT}:
             return " ".join(f"{item.text} [{item.id}]" for item in evidence[:3])
         if route == QuestionRoute.TEMPORAL_COMPARISON:

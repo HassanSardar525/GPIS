@@ -285,6 +285,7 @@ function officialServiceCards(data) {
 function renderDistrict(data) {
   state.district = data;
   if (typeof syncWorkspaceDistrict === 'function') syncWorkspaceDistrict(data);
+  if (typeof window.highlightDistrictOnMap === 'function') window.highlightDistrictOnMap(data.slug, { zoom: true });
   setBusy(document.querySelector('#notice'), false, data.metadata.disclaimer);
   document.querySelector('#district-name').textContent = data.name;
   document.querySelector('#population').textContent = `Population ${number(data.population_2023)} · Census 2023`;
@@ -324,12 +325,12 @@ function renderDistrict(data) {
       ['Listed public facilities', number(data.derived.facility_count)],
       ['Facilities per 100k', number(data.derived.facilities_per_100k, 2)],
       ['BHUs / RHCs', `${number(health.bhus)} / ${number(health.rhcs)}`],
-    ], data.sources.agp_dha.url),
+    ], data.official_health && data.metadata.active_score_version === 'punjab-v1' ? Object.values(data.official_health.sources)[0].url : data.sources.agp_dha.url),
     card('accountability', 'Financial management proxy', data.derived.scores.accountability, data.rankings.accountability, data.score_details.accountability, [
       ['Overall budget utilized', `${number(100 - accountability.overall_budget_lapse_pct, 1)}%`],
       ['Development budget utilized', `${number(100 - accountability.development_budget_lapse_pct, 1)}%`],
-      ['Formations audited', `${accountability.audited_formations} of ${accountability.total_formations}`],
-    ], data.sources.agp_dha.url),
+      ...(accountability.audited_formations != null ? [['Formations audited', `${accountability.audited_formations} of ${accountability.total_formations}`]] : [['Budget scope', 'District Health Authority']]),
+    ], data.official_budget && data.metadata.active_score_version === 'punjab-v1' ? Object.values(data.official_budget.sources)[0].url : data.sources.agp_dha.url),
   ].join('') + officialServiceCards(data);
   loadRankings().catch(showRankingError);
 }
@@ -341,11 +342,30 @@ function renderTrend(data) {
   const change = document.querySelector('#trend-change');
   change.textContent = `${signedChange} · ${data.direction}`;
   change.dataset.direction = data.direction;
-  document.querySelector('#trend-periods').innerHTML = data.periods.map(period => `<article>
-    <span>${escapeHtml(period.period)}</span>
-    <strong>${number(period.utilization_pct, 2)}%</strong>
-    <small>Rs ${number(period.expenditure_million_pkr, 3)}m spent of Rs ${number(period.final_grant_million_pkr, 3)}m final grant</small>
-  </article>`).join('');
+  const radius = 28;
+  const circumference = 2 * Math.PI * radius; // ~175.93
+  document.querySelector('#trend-periods').innerHTML = data.periods.map(period => {
+    const pct = Math.max(0, Math.min(100, period.utilization_pct || 0));
+    const offset = Math.max(0, circumference - (pct / 100) * circumference);
+    const strokeColor = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--red)';
+    return `<article class="trend-period-card">
+      <div class="trend-donut-visual" aria-hidden="true">
+        <svg class="trend-donut-svg" viewBox="0 0 72 72" width="68" height="68">
+          <circle class="trend-donut-track" cx="36" cy="36" r="${radius}" />
+          <circle class="trend-donut-meter" cx="36" cy="36" r="${radius}" style="stroke: ${strokeColor}; stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset};" />
+        </svg>
+        <span class="trend-donut-pct">${Math.round(pct)}%</span>
+      </div>
+      <div class="trend-period-info">
+        <span>${escapeHtml(period.period)}</span>
+        <strong>${number(period.utilization_pct, 2)}%</strong>
+        <small>Rs ${number(period.expenditure_million_pkr, 3)}m spent of Rs ${number(period.final_grant_million_pkr, 3)}m final grant</small>
+        <div class="trend-meter-mini-track" aria-hidden="true">
+          <div class="trend-meter-mini-bar" style="width: ${pct}%; background: ${strokeColor};"></div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
   document.querySelector('#trend-warning').textContent = data.warnings.join(' ');
   document.querySelector('#trend-source').href = safeUrl(data.citation.url);
   document.querySelector('#trend-panel').setAttribute('aria-busy', 'false');
@@ -505,6 +525,12 @@ async function init() {
     return;
   }
   state.districts = data.districts;
+  window.updateDistrictMapData?.(state.districts);
+  censusData('population_2023').then(dataset => window.updateDistrictMapData?.(state.districts, dataset.rows)).catch(() => {});
+  const scoredCount = state.districts.filter(d => d.scores.overall != null).length;
+  document.querySelector('#map-scored-count').textContent = `${scoredCount} scored districts`;
+  document.querySelector('#map-unscored-count').textContent = `${state.districts.length - scoredCount} facts-only districts`;
+  document.querySelector('#score-ranking-options').label = `Performance scores · ${scoredCount} districts`;
   select.innerHTML = data.districts.map(district => `<option value="${escapeHtml(district.slug)}">${escapeHtml(district.name)}</option>`).join('');
   select.disabled = false;
   filterDistricts();
@@ -610,4 +636,6 @@ function showInitError(error) {
 }
 
 setChatControlsDisabled(false);
+window.loadDistrict = loadDistrict;
+window.state = state;
 init().catch(showInitError);

@@ -48,7 +48,7 @@ class PostgresRepository:
     name = "postgres"
 
     def __init__(self, database_url: str, score_version: str):
-        if score_version != PROTOTYPE_VERSION:
+        if score_version not in {PROTOTYPE_VERSION, 'punjab-v1'}:
             raise ValueError(
                 f"Score version '{score_version}' is not active; evidence-v2 remains staged"
             )
@@ -76,7 +76,10 @@ class PostgresRepository:
     def metadata(self) -> dict:
         with self.sessions() as session:
             rows = session.scalars(select(DatasetMetadata)).all()
-            return {row.key: row.value for row in rows}
+            data = {row.key: row.value for row in rows}
+            data.update(active_score_version=self.score_version, score_version=self.score_version,
+                comparison_scope='36 Census 2023 Punjab districts' if self.score_version == 'punjab-v1' else 'Ten selected South Punjab districts')
+            return data
 
     def _scores(self, session) -> dict[int, dict[str, dict]]:
         rows = session.scalars(
@@ -311,7 +314,7 @@ class PostgresRepository:
             else:
                 statement = statement.order_by(District.name)
             rows = session.execute(statement.limit(limit)).all()
-            source = session.get(Source, "gpis_methodology_v1")
+            source = session.get(Source, "gpis_punjab_methodology" if self.score_version == 'punjab-v1' else "gpis_methodology_v1")
             if not source:
                 return []
             results = []
@@ -371,7 +374,16 @@ class PostgresRepository:
 
             categories: dict[str, dict] = {"education": {}, "health": {}, "accountability": {}}
             for observation in observations:
-                if observation.metric_key in CURRENT_METRICS.get(observation.category, set()):
+                metrics = CURRENT_METRICS.get(observation.category, set())
+                if self.score_version == 'punjab-v1':
+                    if observation.category == 'health':
+                        metrics = {'hospitals', 'dispensaries', 'rhcs', 'bhus'}
+                    expected_period = {'education':'2023', 'health':'2023-12-31', 'accountability':'FY 2023-24'}.get(observation.category)
+                    if observation.period != expected_period:
+                        continue
+                elif observation.category in {'health','accountability'} and observation.source_id != 'agp_dha':
+                    continue
+                if observation.metric_key in metrics:
                     value = float(observation.value)
                     categories[observation.category][observation.metric_key] = int(value) if value.is_integer() else value
             scores = {row.category: float(row.score) for row in score_rows}
@@ -389,7 +401,7 @@ class PostgresRepository:
             }
             facilities = sum(
                 categories["health"].get(field, 0)
-                for field in ("government_dispensaries", "bhus", "rhcs", "thq_hospitals", "dhq_hospitals", "dhdc")
+                for field in (('hospitals','dispensaries','rhcs','bhus') if self.score_version == 'punjab-v1' else ("government_dispensaries", "bhus", "rhcs", "thq_hospitals", "dhq_hospitals", "dhdc"))
             )
             derived = {
                 "facility_count": facilities if categories["health"] else None,
@@ -441,6 +453,10 @@ class PostgresRepository:
             }
 
     def _filters(self, statement, district_slugs: list[str], category: str | None, period: str | None):
+        if self.score_version == 'punjab-v1':
+            statement = statement.where(or_(EvidenceChunk.id.like('punjab-v1-%'), EvidenceChunk.id.like('%-development-trend'), EvidenceChunk.id.like('%-health-capacity-%')))
+        else:
+            statement = statement.where(~EvidenceChunk.id.like('punjab-v1-%'))
         if district_slugs:
             statement = statement.where(
                 or_(District.slug.in_(district_slugs), EvidenceChunk.district_id.is_(None))
@@ -507,6 +523,13 @@ class PostgresRepository:
             )
             if district_slugs:
                 statement = statement.where(District.slug.in_(district_slugs))
+            if self.score_version == 'punjab-v1':
+                statement = statement.where(or_(
+                    (Observation.category.in_(['education','context'])) & (Observation.period == '2023'),
+                    (Observation.category == 'health') & (Observation.period == '2023-12-31'),
+                    (Observation.category == 'accountability') & (Observation.period == 'FY 2023-24')))
+            else:
+                statement = statement.where(or_(Observation.category.in_(['education','context']), Observation.source_id == 'agp_dha'))
             rows = session.execute(statement.order_by(District.name, Observation.metric_key).limit(limit)).all()
             results = []
             for rank, (observation, district, source) in enumerate(rows, start=1):

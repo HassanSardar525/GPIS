@@ -10,8 +10,8 @@
   <a href="https://github.com/HassanSardar525/GPIS/actions/workflows/ci.yml"><img src="https://github.com/HassanSardar525/GPIS/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python 3.11+">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License">
-  <img src="https://img.shields.io/badge/tests-144_passing-brightgreen.svg" alt="144 Tests Passing">
-  <img src="https://img.shields.io/badge/districts-36_census_%7C_10_scored-orange.svg" alt="Districts">
+  <img src="https://img.shields.io/badge/tests-versioned_regression_suite-brightgreen.svg" alt="Regression suite">
+  <img src="https://img.shields.io/badge/districts-36_census_%7C_36_scored-orange.svg" alt="Districts">
 </p>
 
 ---
@@ -31,7 +31,7 @@ Election debate often focuses on promises and personalities. Official district d
 - ⚡ **Redis caching** — Failure-safe cache-aside for query embeddings and ranked evidence with corpus-version invalidation
 - 💬 **Conversational memory** — PostgreSQL-backed LangGraph session checkpoints that survive API restarts
 - 🛡️ **Guardrails** — Deterministic refusal for prompt injection, politician attribution, score manipulation, and unsupported claims
-- 📈 **36 districts** — Census data for all Punjab districts; 10 scored with education, health, and accountability indicators
+- 📈 **36 census districts** — Source-aligned data; 36 scored under punjab-v1 with education, health-capacity, and DHA budget-utilization indicators
 - 🔬 **Measurable quality** — 63-case deterministic RAG evaluation with enforced accuracy, recall, and citation gates
 
 ## 📸 Screenshots
@@ -89,7 +89,7 @@ Scores are calculated by versioned Python rules and stored in PostgreSQL. RAG an
 |---|---|
 | **Backend** | Python 3.11, FastAPI, Pydantic v2, Uvicorn |
 | **Database** | PostgreSQL 16, pgvector, Alembic migrations |
-| **RAG Agent** | LangGraph, LangChain, Groq (openai/gpt-oss-20b) |
+| **RAG Agent** | LangGraph, LangChain, Gemini / Groq with source-based fallback |
 | **Embeddings** | sentence-transformers/all-MiniLM-L6-v2 (local, 384D) |
 | **Caching** | Redis 7 with failure-safe cache-aside |
 | **Observability** | Phoenix/OpenTelemetry (optional), LangSmith (optional) |
@@ -99,7 +99,7 @@ Scores are calculated by versioned Python rules and stored in PostgreSQL. RAG an
 
 ## 📊 RAG Quality Gates
 
-Enforced by CI on every push. Run `python scripts/run_rag_evaluation.py --enforce` locally.
+The table below is the historical prototype-v1 PostgreSQL baseline, not a fresh measurement of punjab-v1. Run `python scripts/run_rag_evaluation.py --enforce` locally.
 
 | Metric | Result | Gate |
 |---|---|---|
@@ -135,7 +135,7 @@ Open http://127.0.0.1:8000. The first bootstrap downloads the local MiniLM model
 ### Run tests
 
 ```powershell
-$env:GPIS_TEST_DATABASE_URL="postgresql+psycopg://gpis:gpis@localhost:5432/gpis"
+$env:GPIS_TEST_DATABASE_URL="postgresql+psycopg://gpis:gpis@localhost:5432/gpis_test"  # Dedicated disposable test database
 .\.venv\Scripts\python -m pytest -q
 .\.venv\Scripts\python scripts/run_rag_evaluation.py --enforce
 ```
@@ -164,10 +164,10 @@ app/
   database/       SQLAlchemy models, repository, seed, migrations
   static/         Browser UI (3 hash-routed views)
 alembic/          Database migrations
-data/curated/     Reviewed ten-district seed dataset + 36-district census
+data/curated/     36-district scoring contract + retained pilot baseline and source snapshots
 docs/             Architecture, methodology, RAG design, decisions, status
 scripts/          Evaluation, documentation checks, session cleanup
-tests/            19 test modules (144 tests): API, scoring, RAG, agent, cache, sessions
+tests/            Regression tests: API, scoring, RAG, agent, cache, sessions
 ```
 
 ## 📖 Documentation
@@ -175,6 +175,7 @@ tests/            19 test modules (144 tests): API, scoring, RAG, agent, cache, 
 | Document | Description |
 |---|---|
 | [Architecture](docs/ARCHITECTURE.md) | System diagram, modules, and API surface |
+| [Punjab Scoring](docs/PUNJAB_SCORING.md) | Active 36-district formulas, periods and source conflicts |
 | [Data & Scoring](docs/DATA_AND_SCORING.md) | Scoring methodology, formulas, and evidence contract |
 | [RAG Design](docs/RAG_DESIGN.md) | Retrieval pipeline, guardrails, and evaluation |
 | [Source Coverage](docs/SOURCE_COVERAGE.md) | Official sources, verified periods, and candidate decisions |
@@ -186,7 +187,7 @@ tests/            19 test modules (144 tests): API, scoring, RAG, agent, cache, 
 
 ## ⚠️ Current Scope & Limitations
 
-- Ten districts are scored; 26 additional census districts have population and literacy facts only.
+- All 36 Census 2023 districts have punjab-v1 scores. The original ten-district prototype-v1 remains reproducible. Source conflicts are flagged; see [Punjab methodology](docs/PUNJAB_SCORING.md).
 - Education uses literacy and gender parity — not teaching quality or annual improvement.
 - Health is relative facility availability — not care quality or outcomes.
 - Accountability is budget utilization — not proof of honesty or corruption.

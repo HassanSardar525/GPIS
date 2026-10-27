@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GPIS — District Performance Evidence</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
+
 <body>
   <header class="site-header">
     <a class="brand" href="#/overview">GPIS <span>Prototype</span></a>
@@ -17,20 +19,11 @@
   </header>
 
   <main>
-    <section data-page="overview" id="overview-page">
-      <div class="hero page-intro"><div><p class="eyebrow">Evidence before slogans</p>
-        <h1>Explore Punjab, district by district.</h1>
-        <p class="lede">Population, education, health capacity and health-authority budget facts for 36 census districts. Reviewed performance scores for the ten-district pilot. Every figure has a source.</p></div></div>
-      <div class="overview-grid">
-        <article class="panel"><h2>36 districts with facts</h2><p>Compare Census 2023 population, literacy and out-of-school figures across all 36 source districts.</p></article>
-        <article class="panel"><h2>10 performance profiles</h2><p>The original scoring formula compares a fixed ten-district pilot. All 36 districts now have health and budget facts, but different source scopes and fiscal years cannot be silently added to that score.</p></article>
-        <article class="panel"><h2>2 budget periods</h2><p>DHA budgets cover all 36 districts: FY 2022–23 in the North and FY 2023–24 in the South. Two-year development trends remain available for the pilot.</p></article>
-      </div>
-    </section>
     <section class="district-toolbar" aria-label="District selection">
       <div class="district-search">
         <label for="district-query">Search city / district</label>
-        <input id="district-query" type="search" placeholder="Type a name, e.g. Lahore" autocomplete="off" aria-controls="district-results" aria-describedby="district-search-status">
+        <input id="district-query" type="search" placeholder="Type a name, e.g. Lahore" autocomplete="off"
+          aria-controls="district-results" aria-describedby="district-search-status">
         <select id="district-results" aria-label="Search results" hidden></select>
         <small id="district-search-status" role="status" aria-live="polite">District-level official data</small>
         <label for="district-select">Or choose from the full list</label>
@@ -39,57 +32,513 @@
       <a class="profile-link" href="#/district" id="open-profile">Open district profile &amp; Ask GPIS →</a>
     </section>
     <section id="notice" class="notice" role="status" aria-live="polite"></section>
-    <div data-page="overview">
-      <div class="overview-links"><a href="#/district">Explore district facts and ask questions →</a><a href="#/compare">Compare districts and view charts →</a></div>
-    <section class="panel methodology">
-      <p class="eyebrow">Read scores responsibly</p>
-      <h2>What the prototype measures</h2>
-      <div class="method-grid">
-        <div><strong>Education</strong><p>Average of total literacy, female literacy and gender parity. Census 2023.</p></div>
-        <div><strong>Health</strong><p>Relative index of listed public health facilities per 100,000 people within these ten districts. It does not measure care quality.</p></div>
-        <div><strong>Accountability</strong><p>Average overall and development-budget utilization. Spending money is not proof that it was spent well.</p></div>
-      </div>
-    </section>
-    <section class="panel overview-about" aria-labelledby="motivation-title">
-      <p class="eyebrow">Why GPIS exists</p>
-      <h2 id="motivation-title">Democracy needs an informed public.</h2>
-      <p class="mission-statement">Accountability is harder when people cannot see how public services are performing or how public money is used. When evidence is difficult to access, slogans and selective claims can take the place of informed debate.</p>
-      <p>GPIS aims to make official information easier to find, compare and question, so citizens can assess claims, ask better questions of their representatives and take part in public life with evidence in hand.</p>
-      <p class="coverage-note">District indicators describe measured conditions and selected financial records. They do not, on their own, establish which politician caused an outcome, prove misconduct or tell anyone how to vote.</p>
-    </section>
-    <section class="panel overview-about" aria-labelledby="architecture-title">
-      <p class="eyebrow">From official records to answers</p>
-      <h2 id="architecture-title">How GPIS and Ask GPIS work</h2>
-      <p>Ask GPIS uses retrieval-augmented generation (RAG): it looks up relevant evidence before an AI model writes an explanation. You can open the citations to inspect the sources behind an answer.</p>
-      <ol class="architecture-flow">
-        <li><h3>1. Collect and validate</h3><p>Source-specific parsers read supported official census files. Other evidence is manually reviewed. District names, values and periods are checked, and source locations are preserved.</p></li>
-        <li><h3>2. Store and calculate</h3><p>PostgreSQL stores observations, sources and evidence. Python calculates scores and period changes using defined rules. Missing inputs stay missing; the AI does not calculate or change scores.</p></li>
-        <li><h3>3. Retrieve the evidence</h3><p>Structured queries supply exact facts, rankings and trends. For explanations, keyword search and semantic search find relevant passages by wording and meaning.</p></li>
-        <li><h3>4. Explain with citations</h3><p>The assistant uses the retrieved results to answer, with links to the evidence. If the AI is unavailable or its answer fails validation, GPIS uses a source-based fallback or says there is not enough evidence.</p></li>
-      </ol>
-      <details class="architecture-details">
-        <summary>Technical architecture</summary>
-        <p>The HTML, CSS and JavaScript interface calls a FastAPI backend. LangGraph coordinates a bounded assistant with three LangChain tools: district data, evidence search and project knowledge. PostgreSQL full-text search and pgvector similarity search using MiniLM embeddings provide hybrid retrieval; reciprocal-rank fusion combines their results. Groq supplies the language model when configured.</p>
-        <p>PostgreSQL checkpoints retain conversations, and optional Redis caching speeds up repeated retrieval. The JSON repository supports development without a database. Citations retain source titles, publishers, reporting periods and table or page locations so answers can be checked. Citations improve traceability; they do not guarantee that every explanation is correct.</p>
-      </details>
-    </section>
-    </div>
-    <div data-page="district" id="district-page" hidden>
-    <section id="district-summary" class="district-heading" aria-busy="true">
-      <div>
-        <p class="eyebrow">District profile · source periods shown below</p>
-        <h2 id="district-name">Loading…</h2>
-        <p id="population"></p>
-      </div>
-      <div class="overall-badge">
-        <span>Overall comparative score</span>
-        <strong id="overall-score">—</strong>
-        <small id="overall-rank">—</small>
-        <div id="overall-quality" class="score-quality score-quality-inverse"></div>
-      </div>
-    </section>
 
-    <section id="scorecards" class="score-grid" aria-label="District facts and performance scores"></section>
+    <section data-page="overview" id="overview-page">
+      <!-- Interactive Punjab 36-District SVG Map Component -->
+      <section class="district-map-section" aria-label="Interactive District Map of Punjab, Pakistan">
+        <div class="district-map-header">
+          <div class="district-map-title-wrap">
+            <span class="district-map-eyebrow">Geospatial Selector · 36 Administrative Districts</span>
+            <h2 class="district-map-heading">Pakistan — Punjab District Performance Map</h2>
+          </div>
+          <div class="district-map-legend" role="list" aria-label="Map Legend">
+            <span class="legend-item" role="listitem">
+              <span class="legend-swatch swatch-scored"></span>
+              <span id="map-scored-count">Loading scores</span>
+            </span>
+            <span class="legend-item" role="listitem">
+              <span class="legend-swatch swatch-factual"></span>
+              <span id="map-unscored-count">Loading coverage</span>
+            </span>
+            <span class="legend-item" role="listitem">
+              <span class="legend-swatch swatch-active"></span>
+              Active Selection
+            </span>
+          </div>
+        </div>
+
+        <div class="district-map-container" id="gpis-map-container">
+          <!-- Floating Map Controls -->
+          <div class="map-Overlay-controls">
+            <button type="button" id="map-reset-btn" class="map-control-btn is-hidden"
+              title="Reset Zoom to Full Province View" aria-label="Reset View">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+              <span>Reset View</span>
+            </button>
+          </div>
+
+          <!-- Active District Pill Badge -->
+          <div class="map-status-pill" id="map-status-pill" aria-live="polite">
+            <span class="status-dot"></span>
+            <span id="map-status-text">All 36 Districts · Click a district to inspect</span>
+          </div>
+
+          <!-- Responsive Vector SVG Map -->
+          <svg id="gpis-pakistan-map" class="district-svg-map" viewBox="80 20 640 700"
+            preserveAspectRatio="xMidYMid meet" role="img"
+            aria-label="Interactive map of Pakistan focused on 36 Punjab districts">
+            <defs>
+              <filter id="active-district-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f5c46" flood-opacity="0.32" />
+              </filter>
+              <pattern id="pilot-hatch" width="8" height="8" patternTransform="rotate(45 0 0)"
+                patternUnits="userSpaceOnUse">
+                <line x1="0" y1="0" x2="0" y2="8" stroke="#0f5c46" stroke-width="1.2" stroke-opacity="0.10" />
+              </pattern>
+            </defs>
+
+            <!-- 1. Surrounding Pakistan Provincial Context Outlines -->
+            <g class="map-layer-context" aria-hidden="true">
+              <path class="province-context-path" id="prov-kpk"
+                d="M351.0,74.2 L370.6,47.4 L424.5,49.6 L478.4,66.4 L517.6,88.8 L527.4,-12.0 L444.1,-51.2 L316.7,-40.0 L204.0,55.2 L155.0,189.6 L174.6,324.0 L194.2,357.6 L253.0,331.8 L272.6,251.2 L285.3,167.2 L331.4,122.4 Z" />
+              <text class="province-context-label" x="282.4" y="32.8">Khyber Pakhtunkhwa</text>
+              <path class="province-context-path" id="prov-ict" d="M444.1,81.0 L495.1,81.0 L498.0,58.6 L446.1,58.6 Z" />
+              <text class="province-context-label" x="471.5" y="63.0">Islamabad (ICT)</text>
+              <path class="province-context-path" id="prov-ajk"
+                d="M517.6,88.8 L537.2,144.8 L576.4,163.8 L625.4,178.4 L645.0,100.0 L605.8,10.4 L527.4,-12.0 Z" />
+              <text class="province-context-label" x="583.3" y="77.6">Azad Jammu & Kashmir</text>
+              <path class="province-context-path" id="prov-balochistan"
+                d="M194.2,357.6 L174.6,424.8 L161.9,514.4 L145.2,592.8 L135.4,671.2 L-16.5,682.4 L-31.2,525.6 L8.0,346.4 L115.8,312.8 L174.6,324.0 Z" />
+              <text class="province-context-label" x="61.9" y="503.2">Balochistan</text>
+              <path class="province-context-path" id="prov-sindh"
+                d="M135.4,671.2 L213.8,738.4 L306.9,716.0 L282.4,839.2 L120.7,850.4 L8.0,805.6 L-16.5,682.4 Z" />
+              <text class="province-context-label" x="135.4" y="783.2">Sindh</text>
+            </g>
+
+            <!-- 2. Major Indus Basin Rivers Context -->
+            <g class="map-layer-rivers" aria-hidden="true">
+              <path class="river-context-path"
+                d="M400.0,49.6 L348.1,133.6 L308.9,200.8 L269.7,312.8 L250.1,447.2 L210.9,581.6 L155.0,676.8"
+                aria-label="Indus River" />
+              <path class="river-context-path"
+                d="M605.8,181.8 L537.2,234.4 L449.0,298.2 L383.3,354.2 L306.9,469.6 L272.6,559.2 L210.9,581.6"
+                aria-label="Chenab River" />
+              <path class="river-context-path" d="M654.8,245.6 L593.1,316.2 L498.0,383.4 L390.2,424.8 L341.2,436.0"
+                aria-label="Ravi River" />
+              <path class="river-context-path" d="M610.7,368.8 L527.4,443.8 L429.4,514.4 L311.8,555.8 L272.6,559.2"
+                aria-label="Sutlej River" />
+            </g>
+
+            <!-- 3. Interactive 36 Punjab Districts Layer -->
+            <g class="map-layer-districts" id="map-districts-group">
+              <path class="district-path is-factual" id="path-attock" data-district="attock" data-name="Attock"
+                data-division="Rawalpindi" data-status="Loading official profile"
+                data-tehsils="6" tabindex="0" role="button" aria-label="Attock (Loading official profile)"
+                d="M443.7,113.0 L373.6,152.4 L336.2,110.7 L351.0,74.2 L370.6,47.4 L424.5,49.6 L446.4,56.4 Z" />
+              <path class="district-path is-factual" id="path-bahawalnagar" data-district="bahawalnagar"
+                data-name="Bahawalnagar" data-division="Bahawalpur" data-status="Loading official profile"
+                data-tehsils="5" tabindex="0" role="button"
+                aria-label="Bahawalnagar (Loading official profile)"
+                d="M420.1,564.6 L455.6,473.7 L535.2,502.1 L507.8,559.2 L458.8,611.8 L445.3,621.4 Z" />
+              <path class="district-path is-scored" id="path-bahawalpur" data-district="bahawalpur"
+                data-name="Bahawalpur" data-division="Bahawalpur" data-status="Loading official profile"
+                data-tehsils="6" tabindex="0" role="button"
+                aria-label="Bahawalpur (Loading official profile)"
+                d="M277.2,591.2 L386.0,543.6 L420.1,564.6 L445.3,621.4 L390.2,660.0 L325.2,703.7 Z" />
+              <path class="district-path is-factual" id="path-bhakkar" data-district="bhakkar" data-name="Bhakkar"
+                data-division="Sargodha" data-status="Loading official profile" data-tehsils="4"
+                tabindex="0" role="button" aria-label="Bhakkar (Loading official profile)"
+                d="M328.7,256.4 L349.6,296.1 L332.4,347.7 L241.6,336.8 L253.0,331.8 L272.6,251.2 L274.6,237.9 Z" />
+              <path class="district-path is-factual" id="path-chakwal" data-district="chakwal" data-name="Chakwal"
+                data-division="Rawalpindi" data-status="Loading official profile"
+                data-tehsils="5" tabindex="0" role="button" aria-label="Chakwal (Loading official profile)"
+                d="M373.6,152.4 L443.7,113.0 L474.6,142.5 L472.1,185.1 L462.6,207.4 L415.4,204.8 L378.7,174.7 Z" />
+              <path class="district-path is-factual" id="path-chiniot" data-district="chiniot" data-name="Chiniot"
+                data-division="Faisalabad" data-status="Loading official profile"
+                data-tehsils="3" tabindex="0" role="button" aria-label="Chiniot (Loading official profile)"
+                d="M416.2,304.0 L478.6,239.2 L482.1,241.8 L500.7,289.4 L496.1,304.3 L430.4,328.7 Z" />
+              <path class="district-path is-scored" id="path-dera-ghazi-khan" data-district="dera-ghazi-khan"
+                data-name="Dera Ghazi Khan" data-division="DG Khan" data-status="Loading official profile"
+                data-tehsils="4" tabindex="0" role="button"
+                aria-label="Dera Ghazi Khan (Loading official profile)"
+                d="M262.8,434.0 L221.5,524.0 L162.8,508.0 L174.6,424.8 L194.2,357.6 L199.6,355.3 Z" />
+              <path class="district-path is-scored" id="path-faisalabad" data-district="faisalabad"
+                data-name="Faisalabad" data-division="Faisalabad" data-status="Loading official profile"
+                data-tehsils="6" tabindex="0" role="button"
+                aria-label="Faisalabad (Loading official profile)"
+                d="M430.4,328.7 L496.1,304.3 L511.0,357.2 L489.6,379.8 L454.7,375.8 L430.8,334.9 Z" />
+              <path class="district-path is-scored" id="path-gujranwala" data-district="gujranwala"
+                data-name="Gujranwala" data-division="Gujranwala" data-status="Loading official profile"
+                data-tehsils="5" tabindex="0" role="button"
+                aria-label="Gujranwala (Loading official profile)"
+                d="M549.1,225.4 L586.1,218.6 L612.9,249.3 L614.8,274.4 L596.2,281.6 L553.8,264.7 Z" />
+              <path class="district-path is-factual" id="path-gujrat" data-district="gujrat" data-name="Gujrat"
+                data-division="Gujranwala" data-status="Loading official profile"
+                data-tehsils="4" tabindex="0" role="button" aria-label="Gujrat (Loading official profile)"
+                d="M586.1,218.6 L549.1,225.4 L543.6,220.7 L539.4,180.4 L550.4,151.2 L576.4,163.8 L599.5,170.7 Z" />
+              <path class="district-path is-factual" id="path-hafizabad" data-district="hafizabad" data-name="Hafizabad"
+                data-division="Gujranwala" data-status="Loading official profile"
+                data-tehsils="2" tabindex="0" role="button" aria-label="Hafizabad (Loading official profile)"
+                d="M482.1,241.8 L543.6,220.7 L549.1,225.4 L553.8,264.7 L536.3,287.1 L500.7,289.4 Z" />
+              <path class="district-path is-factual" id="path-jhang" data-district="jhang" data-name="Jhang"
+                data-division="Faisalabad" data-status="Loading official profile"
+                data-tehsils="4" tabindex="0" role="button" aria-label="Jhang (Loading official profile)"
+                d="M332.4,347.7 L349.6,296.1 L399.8,293.6 L416.2,304.0 L430.4,328.7 L430.8,334.9 L375.5,392.3 L341.3,382.9 Z" />
+              <path class="district-path is-factual" id="path-jhelum" data-district="jhelum" data-name="Jhelum"
+                data-division="Rawalpindi" data-status="Loading official profile"
+                data-tehsils="4" tabindex="0" role="button" aria-label="Jhelum (Loading official profile)"
+                d="M474.6,142.5 L526.1,113.1 L537.2,144.8 L550.4,151.2 L539.4,180.4 L472.1,185.1 Z" />
+              <path class="district-path is-factual" id="path-kasur" data-district="kasur" data-name="Kasur"
+                data-division="Lahore" data-status="Loading official profile" data-tehsils="4"
+                tabindex="0" role="button" aria-label="Kasur (Loading official profile)"
+                d="M544.3,360.3 L562.5,333.5 L566.9,332.0 L619.1,355.8 L615.6,372.2 L573.0,426.0 Z" />
+              <path class="district-path is-factual" id="path-khanewal" data-district="khanewal" data-name="Khanewal"
+                data-division="Multan" data-status="Loading official profile" data-tehsils="4"
+                tabindex="0" role="button" aria-label="Khanewal (Loading official profile)"
+                d="M341.3,382.9 L375.5,392.3 L411.8,433.8 L361.9,490.7 L356.6,487.9 L322.3,417.3 Z" />
+              <path class="district-path is-factual" id="path-khushab" data-district="khushab" data-name="Khushab"
+                data-division="Sargodha" data-status="Loading official profile" data-tehsils="4"
+                tabindex="0" role="button" aria-label="Khushab (Loading official profile)"
+                d="M328.7,256.4 L378.7,174.7 L415.4,204.8 L399.8,293.6 L349.6,296.1 Z" />
+              <path class="district-path is-scored" id="path-lahore" data-district="lahore" data-name="Lahore"
+                data-division="Lahore" data-status="Loading official profile" data-tehsils="5"
+                tabindex="0" role="button" aria-label="Lahore (Loading official profile)"
+                d="M596.2,281.6 L614.8,274.4 L639.9,294.8 L628.3,312.8 L619.1,355.8 L566.9,332.0 Z" />
+              <path class="district-path is-factual" id="path-layyah" data-district="layyah" data-name="Layyah"
+                data-division="DG Khan" data-status="Loading official profile" data-tehsils="3"
+                tabindex="0" role="button" aria-label="Layyah (Loading official profile)"
+                d="M199.6,355.3 L241.6,336.8 L332.4,347.7 L341.3,382.9 L322.3,417.3 L277.7,435.7 L262.8,434.0 Z" />
+              <path class="district-path is-factual" id="path-lodhran" data-district="lodhran" data-name="Lodhran"
+                data-division="Multan" data-status="Loading official profile" data-tehsils="3"
+                tabindex="0" role="button" aria-label="Lodhran (Loading official profile)"
+                d="M304.7,508.1 L356.6,487.9 L361.9,490.7 L386.0,543.6 L277.2,591.2 L267.3,581.8 Z" />
+              <path class="district-path is-factual" id="path-mandi-bahauddin" data-district="mandi-bahauddin"
+                data-name="Mandi Bahauddin" data-division="Gujranwala" data-status="Loading official profile"
+                data-tehsils="3" tabindex="0" role="button"
+                aria-label="Mandi Bahauddin (Loading official profile)"
+                d="M472.1,185.1 L539.4,180.4 L543.6,220.7 L482.1,241.8 L478.6,239.2 L462.6,207.4 Z" />
+              <path class="district-path is-factual" id="path-mianwali" data-district="mianwali" data-name="Mianwali"
+                data-division="Sargodha" data-status="Loading official profile" data-tehsils="3"
+                tabindex="0" role="button" aria-label="Mianwali (Loading official profile)"
+                d="M373.6,152.4 L378.7,174.7 L328.7,256.4 L274.6,237.9 L285.3,167.2 L331.4,122.4 L336.2,110.7 Z" />
+              <path class="district-path is-scored" id="path-multan" data-district="multan" data-name="Multan"
+                data-division="Multan" data-status="Loading official profile" data-tehsils="4"
+                tabindex="0" role="button" aria-label="Multan (Loading official profile)"
+                d="M356.6,487.9 L304.7,508.1 L277.7,435.7 L322.3,417.3 Z" />
+              <path class="district-path is-factual" id="path-muzaffargarh" data-district="muzaffargarh"
+                data-name="Muzaffargarh" data-division="DG Khan" data-status="Loading official profile"
+                data-tehsils="4" tabindex="0" role="button"
+                aria-label="Muzaffargarh (Loading official profile)"
+                d="M221.5,524.0 L262.8,434.0 L277.7,435.7 L304.7,508.1 L267.3,581.8 L266.2,581.4 Z" />
+              <path class="district-path is-factual" id="path-nankana-sahib" data-district="nankana-sahib"
+                data-name="Nankana Sahib" data-division="Lahore" data-status="Loading official profile"
+                data-tehsils="3" tabindex="0" role="button"
+                aria-label="Nankana Sahib (Loading official profile)"
+                d="M500.7,289.4 L536.3,287.1 L562.5,333.5 L544.3,360.3 L511.0,357.2 L496.1,304.3 Z" />
+              <path class="district-path is-factual" id="path-narowal" data-district="narowal" data-name="Narowal"
+                data-division="Gujranwala" data-status="Loading official profile"
+                data-tehsils="3" tabindex="0" role="button" aria-label="Narowal (Loading official profile)"
+                d="M614.8,274.4 L612.9,249.3 L650.6,197.6 L684.2,223.2 L649.9,279.2 L639.9,294.8 Z" />
+              <path class="district-path is-factual" id="path-okara" data-district="okara" data-name="Okara"
+                data-division="Sahiwal" data-status="Loading official profile" data-tehsils="3"
+                tabindex="0" role="button" aria-label="Okara (Loading official profile)"
+                d="M489.6,379.8 L511.0,357.2 L544.3,360.3 L573.0,426.0 L569.5,430.4 L559.0,452.4 L498.6,416.4 Z" />
+              <path class="district-path is-factual" id="path-pakpattan" data-district="pakpattan" data-name="Pakpattan"
+                data-division="Sahiwal" data-status="Loading official profile" data-tehsils="2"
+                tabindex="0" role="button" aria-label="Pakpattan (Loading official profile)"
+                d="M498.6,416.4 L559.0,452.4 L547.0,477.4 L535.2,502.1 L455.6,473.7 L455.0,471.2 Z" />
+              <path class="district-path is-factual" id="path-rahim-yar-khan" data-district="rahim-yar-khan"
+                data-name="Rahim Yar Khan" data-division="Bahawalpur" data-status="Loading official profile"
+                data-tehsils="4" tabindex="0" role="button"
+                aria-label="Rahim Yar Khan (Loading official profile)"
+                d="M266.2,581.4 L267.3,581.8 L277.2,591.2 L325.2,703.7 L306.9,716.0 L213.8,738.4 L139.4,674.7 Z" />
+              <path class="district-path is-factual" id="path-rajanpur" data-district="rajanpur" data-name="Rajanpur"
+                data-division="DG Khan" data-status="Loading official profile" data-tehsils="3"
+                tabindex="0" role="button" aria-label="Rajanpur (Loading official profile)"
+                d="M221.5,524.0 L266.2,581.4 L139.4,674.7 L135.4,671.2 L145.2,592.8 L161.9,514.4 L162.8,508.0 Z" />
+              <path class="district-path is-scored" id="path-rawalpindi" data-district="rawalpindi"
+                data-name="Rawalpindi" data-division="Rawalpindi" data-status="Loading official profile"
+                data-tehsils="7" tabindex="0" role="button"
+                aria-label="Rawalpindi (Loading official profile)"
+                d="M474.6,142.5 L443.7,113.0 L446.4,56.4 L478.4,66.4 L517.6,88.8 L526.1,113.1 Z" />
+              <path class="district-path is-scored" id="path-sahiwal" data-district="sahiwal" data-name="Sahiwal"
+                data-division="Sahiwal" data-status="Loading official profile" data-tehsils="2"
+                tabindex="0" role="button" aria-label="Sahiwal (Loading official profile)"
+                d="M454.7,375.8 L489.6,379.8 L498.6,416.4 L455.0,471.2 L425.1,435.5 Z" />
+              <path class="district-path is-scored" id="path-sargodha" data-district="sargodha" data-name="Sargodha"
+                data-division="Sargodha" data-status="Loading official profile" data-tehsils="7"
+                tabindex="0" role="button" aria-label="Sargodha (Loading official profile)"
+                d="M399.8,293.6 L415.4,204.8 L462.6,207.4 L478.6,239.2 L416.2,304.0 Z" />
+              <path class="district-path is-factual" id="path-sheikhupura" data-district="sheikhupura"
+                data-name="Sheikhupura" data-division="Lahore" data-status="Loading official profile"
+                data-tehsils="5" tabindex="0" role="button"
+                aria-label="Sheikhupura (Loading official profile)"
+                d="M536.3,287.1 L553.8,264.7 L596.2,281.6 L566.9,332.0 L562.5,333.5 Z" />
+              <path class="district-path is-scored" id="path-sialkot" data-district="sialkot" data-name="Sialkot"
+                data-division="Gujranwala" data-status="Loading official profile" data-tehsils="4"
+                tabindex="0" role="button" aria-label="Sialkot (Loading official profile)"
+                d="M612.9,249.3 L586.1,218.6 L599.5,170.7 L625.4,178.4 L650.6,197.6 Z" />
+              <path class="district-path is-factual" id="path-toba-tek-singh" data-district="toba-tek-singh"
+                data-name="Toba Tek Singh" data-division="Faisalabad" data-status="Loading official profile"
+                data-tehsils="4" tabindex="0" role="button"
+                aria-label="Toba Tek Singh (Loading official profile)"
+                d="M430.8,334.9 L454.7,375.8 L425.1,435.5 L411.8,433.8 L375.5,392.3 Z" />
+              <path class="district-path is-factual" id="path-vehari" data-district="vehari" data-name="Vehari"
+                data-division="Multan" data-status="Loading official profile" data-tehsils="3"
+                tabindex="0" role="button" aria-label="Vehari (Loading official profile)"
+                d="M411.8,433.8 L425.1,435.5 L455.0,471.2 L455.6,473.7 L420.1,564.6 L386.0,543.6 L361.9,490.7 Z" />
+            </g>
+
+            <!-- 4. Provincial Outer Border Overlay -->
+            <path class="punjab-outer-border"
+              d="M370.6,47.4 L424.5,49.6 L478.4,66.4 L517.6,88.8 L537.2,144.8 L576.4,163.8 L625.4,178.4 L684.2,223.2 L649.9,279.2 L628.3,312.8 L615.6,372.2 L569.5,430.4 L547.0,477.4 L507.8,559.2 L458.8,611.8 L390.2,660.0 L306.9,716.0 L213.8,738.4 L135.4,671.2 L145.2,592.8 L161.9,514.4 L174.6,424.8 L194.2,357.6 L253.0,331.8 L272.6,251.2 L285.3,167.2 L331.4,122.4 L351.0,74.2 Z"
+              pointer-events="none" />
+
+            <!-- 5. District Centroid Pins & Typography Layer -->
+            <g class="map-layer-labels" id="map-labels-group" pointer-events="none">
+              <g class="district-label-group" data-for="attock">
+                <circle class="district-pin" cx="393.5" cy="94.0" r="1.8" /><text class="district-map-label" x="393.5"
+                  y="88.5">Attock</text>
+              </g>
+              <g class="district-label-group" data-for="bahawalnagar">
+                <circle class="district-pin" cx="471.4" cy="541.0" r="1.8" /><text class="district-map-label" x="471.4"
+                  y="535.5">Bahawalnagar</text>
+              </g>
+              <g class="district-label-group" data-for="bahawalpur">
+                <circle class="district-pin is-scored-pin" cx="360.1" cy="616.0" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="360.1" y="610.5">Bahawalpur</text>
+              </g>
+              <g class="district-label-group" data-for="bhakkar">
+                <circle class="district-pin" cx="300.5" cy="298.4" r="1.8" /><text class="district-map-label" x="300.5"
+                  y="292.9">Bhakkar</text>
+              </g>
+              <g class="district-label-group" data-for="chakwal">
+                <circle class="district-pin" cx="430.2" cy="164.1" r="1.8" /><text class="district-map-label" x="430.2"
+                  y="158.6">Chakwal</text>
+              </g>
+              <g class="district-label-group" data-for="chiniot">
+                <circle class="district-pin" cx="462.0" cy="289.2" r="1.8" /><text class="district-map-label" x="462.0"
+                  y="283.7">Chiniot</text>
+              </g>
+              <g class="district-label-group" data-for="dera-ghazi-khan">
+                <circle class="district-pin is-scored-pin" cx="208.4" cy="448.1" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="208.4" y="442.6">Dera Ghazi Khan</text>
+              </g>
+              <g class="district-label-group" data-for="faisalabad">
+                <circle class="district-pin is-scored-pin" cx="473.8" cy="344.1" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="473.8" y="338.6">Faisalabad</text>
+              </g>
+              <g class="district-label-group" data-for="gujranwala">
+                <circle class="district-pin is-scored-pin" cx="581.8" cy="250.1" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="581.8" y="244.6">Gujranwala</text>
+              </g>
+              <g class="district-label-group" data-for="gujrat">
+                <circle class="district-pin" cx="566.2" cy="190.2" r="1.8" /><text class="district-map-label" x="566.2"
+                  y="184.7">Gujrat</text>
+              </g>
+              <g class="district-label-group" data-for="hafizabad">
+                <circle class="district-pin" cx="521.3" cy="256.4" r="1.8" /><text class="district-map-label" x="521.3"
+                  y="250.9">Hafizabad</text>
+              </g>
+              <g class="district-label-group" data-for="jhang">
+                <circle class="district-pin" cx="377.4" cy="338.7" r="1.8" /><text class="district-map-label" x="377.4"
+                  y="333.2">Jhang</text>
+              </g>
+              <g class="district-label-group" data-for="jhelum">
+                <circle class="district-pin" cx="509.2" cy="155.3" r="1.8" /><text class="district-map-label" x="509.2"
+                  y="149.8">Jhelum</text>
+              </g>
+              <g class="district-label-group" data-for="kasur">
+                <circle class="district-pin" cx="579.6" cy="372.3" r="1.8" /><text class="district-map-label" x="579.6"
+                  y="366.8">Kasur</text>
+              </g>
+              <g class="district-label-group" data-for="khanewal">
+                <circle class="district-pin" cx="363.8" cy="431.8" r="1.8" /><text class="district-map-label" x="363.8"
+                  y="426.3">Khanewal</text>
+              </g>
+              <g class="district-label-group" data-for="khushab">
+                <circle class="district-pin" cx="375.6" cy="243.0" r="1.8" /><text class="district-map-label" x="375.6"
+                  y="237.5">Khushab</text>
+              </g>
+              <g class="district-label-group" data-for="lahore">
+                <circle class="district-pin is-scored-pin" cx="605.3" cy="314.2" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="605.3" y="308.7">Lahore</text>
+              </g>
+              <g class="district-label-group" data-for="layyah">
+                <circle class="district-pin" cx="276.9" cy="380.8" r="1.8" /><text class="district-map-label" x="276.9"
+                  y="375.3">Layyah</text>
+              </g>
+              <g class="district-label-group" data-for="lodhran">
+                <circle class="district-pin" cx="327.4" cy="538.5" r="1.8" /><text class="district-map-label" x="327.4"
+                  y="533.0">Lodhran</text>
+              </g>
+              <g class="district-label-group" data-for="mandi-bahauddin">
+                <circle class="district-pin" cx="503.4" cy="207.8" r="1.8" /><text class="district-map-label" x="503.4"
+                  y="202.3">Mandi Bahauddin</text>
+              </g>
+              <g class="district-label-group" data-for="mianwali">
+                <circle class="district-pin" cx="325.3" cy="188.2" r="1.8" /><text class="district-map-label" x="325.3"
+                  y="182.7">Mianwali</text>
+              </g>
+              <g class="district-label-group" data-for="multan">
+                <circle class="district-pin is-scored-pin" cx="315.8" cy="463.1" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="315.8" y="457.6">Multan</text>
+              </g>
+              <g class="district-label-group" data-for="muzaffargarh">
+                <circle class="district-pin" cx="265.0" cy="507.0" r="1.8" /><text class="district-map-label" x="265.0"
+                  y="501.5">Muzaffargarh</text>
+              </g>
+              <g class="district-label-group" data-for="nankana-sahib">
+                <circle class="district-pin" cx="527.3" cy="323.5" r="1.8" /><text class="district-map-label" x="527.3"
+                  y="318.0">Nankana Sahib</text>
+              </g>
+              <g class="district-label-group" data-for="narowal">
+                <circle class="district-pin" cx="645.1" cy="245.2" r="1.8" /><text class="district-map-label" x="645.1"
+                  y="239.7">Narowal</text>
+              </g>
+              <g class="district-label-group" data-for="okara">
+                <circle class="district-pin" cx="531.3" cy="401.0" r="1.8" /><text class="district-map-label" x="531.3"
+                  y="395.5">Okara</text>
+              </g>
+              <g class="district-label-group" data-for="pakpattan">
+                <circle class="district-pin" cx="509.7" cy="461.1" r="1.8" /><text class="district-map-label" x="509.7"
+                  y="455.6">Pakpattan</text>
+              </g>
+              <g class="district-label-group" data-for="rahim-yar-khan">
+                <circle class="district-pin" cx="240.3" cy="669.8" r="1.8" /><text class="district-map-label" x="240.3"
+                  y="664.3">Rahim Yar Khan</text>
+              </g>
+              <g class="district-label-group" data-for="rajanpur">
+                <circle class="district-pin" cx="190.2" cy="583.3" r="1.8" /><text class="district-map-label" x="190.2"
+                  y="577.8">Rajanpur</text>
+              </g>
+              <g class="district-label-group" data-for="rawalpindi">
+                <circle class="district-pin is-scored-pin" cx="479.0" cy="99.8" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="479.0" y="94.3">Rawalpindi</text>
+              </g>
+              <g class="district-label-group" data-for="sahiwal">
+                <circle class="district-pin is-scored-pin" cx="462.7" cy="418.7" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="462.7" y="413.2">Sahiwal</text>
+              </g>
+              <g class="district-label-group" data-for="sargodha">
+                <circle class="district-pin is-scored-pin" cx="434.6" cy="247.4" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="434.6" y="241.9">Sargodha</text>
+              </g>
+              <g class="district-label-group" data-for="sheikhupura">
+                <circle class="district-pin" cx="564.6" cy="294.8" r="1.8" /><text class="district-map-label" x="564.6"
+                  y="289.3">Sheikhupura</text>
+              </g>
+              <g class="district-label-group" data-for="sialkot">
+                <circle class="district-pin is-scored-pin" cx="614.8" cy="206.7" r="3.2" /><text
+                  class="district-map-label is-scored-label" x="614.8" y="201.2">Sialkot</text>
+              </g>
+              <g class="district-label-group" data-for="toba-tek-singh">
+                <circle class="district-pin" cx="418.4" cy="387.8" r="1.8" /><text class="district-map-label" x="418.4"
+                  y="382.3">Toba Tek Singh</text>
+              </g>
+              <g class="district-label-group" data-for="vehari">
+                <circle class="district-pin" cx="410.3" cy="495.8" r="1.8" /><text class="district-map-label" x="410.3"
+                  y="490.3">Vehari</text>
+              </g>
+            </g>
+          </svg>
+
+          <!-- Floating HTML Tooltip -->
+          <div id="map-floating-tooltip" class="map-tooltip" role="tooltip" aria-hidden="true">
+            <div class="map-tooltip-top">
+              <span class="map-tooltip-name" id="tooltip-district-name">Lahore</span>
+              <span class="map-tooltip-score" id="tooltip-district-score">86.2</span>
+            </div>
+            <div class="map-tooltip-badge" id="tooltip-district-badge">Loading official profile</div>
+            <div class="map-tooltip-meta" id="tooltip-district-meta">Division: Lahore · Pop: 13.00M</div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <div class="overview-links"><a href="#/district">Explore district facts and ask questions →</a><a
+          href="#/compare">Compare districts and view charts →</a></div>
+      <section class="panel methodology">
+        <p class="eyebrow">Read scores responsibly</p>
+        <h2>What the prototype measures</h2>
+        <div class="method-grid">
+          <div><strong>Education</strong>
+            <p>Average of total literacy, female literacy and gender parity. Census 2023.</p>
+          </div>
+          <div><strong>Health</strong>
+            <p>Relative index of listed public health facilities per 100,000 people within the selected scoring cohort. It does
+              not measure care quality.</p>
+          </div>
+          <div><strong>Accountability</strong>
+            <p>Average overall and development-budget utilization. Spending money is not proof that it was spent well.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section class="panel overview-about" aria-labelledby="motivation-title">
+        <p class="eyebrow">Why GPIS exists</p>
+        <h2 id="motivation-title">Democracy needs an informed public.</h2>
+        <p class="mission-statement">Accountability is harder when people cannot see how public services are performing
+          or how public money is used. When evidence is difficult to access, slogans and selective claims can take the
+          place of informed debate.</p>
+        <p>GPIS aims to make official information easier to find, compare and question, so citizens can assess claims,
+          ask better questions of their representatives and take part in public life with evidence in hand.</p>
+        <p class="coverage-note">District indicators describe measured conditions and selected financial records. They
+          do not, on their own, establish which politician caused an outcome, prove misconduct or tell anyone how to
+          vote.</p>
+      </section>
+      <section class="panel overview-about" aria-labelledby="architecture-title">
+        <p class="eyebrow">From official records to answers</p>
+        <h2 id="architecture-title">How GPIS and Ask GPIS work</h2>
+        <p>Ask GPIS uses retrieval-augmented generation (RAG): it looks up relevant evidence before an AI model writes
+          an explanation. You can open the citations to inspect the sources behind an answer.</p>
+        <ol class="architecture-flow">
+          <li>
+            <h3>1. Collect and validate</h3>
+            <p>Source-specific parsers read supported official census files. Other evidence is manually reviewed.
+              District names, values and periods are checked, and source locations are preserved.</p>
+          </li>
+          <li>
+            <h3>2. Store and calculate</h3>
+            <p>PostgreSQL stores observations, sources and evidence. Python calculates scores and period changes using
+              defined rules. Missing inputs stay missing; the AI does not calculate or change scores.</p>
+          </li>
+          <li>
+            <h3>3. Retrieve the evidence</h3>
+            <p>Structured queries supply exact facts, rankings and trends. For explanations, keyword search and semantic
+              search find relevant passages by wording and meaning.</p>
+          </li>
+          <li>
+            <h3>4. Explain with citations</h3>
+            <p>The assistant uses the retrieved results to answer, with links to the evidence. If the AI is unavailable
+              or its answer fails validation, GPIS uses a source-based fallback or says there is not enough evidence.
+            </p>
+          </li>
+        </ol>
+        <details class="architecture-details">
+          <summary>Technical architecture</summary>
+          <p>The HTML, CSS and JavaScript interface calls a FastAPI backend. LangGraph coordinates a bounded assistant
+            with three LangChain tools: district data, evidence search and project knowledge. PostgreSQL full-text
+            search and pgvector similarity search using MiniLM embeddings provide hybrid retrieval; reciprocal-rank
+            fusion combines their results. Gemini or Groq supplies the selected language model when configured.</p>
+          <p>PostgreSQL checkpoints retain conversations, and optional Redis caching speeds up repeated retrieval. The
+            JSON repository supports development without a database. Citations retain source titles, publishers,
+            reporting periods and table or page locations so answers can be checked. Citations improve traceability;
+            they do not guarantee that every explanation is correct.</p>
+        </details>
+      </section>
+    </section>
+    <div data-page="district" id="district-page" hidden>
+      <section id="district-summary" class="district-heading" aria-busy="true">
+        <div>
+          <p class="eyebrow">District profile · source periods shown below</p>
+          <h2 id="district-name">Loading…</h2>
+          <p id="population"></p>
+        </div>
+        <div class="overall-badge">
+          <span>Overall comparative score</span>
+          <strong id="overall-score">—</strong>
+          <small id="overall-rank">—</small>
+          <div id="overall-quality" class="score-quality score-quality-inverse"></div>
+        </div>
+      </section>
+
+      <section id="scorecards" class="score-grid" aria-label="District facts and performance scores"></section>
 
       <article class="panel chat-panel" aria-labelledby="chat-title">
         <div class="chat-heading">
@@ -106,25 +555,33 @@
             <button id="delete-chat" class="danger-button" type="button" disabled>Delete conversation</button>
           </div>
         </div>
-        <p id="memory-note" class="memory-note">This conversation survives page and API restarts until it expires or you delete it. New Chat starts a separate conversation without deleting this one.</p>
+        <p id="memory-note" class="memory-note">This conversation survives page and API restarts until it expires or you
+          delete it. New Chat starts a separate conversation without deleting this one.</p>
         <div id="chat-answer" class="chat-answer" role="status" aria-live="polite" aria-busy="false" tabindex="-1">
           Try: “Why did this district receive its health score?” or “How did budget utilization change?”
         </div>
         <div class="chat-prompts" aria-label="Suggested questions">
           <button type="button" data-question="What is the literacy rate in this district?">Literacy</button>
-          <button type="button" data-question="What health facilities are listed for this district?">Health evidence</button>
-          <button type="button" data-question="Which district ranks best overall?" data-all-districts="true">Best overall</button>
+          <button type="button" data-question="What health facilities are listed for this district?">Health
+            evidence</button>
+          <button type="button" data-question="Which district ranks best overall?" data-all-districts="true">Best
+            overall</button>
         </div>
         <form id="chat-form">
           <label class="sr-only" for="chat-question">Question about district evidence</label>
-          <input id="chat-question" autocomplete="off" placeholder="Ask about any district or compare districts…" required>
+          <input id="chat-question" autocomplete="off" placeholder="Ask about any district or compare districts…"
+            required>
           <button id="chat-submit" type="submit">Ask</button>
         </form>
       </article>
     </div>
     <div data-page="compare" id="compare-page" hidden>
-      <div class="page-intro"><p class="eyebrow">Compare like with like</p><h1>Compare &amp; Trends</h1>
-      <p>Census comparisons cover all 36 source districts. Scores and budget trends cover only districts with reviewed evidence.</p></div>
+      <div class="page-intro">
+        <p class="eyebrow">Compare like with like</p>
+        <h1>Compare &amp; Trends</h1>
+        <p>Census comparisons cover all 36 source districts. Scores and budget trends cover only districts with reviewed
+          evidence.</p>
+      </div>
       <section class="panel fact-comparison" aria-labelledby="facts-title">
         <h2 id="facts-title">Side-by-side census facts</h2>
         <label for="compare-other">Compare the selected district with</label>
@@ -139,16 +596,17 @@
           </div>
           <select id="ranking-category" aria-label="Ranking category">
             <optgroup label="Census facts · 36 districts">
-            <option value="census:literacy_total_pct">Total literacy</option>
-            <option value="census:literacy_female_pct">Female literacy</option>
-            <option value="census:literacy_male_pct">Male literacy</option>
-            <option value="census:population_2023">Population size</option>
-            <option value="census:out_of_school_children_5_16">Out-of-school children</option>
-            </optgroup><optgroup label="Reviewed scores · 10 districts">
-            <option value="overall">Overall score</option>
-            <option value="education">Education</option>
-            <option value="health">Health access</option>
-            <option value="accountability">Financial management</option>
+              <option value="census:literacy_total_pct">Total literacy</option>
+              <option value="census:literacy_female_pct">Female literacy</option>
+              <option value="census:literacy_male_pct">Male literacy</option>
+              <option value="census:population_2023">Population size</option>
+              <option value="census:out_of_school_children_5_16">Out-of-school children</option>
+            </optgroup>
+            <optgroup id="score-ranking-options" label="Performance scores">
+              <option value="overall">Overall score</option>
+              <option value="education">Education</option>
+              <option value="health">Health access</option>
+              <option value="accountability">Financial management</option>
             </optgroup>
           </select>
         </div>
@@ -156,25 +614,27 @@
         <ol id="ranking-list" class="ranking-list" aria-live="polite" aria-busy="true"></ol>
       </article>
 
-    <section id="trend-panel" class="panel trend-panel" aria-labelledby="trend-title" aria-busy="true">
-      <div class="panel-title">
-        <div>
-          <p class="eyebrow">Verified two-period comparison</p>
-          <h2 id="trend-title">Development-budget utilization</h2>
+      <section id="trend-panel" class="panel trend-panel" aria-labelledby="trend-title" aria-busy="true">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">Verified two-period comparison</p>
+            <h2 id="trend-title">Development-budget utilization</h2>
+          </div>
+          <strong id="trend-change" class="trend-change">Loading…</strong>
         </div>
-        <strong id="trend-change" class="trend-change">Loading…</strong>
-      </div>
-      <p id="trend-district-label"></p>
-      <div id="year-chart" class="year-chart"></div>
-      <div id="trend-periods" class="trend-periods"></div>
-      <p id="trend-warning" class="trend-warning"></p>
-      <a id="trend-source" class="source-link" target="_blank" rel="noreferrer">View comparison source ↗</a>
-    </section>
+        <p id="trend-district-label"></p>
+        <div id="year-chart" class="year-chart"></div>
+        <div id="trend-periods" class="trend-periods"></div>
+        <p id="trend-warning" class="trend-warning"></p>
+        <a id="trend-source" class="source-link" target="_blank" rel="noreferrer">View comparison source ↗</a>
+      </section>
 
     </div>
   </main>
   <footer>Architecture v0.2 · Scores and period changes are deterministic; RAG retrieves and explains them.</footer>
   <script src="/static/workspace.js" defer></script>
+  <script src="/static/map.js" defer></script>
   <script src="/static/app.js" defer></script>
 </body>
+
 </html>

@@ -1,10 +1,10 @@
 # Project status
 
-**Last updated:** 2026-09-15
+**Last updated:** 2026-10-27
 
 **Current milestone:** Phase 6 — Deployment and portfolio completion
 
-**State:** All development phases complete; deployment and documentation in progress
+**State:** All 36 census districts have versioned `punjab-v1` scores using FY 2023–24 DHA inputs. The historical ten-district milestones below describe the preserved prototype. The 55-case Punjab RAG evaluation passes all metrics. Historical evidence implementation and deployment remain pending.
 
 ## Completed
 
