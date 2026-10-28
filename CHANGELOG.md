@@ -2,6 +2,17 @@
 
 All notable user-visible changes will be documented here.
 
+## Unreleased - 2026-10-28
+
+- Added district historical observations alongside named provincial officeholders,
+  with explicit gaps and no change to scores or personal causal attribution.
+- Added source-page and worksheet evidence dialog, reviewed highlights, accessible
+  text, bookmark links and prepackaged original-page previews.
+- Added deterministic named-officeholder chat, additive evidence APIs and a
+  PostgreSQL historical-release migration.
+- Expanded reviewed health history to 36 districts and comparative development
+  spending to 17 South DHAs; retained source discrepancies visibly.
+
 ## [0.2.0] - 2026-09-15
 
 ### Added

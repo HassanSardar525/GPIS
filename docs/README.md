@@ -14,6 +14,7 @@ This directory is the source of truth for product, technical, and evidence decis
 | [DOCUMENT_SURVEY.md](DOCUMENT_SURVEY.md) | Assessment of trustworthy official sources |
 | [SOURCE_COVERAGE.md](SOURCE_COVERAGE.md) | Ten-district and two-period evidence coverage |
 | [PUNJAB_SCORING.md](PUNJAB_SCORING.md) | Active 36-district methodology, sources and limitations |
+| [HISTORICAL_EVIDENCE.md](HISTORICAL_EVIDENCE.md) | Tenure comparisons, source viewer, verified coverage and remaining gaps |
 | [PUNJAB_EXPANSION.md](PUNJAB_EXPANSION.md) | Current expansion plan and acceptance checks |
 | [KNOWLEDGE_BASE.md](KNOWLEDGE_BASE.md) | Versioned project and formula passages cited by RAG |
 

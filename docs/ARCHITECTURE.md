@@ -4,6 +4,12 @@ Current scoring: punjab-v1 covers 36 census districts; prototype-v1 remains avai
 
 ## Implemented architecture
 
+The historical evidence layer adds an atomic `historical_releases` JSONB record
+(or its identical curated JSON) and a packaged allowlist of original-page images.
+`app/history.py` performs date matching and change calculations. Neither historical
+answers nor evidence viewing depend on model generation or runtime PDF parsing.
+See [historical evidence](HISTORICAL_EVIDENCE.md) for APIs, release storage and coverage.
+
 ```mermaid
 flowchart LR
     S["Official XLSX and PDF sources"] --> C["Manually reviewed evidence contract"]

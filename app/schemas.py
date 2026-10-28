@@ -39,6 +39,7 @@ class QuestionRoute(StrEnum):
     PROJECT = "project"
     EVIDENCE = "evidence"
     TEMPORAL_COMPARISON = "temporal_comparison"
+    TENURE_HISTORY = "tenure_history"
     UNSUPPORTED = "unsupported"
 
 
@@ -65,6 +66,14 @@ class Citation(BaseModel):
     url: str
     locator: str
     passage: str | None = None
+    anchor_ids: list[str] = Field(default_factory=list)
+
+    @model_validator(mode='after')
+    def attach_registered_anchors(self):
+        if not self.anchor_ids:
+            from app.history import citation_anchors
+            self.anchor_ids = citation_anchors(self.source_id, self.locator, self.evidence_id)
+        return self
 
 
 class ScoreSet(BaseModel):

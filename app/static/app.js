@@ -78,6 +78,7 @@ function renderCitations(citations = []) {
         <h4>Retrieved passage</h4>
         ${passage}
         ${officialLink}
+        ${typeof evidenceButtons === 'function' ? evidenceButtons(citation.anchor_ids) : ''}
       </div>
     </details>`;
   }).join('');
@@ -251,7 +252,7 @@ async function json(url, options) {
 }
 
 function card(category, title, score, rank, detail, metrics, sourceUrl) {
-  return `<article class="score-card">
+  return `<article class="score-card" data-evidence-category="${category}">
     <div class="score-top"><div><h3>${escapeHtml(title)}</h3><span class="rank">Rank ${rank.rank} of ${state.districts.filter(item => item.scores[category] != null).length}</span></div><button class="score-number" type="button" data-score-category="${category}" title="Ask why this score was given">${score}</button></div>
     ${renderScoreQuality(detail)}
     <ul class="metric-list">${metrics.map(([label, value]) => `<li><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`).join('')}</ul>
@@ -268,16 +269,16 @@ function officialServiceCards(data) {
     const values = Object.fromEntries(health.observations.map(row => [row.metric_key, row.value]));
     const display = value => value == null ? '—' : number(value);
     const source = Object.values(health.sources)[0];
-    html += `<article class="score-card"><h3>Official health capacity</h3><p>As at ${escapeHtml(health.period)} · Punjab Health Statistics</p>
+    html += `<article class="score-card" data-evidence-category="health"><h3>Official health capacity</h3><p>As at ${escapeHtml(health.period)} · Punjab Health Statistics</p>
       <table><thead><tr><th>Facility</th><th>Institutions</th><th>Beds</th></tr></thead><tbody>${Object.entries(labels).map(([key, label]) => `<tr><th>${escapeHtml(label)}</th><td>${display(values[`phs_${key}_count`])}</td><td>${display(values[`phs_${key}_beds`])}</td></tr>`).join('')}</tbody></table>
       <p class="muted">— = printed dash (nil or insignificant), not a confirmed zero. Capacity does not measure quality of care.</p><a class="source-link" href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">View official health source ↗</a></article>`;
   }
   if (budget) {
     const values = Object.fromEntries(budget.observations.map(row => [row.metric_key, row.value]));
     const source = Object.values(budget.sources)[0];
-    html += `<article class="score-card"><h3>Health-authority budget</h3><p>${escapeHtml(budget.period)} · Rs million</p>
+    html += `<article class="score-card" data-evidence-category="accountability"><h3>Health-authority budget</h3><p>${escapeHtml(budget.period)} · Rs million</p>
       <ul class="metric-list">${[['Total budget', 'total_budget'], ['Total expenditure', 'total_expenditure'], ['Development budget', 'development_budget'], ['Development expenditure', 'development_expenditure']].map(([label,key]) => `<li><span>${label}</span><strong>${number(values[`dha_${key}_million_pkr`],3)}</strong></li>`).join('')}</ul>
-      <p class="muted">District Health Authority spending only. North Punjab figures are FY 2022–23; South Punjab figures are FY 2023–24. These are not a same-year ranking.</p><a class="source-link" href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">View official budget source ↗</a></article>`;
+      <p class="muted">District Health Authority spending only. ${data.metadata.active_score_version === 'punjab-v1' ? 'All 36 district score inputs use FY 2023–24. These are nominal rupees.' : 'North Punjab figures are FY 2022–23; South Punjab figures are FY 2023–24. These are not a same-year ranking.'}</p><a class="source-link" href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">View official budget source ↗</a></article>`;
   }
   return html;
 }
@@ -368,6 +369,8 @@ function renderTrend(data) {
   }).join('');
   document.querySelector('#trend-warning').textContent = data.warnings.join(' ');
   document.querySelector('#trend-source').href = safeUrl(data.citation.url);
+  if (data.citation.anchor_ids?.length) document.querySelector('#trend-source').dataset.evidence = data.citation.anchor_ids[0];
+  else delete document.querySelector('#trend-source').dataset.evidence;
   document.querySelector('#trend-panel').setAttribute('aria-busy', 'false');
 }
 
@@ -380,6 +383,7 @@ function renderTrendError(error) {
   document.querySelector('#trend-periods').innerHTML = '';
   document.querySelector('#trend-warning').textContent = error.message;
   document.querySelector('#trend-source').removeAttribute('href');
+  delete document.querySelector('#trend-source').dataset.evidence;
   document.querySelector('#trend-panel').setAttribute('aria-busy', 'false');
 }
 
@@ -403,6 +407,13 @@ async function loadDistrict(slug) {
   }
   if (requestId !== state.districtRequest) return;
   renderDistrict(detail);
+  document.querySelectorAll('#scorecards .source-link').forEach(link => {
+    const card = link.closest('article');
+    const category = card?.dataset.evidenceCategory;
+    const ids = detail.evidence_anchors?.[category];
+    if (ids?.length) { link.dataset.evidence = ids[0]; link.textContent = 'View source evidence'; }
+  });
+  window.loadHistoricalEvidence?.(slug);
   if (trend.error) renderTrendError(trend.error); else renderTrend(trend);
   setBusy(document.querySelector('#district-summary'), false);
 }
@@ -464,7 +475,7 @@ async function askQuestion(question, districts = [state.district.slug]) {
     const comparison = renderComparison(data.comparison);
     const mode = ['groq', 'gemini', 'extractive', 'abstained'].includes(data.mode) ? data.mode : 'extractive';
     const modelBadge = data.model || data.mode;
-    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${mode}">${escapeHtml(modelBadge)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(String(data.trace_id).slice(0, 8))}</span></div>${renderAnswerStatus(data)}<p>${escapeHtml(data.answer)}</p>${comparison}${renderCitations(data.citations)}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
+    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${mode}">${escapeHtml(modelBadge)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(String(data.trace_id).slice(0, 8))}</span></div>${renderAnswerStatus(data)}<p>${renderAnswerWithEvidence(data.answer, data.citations)}</p>${comparison}${renderCitations(data.citations)}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
     setBusy(answer, false);
     answer.focus({ preventScroll: true });
   } catch (error) {
@@ -534,7 +545,7 @@ async function init() {
   select.innerHTML = data.districts.map(district => `<option value="${escapeHtml(district.slug)}">${escapeHtml(district.name)}</option>`).join('');
   select.disabled = false;
   filterDistricts();
-  const requestedSlug = location.hash.split('/')[2];
+  const requestedSlug = location.hash.split('?')[0].split('/')[2];
   const initialSlug = data.districts.some(item => item.slug === requestedSlug) ? requestedSlug : data.districts[0].slug;
   select.value = initialSlug;
   initWorkspaceNavigation();

@@ -540,6 +540,20 @@
 
       <section id="scorecards" class="score-grid" aria-label="District facts and performance scores"></section>
 
+      <section class="panel" id="performance-history" aria-labelledby="history-title">
+        <p class="eyebrow">During their time in office</p>
+        <h2 id="history-title">Performance &amp; officeholders</h2>
+        <p>See measured district changes alongside who held office. These records do not establish personal causation or change the GPIS scores.</p>
+        <div class="history-tabs" role="group" aria-label="Historical metric category">
+          <button type="button" data-history-category="education" aria-pressed="false">Education</button>
+          <button type="button" data-history-category="health" aria-pressed="true">Health capacity</button>
+          <button type="button" data-history-category="spending" aria-pressed="false">DHA spending</button>
+        </div>
+        <label for="historical-metric">Historical metric</label>
+        <select id="historical-metric"><option value="phs_hospitals_count">Public hospitals</option></select>
+        <div id="historical-content" aria-busy="true"><p>Loading reviewed historical evidence…</p></div>
+      </section>
+
       <article class="panel chat-panel" aria-labelledby="chat-title">
         <div class="chat-heading">
           <div>
@@ -632,9 +646,18 @@
     </div>
   </main>
   <footer>Architecture v0.2 · Scores and period changes are deterministic; RAG retrieves and explains them.</footer>
+  <dialog id="evidence-panel" aria-labelledby="evidence-title">
+    <div class="evidence-toolbar"><h2 id="evidence-title">Source evidence</h2><button type="button" id="evidence-close" aria-label="Close evidence">Close</button></div>
+    <p id="evidence-locator"></p><p id="evidence-status" role="status"></p>
+    <a id="evidence-official" href="#" target="_blank" rel="noreferrer">Open official source ↗</a>
+    <div class="evidence-toolbar" id="evidence-controls"><button type="button" id="evidence-prev">Previous registered page</button><span id="evidence-page-label"></span><button type="button" id="evidence-next">Next registered page</button><button type="button" id="evidence-full-page">Full-page context</button><label for="evidence-zoom">Zoom</label><input id="evidence-zoom" type="range" min="50" max="250" step="25" value="100"/></div>
+    <div id="evidence-document"></div><div id="evidence-support"></div>
+    <details><summary>Accessible source text / reviewed transcription</summary><pre id="evidence-text"></pre></details>
+  </dialog>
   <script src="/static/workspace.js" defer></script>
   <script src="/static/map.js" defer></script>
   <script src="/static/app.js" defer></script>
+  <script src="/static/history.js" defer></script>
 </body>
 
 </html>

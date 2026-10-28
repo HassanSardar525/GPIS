@@ -13,7 +13,7 @@ function censusData(metric) {
 }
 
 function navigateWorkspace(loadSelection = true) {
-  const parts = location.hash.split('/');
+  const parts = location.hash.split('?')[0].split('/');
   const page = ['overview', 'district', 'compare'].includes(parts[1]) ? parts[1] : 'overview';
   document.querySelectorAll('[data-page]').forEach(element => { element.hidden = element.dataset.page !== page; });
   document.querySelectorAll('[data-nav]').forEach(link => {
@@ -55,7 +55,7 @@ function syncWorkspaceDistrict(data) {
   const profile = '#/district/' + data.slug;
   document.querySelector('#open-profile').href = profile;
   document.querySelector('[data-nav="district"]').href = profile;
-  if (location.hash.startsWith('#/district')) history.replaceState(null, '', profile);
+  if (location.hash.startsWith('#/district')) history.replaceState(null, '', profile + (location.hash.includes('?') ? '?' + location.hash.split('?')[1] : ''));
   if (location.hash.startsWith('#/compare')) loadFactComparison();
 }
 

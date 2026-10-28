@@ -163,6 +163,8 @@ def create_app(
     observability = build_observability(settings)
     cache = build_cache(settings.redis_url)
     district_service = DistrictService(repository)
+    from app.history import HistoryRepository
+    historical = HistoryRepository(repository.name, settings.database_url)
     checkpoint_runtime = (
         PostgresCheckpointRuntime(settings.database_url)
         if repository.name == "postgres" and settings.database_url
@@ -302,13 +304,35 @@ def create_app(
         default_id = next(opt.id for opt in options if opt.is_default)
         return ModelListResponse(models=options, default_model=default_id)
 
+    @application.get('/api/v1/districts/{slug}/officeholders')
+    def officeholders(slug: str):
+        return historical.officeholders(slug)
+
+    @application.get('/api/v1/districts/{slug}/history')
+    def district_history(slug: str, metric: str = 'phs_hospitals_count', tenure: str | None = None):
+        return historical.history(slug, metric, tenure)
+
+    @application.get('/api/v1/evidence/{anchor_id}')
+    def evidence(anchor_id: str):
+        return historical.evidence(anchor_id)
+
+    @application.get('/api/v1/evidence-assets/{filename}')
+    def evidence_asset(filename: str):
+        return FileResponse(historical.asset(filename), media_type='image/png')
+
     @application.get("/api/v1/districts", response_model=DistrictListResponse)
     def districts() -> DistrictListResponse:
         return DistrictListResponse(districts=district_service.list_districts(), metadata=repository.metadata())
 
     @application.get("/api/v1/districts/{slug}", response_model=DistrictDetail)
     def district(slug: str) -> DistrictDetail:
-        return DistrictDetail.model_validate(district_service.get_district(slug))
+        detail = dict(district_service.get_district(slug))
+        from app.history import citation_anchors
+        detail['evidence_anchors'] = {
+            e['category']: citation_anchors(e['source_id'], e['locator'], e.get('id', ''))
+            for e in detail['evidence']
+        }
+        return DistrictDetail.model_validate(detail)
 
     @application.get("/api/v1/census-rankings", response_model=CensusRankingResponse)
     def census_rankings(metric: str = Query(default="literacy_total_pct")) -> CensusRankingResponse:

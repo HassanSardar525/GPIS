@@ -18,6 +18,12 @@
 
 ## What is GPIS?
 
+District profiles now connect measured changes to named provincial officeholders
+and clickable original-page/cell evidence. Health history covers 36 districts;
+comparative development spending covers 17 South DHAs. Officeholder dates and
+earlier-year coverage remain explicitly partial. See
+[historical evidence and coverage](docs/HISTORICAL_EVIDENCE.md).
+
 Election debate often focuses on promises and personalities. Official district data exists — literacy rates, health facilities, budget audits — but it is scattered across government spreadsheets and PDF reports that ordinary citizens rarely read.
 
 **GPIS** gives citizens, journalists, and civic researchers a simple, evidence-backed view of how districts are actually performing, with enough source detail to verify every claim. Every displayed number traces to an official Pakistani government publication with exact page and table locators.
@@ -30,7 +36,7 @@ Election debate often focuses on promises and personalities. Official district d
 - 🔍 **Hybrid retrieval** — PostgreSQL full-text search + pgvector MiniLM embeddings combined through Reciprocal Rank Fusion
 - ⚡ **Redis caching** — Failure-safe cache-aside for query embeddings and ranked evidence with corpus-version invalidation
 - 💬 **Conversational memory** — PostgreSQL-backed LangGraph session checkpoints that survive API restarts
-- 🛡️ **Guardrails** — Deterministic refusal for prompt injection, politician attribution, score manipulation, and unsupported claims
+- 🛡️ **Guardrails** — Source-backed officeholder names are allowed; unsupported personal causation, prompt injection and score manipulation are blocked
 - 📈 **36 census districts** — Source-aligned data; 36 scored under punjab-v1 with education, health-capacity, and DHA budget-utilization indicators
 - 🔬 **Measurable quality** — 63-case deterministic RAG evaluation with enforced accuracy, recall, and citation gates
 

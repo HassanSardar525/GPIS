@@ -372,6 +372,8 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
         if score_version == VERSION:
             seed_services(session, {'sources': data['sources'], 'districts': [dict(
                 slug=d['slug'], name=d['name'], observations=[{k:v for k,v in o.items() if k!='raw_text'} for o in d['service_observations']]) for d in data['districts']]}, prefix='punjab-v1-')
+        from app.history import seed_history
+        seed_history(session, data_path)
         return {
             "districts": session.scalar(select(func.count()).select_from(District)),
             "observations": session.scalar(select(func.count()).select_from(Observation)),

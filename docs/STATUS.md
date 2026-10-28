@@ -1,10 +1,21 @@
 # Project status
 
-**Last updated:** 2026-10-27
+**Last updated:** 2026-10-28
 
-**Current milestone:** Phase 6 — Deployment and portfolio completion
+**Current milestone:** Historical evidence feature complete; deployment and continued source curation
 
-**State:** All 36 census districts have versioned `punjab-v1` scores using FY 2023–24 DHA inputs. The historical ten-district milestones below describe the preserved prototype. The 55-case Punjab RAG evaluation passes all metrics. Historical evidence implementation and deployment remain pending.
+**State:** The Punjab expansion is committed as `9de2379`. Historical profiles,
+officeholder records, deterministic named-person chat and the packaged evidence
+viewer are implemented. Health comparisons cover 36 districts and comparative
+development spending covers 17. Complete officeholder dates and 2017 education
+comparability remain research gaps. Deployment remains pending. See
+[historical evidence](HISTORICAL_EVIDENCE.md) for coverage and operating instructions.
+
+**Release checks:** 183 tests passed, with two opt-in browser tests skipped in
+the main suite and both passing separately against the local PostgreSQL app.
+The 55-case Punjab deterministic RAG evaluation passes all metrics. All 53 packaged
+preview hashes and Markdown links pass validation. The local database is migrated
+and seeded; `python -m app.server` serves the updated app at port 8000.
 
 ## Completed
 

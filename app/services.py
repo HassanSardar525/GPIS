@@ -368,6 +368,11 @@ class ChatService:
 
     async def answer(self, request: ChatRequest) -> ChatResponse:
         request = resolve_request_districts(request, self.repository)
+        from app.history_chat import history_answer
+        historical_response = history_answer(request, self.repository)
+        if historical_response is not None:
+            self._record_trace(request, historical_response, [], time.perf_counter())
+            return historical_response
         started = time.perf_counter()
         trace_id = str(uuid.uuid4())
         route = classify_question(request.question)

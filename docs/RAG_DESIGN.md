@@ -8,6 +8,13 @@ The evidence assistant helps a user understand official district data without as
 
 ## Current implementation
 
+Named-officeholder and tenure questions first use `historical_records`, a
+deterministic route shared by the agent and fallback service. It resolves reviewed
+roles/dates, calculates compatible district changes in Python and returns stable
+evidence anchors. It does not infer individual causation. The original retrieval
+flow below still handles other district questions. Full MPA/minister dates and
+earlier-year evidence remain partial; see [historical coverage](HISTORICAL_EVIDENCE.md).
+
 1. The browser creates a session ID and submits the question plus selected district filters.
 2. A single LangGraph agent may answer conversation directly or call at most two tool rounds.
 3. `district_data` supplies exact district lists, scores, rankings, comparisons, and two-period trends.

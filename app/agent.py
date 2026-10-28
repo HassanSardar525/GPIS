@@ -363,6 +363,9 @@ class AgentChatService:
     async def answer(self, request: ChatRequest) -> ChatResponse:
         from app.routing import resolve_request_districts, unavailable_data_reason
         request = resolve_request_districts(request, self.repository)
+        from app.history_chat import is_history_question
+        if is_history_question(request.question):
+            return await self.fallback.answer(request)
         if request.model in {"fallback", "extractive"} or unavailable_data_reason(request, self.repository):
             return await self.fallback.answer(request)
         for slug in request.selected_districts():
