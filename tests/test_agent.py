@@ -463,3 +463,9 @@ async def test_scored_district_census_count_must_cite_the_census():
     assert any(c.source_id == "pbs_table_12" for c in response.citations)
     tool_reply = next(m for m in model.calls[-1] if m.type == "tool")
     assert "fact-lahore-out_of_school_children_5_16" in tool_reply.content
+
+
+def test_census_value_and_score_requests_use_different_sources():
+    from app.agent import _census_fact_sources
+    assert _census_fact_sources("What is the literacy score of Multan?") == set()
+    assert _census_fact_sources("What is the literacy rate of Multan?") == {"pbs_table_12"}

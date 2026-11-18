@@ -78,6 +78,13 @@ def _selected_districts(requested: list[str]) -> list[str]:
     return requested or (request.selected_districts() if request else [])
 
 
+def _census_fact_sources(question: str) -> set[str]:
+    if classify_question(question) != QuestionRoute.EXACT_FACT or re.search(r"\bscores?\b", question, re.I):
+        return set()
+    metrics = set(requested_metrics(question)) & CENSUS_METRICS.keys()
+    return {"pbs_table_1" if key == "population_2023" else "pbs_table_12" for key in metrics}
+
+
 def _citation_dict(citation: Citation) -> dict[str, Any]:
     return citation.model_dump(mode="json")
 
@@ -139,9 +146,8 @@ def build_agent_tools(
         """Read exact GPIS district data. Use for available districts, scores, rankings, trends, and comparisons."""
         selected = _selected_districts(districts)
         request = CURRENT_REQUEST.get()
-        if selected and request and classify_question(request.question) == QuestionRoute.EXACT_FACT:
-            if set(requested_metrics(request.question)) & CENSUS_METRICS.keys():
-                return json.dumps(_evidence_payload(repository.fact_search(request.question, selected, 6)), default=str)
+        if selected and request and _census_fact_sources(request.question):
+            return json.dumps(_evidence_payload(repository.fact_search(request.question, selected, 6)), default=str)
         if action == "list":
             return json.dumps({"districts": repository.list_districts(), "count": len(repository.list_districts())})
         if action == "rankings":
@@ -419,9 +425,8 @@ class AgentChatService:
             if comparison and not comparison_language_is_safe(answer):
                 raise RuntimeError("The agent used unsafe causal comparison language")
             citations = [citation for key, citation in citation_map.items() if not marker_ids or key in marker_ids]
-            census_metrics = set(requested_metrics(request.question)) & CENSUS_METRICS.keys()
-            if census_metrics and classify_question(request.question) == QuestionRoute.EXACT_FACT:
-                sources = {"pbs_table_1" if key == "population_2023" else "pbs_table_12" for key in census_metrics}
+            sources = _census_fact_sources(request.question)
+            if sources:
                 if not sources <= {citation.source_id for citation in citations} or any(
                     citation.evidence_id.startswith("score-") for citation in citations
                 ):

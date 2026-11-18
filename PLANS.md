@@ -41,3 +41,5 @@ Tenure citation regression: the chief-minister history preview named the officeh
 Evaluator regression: the judge treated an earlier Multan question as an additional requirement of the Lahore follow-up. The evaluator now labels the current request, district selection and earlier context separately.
 
 The GitHub runner reached PBS but timed out connecting to the official health PDF host. CI now extracts PHS2024 from the previously verified public multi-edition mirror and checks the original SHA-256. Production provenance continues to point to the Bureau of Statistics.
+
+A regression check distinguishes a request for a calculated literacy score from a request for the observed literacy rate. Only the observed fact requires the census table.
