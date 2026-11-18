@@ -25,3 +25,9 @@ def test_judge_respects_retry_after(monkeypatch):
     with httpx.Client(transport=httpx.MockTransport(lambda _: next(replies))) as client:
         assert evaluation.judge_completion(client, Settings(groq_api_key="test"), "judge", []) == {"ok": True}
     assert sleeps == [5]
+
+
+def test_numbers_before_district_names_preserve_the_association():
+    expected = [["Multan", "61.41"], ["Lahore", "79.62"]]
+    assert values_match("61.41 % for Multan and 79.62 % for Lahore", expected)
+    assert not values_match("79.62 % for Multan and 61.41 % for Lahore", expected)

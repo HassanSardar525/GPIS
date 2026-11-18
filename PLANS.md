@@ -47,3 +47,5 @@ A regression check distinguishes a request for a calculated literacy score from 
 Clean-runner CI reached both official inputs. Its pytest console entry point could not import the repository's scripts namespace. CI now uses the documented python -m pytest invocation.
 
 The same score-citation issue reproduced for pairwise literacy questions. The census source check and district-data tool now cover direct comparisons of observed census metrics as well as single-district lookups.
+
+The factual evaluator now recognizes both “Multan: 61.41%” and “61.41% for Multan”. Swapped values still fail, and the curated PBS cases explicitly require a census citation.

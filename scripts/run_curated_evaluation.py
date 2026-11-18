@@ -26,9 +26,18 @@ def values_match(answer, expected):
         return True
     text = CITATION_MARKER.sub("", answer).replace(",", "")
     names = "|".join(re.escape(name) for name, _ in expected)
+    targets = {name.casefold(): Decimal(value) for name, value in expected}
+    found = set()
+    reversed_pair = re.compile(rf"(?P<value>\d+(?:\.\d+)?)\s*(?:%|percent)?\s+(?:for|in)\s+(?P<name>{names})\b", re.I)
+    for pair in reversed_pair.finditer(text):
+        name = pair["name"].casefold()
+        target = targets[name]
+        if Decimal(pair["value"]).quantize(target) != target:
+            return False
+        found.add(name)
+    text = reversed_pair.sub(" ", text)
     # Keep the district's passage up to the next named district.
     matches = list(re.finditer(rf"\b({names})\b", text, re.IGNORECASE))
-    found = set()
     for i, match in enumerate(matches):
         end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
         passage = text[match.end():end]
@@ -38,7 +47,7 @@ def values_match(answer, expected):
             if name.casefold() == match[0].casefold() and any(
                 n.quantize(target) == target for n in numbers
             ):
-                found.add(name)
+                found.add(name.casefold())
     return len(found) == len(expected)
 
 
@@ -54,6 +63,9 @@ def factual_checks(outputs: dict, reference_outputs: dict) -> dict:
     markers = set(CITATION_MARKER.findall(answer))
     cited_ids = {c["evidence_id"] for c in citations if c["passage"] and c["locator"]}
     passed = passed and (not citations if reference_outputs["abstain"] else bool(markers) and markers <= cited_ids)
+    if reference_outputs.get("passage", "").startswith("PBS") and reference_outputs["values"]:
+        official = {c["evidence_id"] for c in citations if c.get("source_id") == "pbs_table_12"}
+        passed = passed and bool(markers & official) and not any(key.startswith("score-") for key in markers)
     return {"key": "exact_facts_and_citations", "score": int(passed)}
 
 
