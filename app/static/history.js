@@ -66,7 +66,7 @@ async function loadHistoricalEvidence(slug, reset = false) {
     function termCard(t) {
       return `<li class="officeholder ${historicalTenure === t.id ? 'selected-tenure' : ''}">
         <button type="button" data-tenure="${escapeHtml(t.id)}" aria-pressed="${historicalTenure === t.id}">${escapeHtml(t.person || 'Vacancy')}</button>
-        <p>${escapeHtml(t.role)}${t.portfolio ? ' · '+escapeHtml(t.portfolio) : ''} · ${escapeHtml(t.party || 'Party not recorded')}${t.caretaker ? ' · Caretaker' : ''}</p>
+        <p>${escapeHtml(t.role)} · ${escapeHtml(t.constituency || 'Punjab province')}${t.portfolio ? ' · '+escapeHtml(t.portfolio) : ''} · ${escapeHtml(t.party || 'Party not recorded')}${t.caretaker ? ' · Caretaker' : ''}</p>
         <p>${escapeHtml(termDates(t))}</p>
         ${t.constituency ? `<p>${escapeHtml(t.constituency)} · ${escapeHtml(t.boundary_edition)}</p>` : ''}
         <details><summary>${t.status === 'verified' ? 'Source and date notes' : 'Incomplete record — review notes'}</summary><p>${escapeHtml(t.notes.join(' '))}</p>${evidenceButtons(t.anchor_ids)}</details>
@@ -84,7 +84,7 @@ async function loadHistoricalEvidence(slug, reset = false) {
       <p>${escapeHtml(data.notice)}</p>
       <h3>Provincial executive timeline</h3><p>2017 onward · Select a term to highlight its observations. Unknown dates remain incomplete.</p>
       <ol class="officeholder-timeline">${executives.map(termCard).join('')}</ol>
-      <details><summary>Constituency representation (${representatives.length} archived records)</summary><p>${escapeHtml(holders.coverage.mpas)}</p><p>${escapeHtml(holders.notice)}</p><ul class="officeholder-timeline">${representatives.map(termCard).join('') || '<li>No reviewed representation records yet.</li>'}</ul></details>
+      <details><summary>Constituency representation · 2018 Assembly, published 2021 (${representatives.length} archived records)</summary><p>${escapeHtml(holders.coverage.mpas)}</p><p>${escapeHtml(holders.notice)}</p><ul class="officeholder-timeline">${representatives.map(termCard).join('') || '<li>No reviewed representation records yet.</li>'}</ul></details>
       <p class="history-coverage">${escapeHtml(holders.coverage.ministers)}</p>
       ${evidenceButtons(['calculated-'+slug], 'How this district’s scores are calculated')}`;
   } catch (error) {

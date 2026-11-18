@@ -285,6 +285,7 @@ function officialServiceCards(data) {
 
 function renderDistrict(data) {
   state.district = data;
+  document.querySelector('#chat-context').textContent = 'District: ' + data.name;
   if (typeof syncWorkspaceDistrict === 'function') syncWorkspaceDistrict(data);
   if (typeof window.highlightDistrictOnMap === 'function') window.highlightDistrictOnMap(data.slug, { zoom: true });
   setBusy(document.querySelector('#notice'), false, data.metadata.disclaimer);
@@ -389,6 +390,13 @@ function renderTrendError(error) {
 
 async function loadDistrict(slug) {
   const requestId = ++state.districtRequest;
+  if (state.district?.slug !== slug) {
+    state.chatRequest += 1;
+    state.lastQuestion = null;
+    state.lastDistricts = [];
+    setBusy(document.querySelector('#chat-answer'), false, 'Ask a question about the selected district.');
+  }
+  setChatControlsDisabled(true);
   setBusy(document.querySelector('#district-summary'), true);
   document.querySelector('#district-name').textContent = 'Loading…';
   document.querySelector('#scorecards').innerHTML = '<article class="score-card skeleton" aria-hidden="true"></article><article class="score-card skeleton" aria-hidden="true"></article><article class="score-card skeleton" aria-hidden="true"></article>';
@@ -416,6 +424,7 @@ async function loadDistrict(slug) {
   window.loadHistoricalEvidence?.(slug);
   if (trend.error) renderTrendError(trend.error); else renderTrend(trend);
   setBusy(document.querySelector('#district-summary'), false);
+  setChatControlsDisabled(false);
 }
 
 async function loadRankings() {
@@ -424,7 +433,7 @@ async function loadRankings() {
     return loadCensusRankings(requestId);
   }
   const note = document.querySelector('#ranking-note');
-  if (note) note.textContent = 'Reviewed performance scores: fixed ten-district cohort. Districts without a score are not ranked.';
+  if (note) note.textContent = 'Reviewed performance scores: ranked districts in the selected score version.';
   setBusy(document.querySelector('#ranking-list'), true, 'Loading rankings…');
   let data;
   try {
@@ -447,7 +456,8 @@ async function loadRankings() {
   setBusy(document.querySelector('#ranking-list'), false);
 }
 
-async function askQuestion(question, districts = [state.district.slug]) {
+async function askQuestion(question, districts = [state.district?.slug]) {
+  if (!state.district || select.value !== state.district.slug) return;
   if (location.hash.startsWith('#/compare') || location.hash === '#/overview') location.hash = '#/district/' + state.district.slug;
   const answer = document.querySelector('#chat-answer');
   const requestId = ++state.chatRequest;
@@ -552,26 +562,29 @@ async function init() {
   await Promise.all([loadDistrict(initialSlug), loadModels()]);
 }
 
+function openDistrictProfile(slug) {
+  if (!slug) return;
+  select.value = slug;
+  document.querySelector('#district-query').value = '';
+  filterDistricts();
+  const route = '#/district/' + slug;
+  if (location.hash !== route) location.hash = route;
+  else if (state.district?.slug !== slug) loadDistrict(slug).catch(showDistrictError);
+}
+
 select.addEventListener('change', () => {
-  if (select.value) loadDistrict(select.value).catch(showDistrictError);
+  if (location.hash.startsWith('#/compare')) loadDistrict(select.value).catch(showDistrictError);
+  else openDistrictProfile(select.value);
 });
-document.querySelector('#district-results').addEventListener('change', event => {
-  const slug = event.target.value;
-  if (slug) {
-    select.value = slug;
-    loadDistrict(slug).catch(showDistrictError);
-  }
-});
+document.querySelector('#district-results').addEventListener('change', event => openDistrictProfile(event.target.value));
+document.querySelector('#focus-chat').addEventListener('click', () => document.querySelector('#chat-question').focus());
 document.querySelector('#district-query').addEventListener('input', filterDistricts);
 document.querySelector('#district-query').addEventListener('keydown', event => {
   const results = document.querySelector('#district-results');
   if (event.key === 'Enter' && !results.hidden && !results.disabled) {
     event.preventDefault();
     const slug = results.value || results.options[0]?.value;
-    if (slug) {
-      select.value = slug;
-      loadDistrict(slug).catch(showDistrictError);
-    }
+    openDistrictProfile(slug);
   } else if (event.key === 'ArrowDown' && !results.hidden && !results.disabled) {
     event.preventDefault();
     results.focus();

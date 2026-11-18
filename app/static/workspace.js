@@ -193,7 +193,7 @@ async function loadFactComparison() {
     return;
   }
   setBusy(container, true, 'Loading comparable census facts…');
-  const metrics = ['population_2023', 'literacy_total_pct', 'literacy_male_pct', 'literacy_female_pct', 'out_of_school_children_5_16'];
+  const metrics = ['literacy_total_pct', 'literacy_male_pct', 'literacy_female_pct', 'population_2023', 'out_of_school_children_5_16'];
   try {
     const datasets = await Promise.all(metrics.map(censusData));
     if (requestId !== factComparisonRequest) return;
@@ -202,15 +202,19 @@ async function loadFactComparison() {
     const cell = (dataset, slug) => {
       const row = dataset.rows.find(item => item.slug === slug);
       if (!row) return '<td>Unavailable</td>';
+      const anchor = row.citation.anchor_ids?.[0];
+      const source = anchor
+        ? evidenceButtons([anchor], 'View source')
+        : `<a class="source-link" href="${safeUrl(row.citation.url)}" target="_blank" rel="noreferrer">Official table</a>`;
       return `<td>${escapeHtml(number(row.value, dataset.unit === 'percent' ? 2 : 0))}${dataset.unit === 'percent' ? '%' : ''}
-        <a class="source-link" href="${safeUrl(row.citation.url)}" target="_blank" rel="noreferrer" title="${escapeHtml(row.citation.locator)}">Source</a></td>`;
+        ${source}</td>`;
     };
-    container.innerHTML = `${renderComparisonCharts(datasets, left, right)}
-      <div class="comparison-table-wrap"><table class="comparison-table">
+    container.innerHTML = `<div class="comparison-table-wrap"><table class="comparison-table">
       <caption>Census 2023 · ${escapeHtml(left.name)} and ${escapeHtml(right.name)}</caption>
       <thead><tr><th scope="col">Metric</th><th scope="col">${escapeHtml(left.name)}</th><th scope="col">${escapeHtml(right.name)}</th></tr></thead>
-      <tbody>${datasets.map(dataset => `<tr><th scope="row">${escapeHtml(dataset.label)}</th>${cell(dataset, leftSlug)}${cell(dataset, rightSlug)}</tr>`).join('')}</tbody></table></div>
-      <p class="coverage-note">One census snapshot. These facts do not establish a yearly trend or an overall performance score.</p>`;
+      <tbody>${datasets.map(dataset => `<tr><th scope="row">${escapeHtml(dataset.label)}<small>${escapeHtml(dataset.period)} · ${escapeHtml(dataset.unit)}</small></th>${cell(dataset, leftSlug)}${cell(dataset, rightSlug)}</tr>`).join('')}</tbody></table></div>
+      <p class="coverage-note">Punjab Census 2023. A comparable 2017 district literacy series is awaiting review.</p>
+      ${renderComparisonCharts(datasets, left, right)}`;
     setBusy(container, false);
   } catch (error) {
     if (requestId !== factComparisonRequest) return;

@@ -22,7 +22,7 @@ docker compose up -d database redis
 python -m alembic upgrade head
 python -m app.cli bootstrap
 python -m app.cli ingest-documents --source all
-python -m uvicorn app.main:app --port 8000
+python -m app.server
 python -m pytest -q
 python scripts/check_markdown_links.py
 git diff --check
