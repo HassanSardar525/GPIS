@@ -69,7 +69,9 @@ def history_answer(request, repository):
             if comp['change'] is not None:
                 overlapping_ids.update(t['id'] for t in comp['officeholders'])
                 lines.append(f"{comp['from']} to {comp['to']}: {comp['change']:+.3f} {comp['unit']}. "+' '.join(cite(a) for a in comp['anchor_ids']))
-                lines.append('Overlapping reviewed officeholders: '+', '.join(t['person'] or 'Vacancy' for t in comp['officeholders'])+'.')
+                for term in comp['officeholders']:
+                    markers = ' '.join(cite(a) for a in term['anchor_ids'])
+                    lines.append(f"Overlapping reviewed officeholder: {term['person'] or 'Vacancy'}. {markers}")
             else:
                 lines.append(result['coverage']['reason'])
                 for row in result['observations']:

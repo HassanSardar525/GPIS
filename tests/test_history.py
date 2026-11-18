@@ -156,3 +156,11 @@ def test_personal_allegation_does_not_list_people_as_culprits():
     answer=history_answer(ChatRequest(question='Which chief minister stole the budget?',districts=['multan']),repo)
     assert answer.abstained and not answer.citations
     assert 'cannot establish' in answer.answer
+
+
+def test_chief_minister_source_passage_contains_handover_dates():
+    from app.history import packaged_release
+    release = packaged_release()
+    term = next(t for t in release["terms"] if t["id"] == "naqvi-2023")
+    text = " ".join(release["anchors"][key]["text"] for key in term["anchor_ids"])
+    assert term["start"] in text and term["end"] in text
