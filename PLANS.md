@@ -33,3 +33,5 @@ Clean-runner CI reproduced two missing-workbook failures. CI now retrieves check
 ## Deferred work
 
 Hosted pre-merge acceptance and the production deployment await the owner's Render setup. Human calibration of the advisory judge is pending. Future research and product ideas include a comparable earlier education period, expanded health and financial indicators, Urdu labels, operational alerting and a portfolio demonstration.
+
+Generation regression from the hosted experiment: Lahore’s correct 718,199 count cited a calculated education score. The district tool now returns census evidence for census facts even when the district has scores, and the agent validates the source before displaying the generated answer.

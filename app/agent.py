@@ -26,6 +26,7 @@ from app.comparisons import (
     comparison_language_is_safe,
     comparison_numbers_are_grounded,
 )
+from app.facts import CENSUS_METRICS, requested_metrics
 from app.llm import CITATION_MARKER
 from app.observability import NoopObservability, Observability
 from app.repositories import GPISRepository
@@ -137,6 +138,10 @@ def build_agent_tools(
     async def district_data(action: str, districts: list[str], category: str) -> str:
         """Read exact GPIS district data. Use for available districts, scores, rankings, trends, and comparisons."""
         selected = _selected_districts(districts)
+        request = CURRENT_REQUEST.get()
+        if selected and request and classify_question(request.question) == QuestionRoute.EXACT_FACT:
+            if set(requested_metrics(request.question)) & CENSUS_METRICS.keys():
+                return json.dumps(_evidence_payload(repository.fact_search(request.question, selected, 6)), default=str)
         if action == "list":
             return json.dumps({"districts": repository.list_districts(), "count": len(repository.list_districts())})
         if action == "rankings":
@@ -414,6 +419,13 @@ class AgentChatService:
             if comparison and not comparison_language_is_safe(answer):
                 raise RuntimeError("The agent used unsafe causal comparison language")
             citations = [citation for key, citation in citation_map.items() if not marker_ids or key in marker_ids]
+            census_metrics = set(requested_metrics(request.question)) & CENSUS_METRICS.keys()
+            if census_metrics and classify_question(request.question) == QuestionRoute.EXACT_FACT:
+                sources = {"pbs_table_1" if key == "population_2023" else "pbs_table_12" for key in census_metrics}
+                if not sources <= {citation.source_id for citation in citations} or any(
+                    citation.evidence_id.startswith("score-") for citation in citations
+                ):
+                    raise RuntimeError("Census fact requires its official census evidence")
             if comparison:
                 citations = list(
                     {
