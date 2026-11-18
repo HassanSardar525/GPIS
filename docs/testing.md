@@ -46,3 +46,11 @@ python -m scripts.check_release --url http://127.0.0.1:8000
 The runner requires the document baseline and all browser tests to execute. It exercises the service's default live model, a document lookup and unsupported attribution over HTTP. An isolated FastAPI test injects a provider outage without disrupting visitor traffic. Set GPIS_BROWSER_CHANNEL=chromium if using Playwright's bundled browser. For Windows PostgreSQL use `python -m app.server` (selector event loop).
 
 Record the URL, candidate revision, actual answer modes, and test counts in PLANS.md. Point production Render at the merged main branch and rerun the same checks after rollout.
+
+## Curated LangSmith experiments
+
+Run `python -m scripts.run_curated_evaluation --url http://127.0.0.1:8000 --revision <candidate-sha>` from the checkout with LANGSMITH_API_KEY, GROQ_API_KEY and a supported GROQ_MODEL. The evaluator posts only the six questions and follow-ups in `tests/fixtures/curated_release_v1.json`. Hosted reference data includes the reviewed source values and locators. Each example uses a fresh session that the runner deletes when finished. Visitor requests disable inherited LangSmith tracing.
+
+The dataset name contains its content hash. The runner checks the existing hosted examples before reuse. Use the same dataset to compare candidates. Numeric checks pair each value with a district, round to the reviewed precision, and verify evidence markers. The judge separately scores citation support and relevance and records reasons. Judge scores are advisory.
+
+For calibration, have a human reviewer independently label each answer and cited passage for support and relevance, including a swapped-district answer, an invented date and a valid abstention. Record disagreements alongside the judge reasons and revise the rubric on held-out examples. Human review and agreement on a blocking threshold are pending.

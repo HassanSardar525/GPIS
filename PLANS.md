@@ -7,7 +7,7 @@ Let a visitor find a district, compare a same-period metric, inspect historical 
 - [x] Prepare the release candidate database and enforce document and live generation checks.
 - [ ] Exercise the deployed candidate in desktop and mobile browsers. Record the candidate revision and results before merge.
 - [ ] Publish from merged main and repeat the deployed acceptance journey.
-- [ ] Add repeatable component, pipeline and application checks plus a curated LangSmith dataset and experiment.
+- [x] Add repeatable component, pipeline and application checks plus a curated LangSmith dataset and experiment.
 
 ## Decisions
 
@@ -20,3 +20,5 @@ A release requires a successful live explanation, document retrieval, unsupporte
 Local UI review used 390px and 1280px screenshots. Nine UI and browser checks passed. The comparison table wraps its cells on narrow screens.
 
 The local PostgreSQL candidate passed the 59-case baseline, including all four document cases. Both originals reproduced 78 chunks (72 district rows and six parents). Hosted deployment is deferred by the owner.
+
+The six-case curated LangSmith experiment uses a content-versioned dataset. Judge scores remain advisory pending independent human calibration.
