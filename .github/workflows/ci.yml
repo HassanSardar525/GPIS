@@ -51,7 +51,9 @@ jobs:
           path: data/raw
           key: official-documents-${{ hashFiles('data/curated/document_sources.json', 'data/curated/pbs_table_1.json') }}
       - name: Verify official test inputs
-        run: python -m scripts.fetch_test_sources
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y libarchive-tools
+          python -m scripts.fetch_test_sources --health-mirror
       - name: Run tests
         env:
           PGPASSWORD: gpis
