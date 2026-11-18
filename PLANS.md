@@ -49,3 +49,5 @@ Clean-runner CI reached both official inputs. Its pytest console entry point cou
 The same score-citation issue reproduced for pairwise literacy questions. The census source check and district-data tool now cover direct comparisons of observed census metrics as well as single-district lookups.
 
 The factual evaluator now recognizes both “Multan: 61.41%” and “61.41% for Multan”. Swapped values still fail, and the curated PBS cases explicitly require a census citation.
+
+The live Lahore case exposed an evaluator false negative: “aged 5-16 for Lahore” bound the age 16 as the population count. The checker now resolves reversed phrasing only for candidate metric values, and tests reject a wrong count or swapped district.

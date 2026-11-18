@@ -31,3 +31,9 @@ def test_numbers_before_district_names_preserve_the_association():
     expected = [["Multan", "61.41"], ["Lahore", "79.62"]]
     assert values_match("61.41 % for Multan and 79.62 % for Lahore", expected)
     assert not values_match("79.62 % for Multan and 61.41 % for Lahore", expected)
+
+
+def test_age_band_and_year_do_not_replace_the_population_count():
+    expected = [["Lahore", "718199"]]
+    assert values_match("Census 2023 in Lahore: out-of-school children aged 5-16 for Lahore is 718,199.", expected)
+    assert not values_match("Children aged 5-16 for Lahore: 500.", expected)

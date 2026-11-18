@@ -29,13 +29,23 @@ def values_match(answer, expected):
     targets = {name.casefold(): Decimal(value) for name, value in expected}
     found = set()
     reversed_pair = re.compile(rf"(?P<value>\d+(?:\.\d+)?)\s*(?:%|percent)?\s+(?:for|in)\s+(?P<name>{names})\b", re.I)
-    for pair in reversed_pair.finditer(text):
+    def bind_reversed(pair):
         name = pair["name"].casefold()
+        value = Decimal(pair["value"])
+        if not any(value.quantize(target) == target for target in targets.values()):
+            # Years and age ranges can also immediately precede "for <district>".
+            return pair[0]
         target = targets[name]
-        if Decimal(pair["value"]).quantize(target) != target:
-            return False
-        found.add(name)
-    text = reversed_pair.sub(" ", text)
+        if value.quantize(target) == target:
+            found.add(name)
+        else:
+            wrong_pairs.append(pair[0])
+        return " "
+
+    wrong_pairs = []
+    text = reversed_pair.sub(bind_reversed, text)
+    if wrong_pairs:
+        return False
     # Keep the district's passage up to the next named district.
     matches = list(re.finditer(rf"\b({names})\b", text, re.IGNORECASE))
     for i, match in enumerate(matches):
