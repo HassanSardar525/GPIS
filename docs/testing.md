@@ -36,7 +36,7 @@ Use the same PostgreSQL database for the API and the release runner. The target 
 
 1. Set GPIS_DATABASE_URL and GPIS_REPOSITORY=postgres in the release operator's environment. Use the same commit and score version as the service.
 2. Run `python -m alembic upgrade head` and `python -m app.cli bootstrap`. Bootstrap seeds reviewed observations and embeds missing chunks.
-3. Place the two registered originals at the paths in `data/curated/document_sources.json` and run `python -m app.cli ingest-documents --source all` from this checkout with the ingestion extra installed. This verifies checksums before persisting chunks and embeddings. The web image does not ship raw documents.
+3. Run `python -m scripts.fetch_test_sources` to fetch and verify the registered originals and run `python -m app.cli ingest-documents --source all` from this checkout with the ingestion extra installed. This verifies checksums before persisting chunks and embeddings. The web image does not ship raw documents.
 4. Run the following from the release checkout, replacing the local URL with the actual hosted candidate URL for pre-merge sign-off.
 
 ```powershell

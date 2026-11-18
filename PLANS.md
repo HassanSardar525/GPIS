@@ -26,3 +26,5 @@ The six-case curated LangSmith experiment uses a content-versioned dataset. Judg
 Hosted experiment gpis-curated-f454244e passed six factual checks. Four judge calls were rate limited. The evaluator now honors bounded Retry-After delays and accepts an independently selected judge model.
 
 Generation configuration regression: the historical hard-coded Gemini choices ignored the configured model. The model list and generation now use GEMINI_MODEL. The local release uses the Render Groq model openai/gpt-oss-20b.
+
+Clean-runner CI reproduced two missing-workbook failures. CI now retrieves checksum-verified originals before database and document tests. The local release gate passed on PostgreSQL with live Groq, extractive lookup, abstention and all five application/outage tests.

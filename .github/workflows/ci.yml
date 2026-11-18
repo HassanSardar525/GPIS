@@ -44,7 +44,14 @@ jobs:
           python-version: "3.11"
           cache: pip
       - name: Install project
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,ingestion]"
+      - name: Cache reviewed source files
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: official-documents-${{ hashFiles('data/curated/document_sources.json', 'data/curated/pbs_table_1.json') }}
+      - name: Verify official test inputs
+        run: python -m scripts.fetch_test_sources
       - name: Run tests
         env:
           PGPASSWORD: gpis
