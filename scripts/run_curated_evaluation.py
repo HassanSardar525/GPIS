@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import time
 from uuid import NAMESPACE_URL, uuid4, uuid5
 
 import httpx
@@ -75,10 +76,28 @@ def prepare_dataset(client, cases):
     return dataset
 
 
+def judge_completion(client, settings, model, messages):
+    for attempt in range(3):
+        response = client.post(settings.groq_base_url.rstrip("/") + "/chat/completions",
+            headers={"Authorization": "Bearer " + settings.groq_api_key},
+            json={"model": model, "temperature": 0, "max_completion_tokens": 700,
+                  "response_format": {"type": "json_object"}, "messages": messages})
+        if response.status_code != 429 or attempt == 2:
+            return response.raise_for_status().json()
+        try:
+            delay = float(response.headers.get("retry-after", "30"))
+        except ValueError:
+            delay = 30
+        if delay > 60:
+            response.raise_for_status()
+        time.sleep(max(1, delay + 1))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", required=True)
     parser.add_argument("--revision", help="Git revision of the API under evaluation")
+    parser.add_argument("--judge-model", help="Use an independent Groq judge model and rate limit")
     args = parser.parse_args()
     revision = args.revision or subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     settings = Settings.from_env()
@@ -107,20 +126,19 @@ def main():
                 "including the correct district and period, or explains why it cannot. "
                 "Return a JSON object with booleans grounded and relevant and a short reason."
             )
-            payload = {"question": inputs, "response": outputs, "reference": reference_outputs}
-            result = judge.post(settings.groq_base_url.rstrip("/") + "/chat/completions",
-                headers={"Authorization": "Bearer " + settings.groq_api_key},
-                json={"model": settings.groq_model, "temperature": 0, "response_format": {"type": "json_object"},
-                      "messages": [{"role": "system", "content": rubric},
-                                   {"role": "user", "content": json.dumps(payload)}]}).raise_for_status()
-            verdict = json.loads(result.json()["choices"][0]["message"]["content"])
+            cited = [{"id": c["evidence_id"], "passage": c["passage"], "locator": c["locator"]}
+                     for c in outputs["citations"]]
+            payload = {"question": inputs, "answer": outputs["answer"], "cited": cited, "reference": reference_outputs}
+            result = judge_completion(judge, settings, args.judge_model or settings.groq_model, [
+                {"role": "system", "content": rubric}, {"role": "user", "content": json.dumps(payload)}])
+            verdict = json.loads(result["choices"][0]["message"]["content"])
             if not all(type(verdict.get(key)) is bool for key in ("grounded", "relevant")):
                 raise ValueError("Judge returned an incomplete verdict")
             return {"results": [{"key": key, "score": int(verdict[key]), "comment": verdict["reason"]}
                                 for key in ("grounded", "relevant")]}
 
         experiment = client.evaluate(target, data=dataset.name, evaluators=[factual_checks, advisory_judge],
-                                     experiment_prefix="gpis-curated", metadata={"revision": revision, "judge": settings.groq_model},
+                                     experiment_prefix="gpis-curated", metadata={"revision": revision, "judge": args.judge_model or settings.groq_model},
                                      max_concurrency=0)
         ok = True
         count = 0

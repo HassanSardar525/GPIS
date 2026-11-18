@@ -54,3 +54,5 @@ Run `python -m scripts.run_curated_evaluation --url http://127.0.0.1:8000 --revi
 The dataset name contains its content hash. The runner checks the existing hosted examples before reuse. Use the same dataset to compare candidates. Numeric checks pair each value with a district, round to the reviewed precision, and verify evidence markers. The judge separately scores citation support and relevance and records reasons. Judge scores are advisory.
 
 For calibration, have a human reviewer independently label each answer and cited passage for support and relevance, including a swapped-district answer, an invented date and a valid abstention. Record disagreements alongside the judge reasons and revise the rubric on held-out examples. Human review and agreement on a blocking threshold are pending.
+
+Use `--judge-model openai/gpt-oss-120b` when that model is enabled in the evaluation account to separate judge traffic from the release model. Rate-limited judge calls retry with a bounded delay. Incomplete evaluations return a failing process status.

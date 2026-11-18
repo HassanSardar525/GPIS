@@ -12,3 +12,16 @@ def test_invented_marker_fails_despite_correct_number():
     response = {"answer": "Multan: 61.41% [unknown]", "citations": [], "abstained": False}
     ref = {"abstain": False, "values": [["Multan", "61.41"]], "terms": []}
     assert factual_checks(response, ref)["score"] == 0
+
+
+def test_judge_respects_retry_after(monkeypatch):
+    import httpx
+    from app.config import Settings
+    from scripts import run_curated_evaluation as evaluation
+
+    replies = iter([httpx.Response(429, headers={"retry-after": "4"}), httpx.Response(200, json={"ok": True})])
+    sleeps = []
+    monkeypatch.setattr(evaluation.time, "sleep", sleeps.append)
+    with httpx.Client(transport=httpx.MockTransport(lambda _: next(replies))) as client:
+        assert evaluation.judge_completion(client, Settings(groq_api_key="test"), "judge", []) == {"ok": True}
+    assert sleeps == [5]

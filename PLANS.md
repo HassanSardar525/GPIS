@@ -22,3 +22,5 @@ Local UI review used 390px and 1280px screenshots. Nine UI and browser checks pa
 The local PostgreSQL candidate passed the 59-case baseline, including all four document cases. Both originals reproduced 78 chunks (72 district rows and six parents). Hosted deployment is deferred by the owner.
 
 The six-case curated LangSmith experiment uses a content-versioned dataset. Judge scores remain advisory pending independent human calibration.
+
+Hosted experiment gpis-curated-f454244e passed six factual checks. Four judge calls were rate limited. The evaluator now honors bounded Retry-After delays and accepts an independently selected judge model.
