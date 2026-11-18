@@ -55,7 +55,7 @@ class Settings:
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_timeout_seconds: float = 15.0
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-flash-latest"
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     gemini_timeout_seconds: float = 15.0
     phoenix_enabled: bool = False

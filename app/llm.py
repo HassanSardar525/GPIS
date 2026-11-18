@@ -91,7 +91,7 @@ class GeminiProvider:
     def __init__(
         self,
         api_key: str,
-        model: str = "gemini-1.5-flash",
+        model: str = "gemini-flash-latest",
         base_url: str = "https://generativelanguage.googleapis.com/v1beta",
         timeout_seconds: float = 15,
     ):

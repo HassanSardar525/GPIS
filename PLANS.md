@@ -24,3 +24,5 @@ The local PostgreSQL candidate passed the 59-case baseline, including all four d
 The six-case curated LangSmith experiment uses a content-versioned dataset. Judge scores remain advisory pending independent human calibration.
 
 Hosted experiment gpis-curated-f454244e passed six factual checks. Four judge calls were rate limited. The evaluator now honors bounded Retry-After delays and accepts an independently selected judge model.
+
+Generation configuration regression: the historical hard-coded Gemini choices ignored the configured model. The model list and generation now use GEMINI_MODEL. The local release uses the Render Groq model openai/gpt-oss-20b.

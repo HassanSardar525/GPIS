@@ -103,30 +103,14 @@ def build_chat_service(
         models["groq"] = groq_model
 
     if settings.gemini_api_key:
-        for g_model in ["gemini-1.5-flash", "gemini-2.0-flash"]:
-            gemini_provider = GeminiProvider(
-                api_key=settings.gemini_api_key,
-                model=g_model,
-                base_url=settings.gemini_base_url,
-                timeout_seconds=settings.gemini_timeout_seconds,
-            )
-            providers[f"gemini:{g_model}"] = gemini_provider
-            if g_model == settings.gemini_model:
-                providers["gemini"] = gemini_provider
-            if ChatGoogleGenerativeAI:
-                try:
-                    chat_gemini = ChatGoogleGenerativeAI(
-                        model=g_model,
-                        google_api_key=settings.gemini_api_key,
-                        temperature=0.1,
-                        timeout=settings.gemini_timeout_seconds,
-                        max_retries=1,
-                    )
-                    models[f"gemini:{g_model}"] = chat_gemini
-                    if g_model == settings.gemini_model:
-                        models["gemini"] = chat_gemini
-                except Exception:
-                    pass
+        gemini_id = f"gemini:{settings.gemini_model}"
+        gemini_provider = GeminiProvider(settings.gemini_api_key, settings.gemini_model,
+                                        settings.gemini_base_url, settings.gemini_timeout_seconds)
+        providers[gemini_id] = providers["gemini"] = gemini_provider
+        if ChatGoogleGenerativeAI:
+            chat_gemini = ChatGoogleGenerativeAI(model=settings.gemini_model, google_api_key=settings.gemini_api_key,
+                                                temperature=0.1, timeout=settings.gemini_timeout_seconds, max_retries=1)
+            models[gemini_id] = models["gemini"] = chat_gemini
 
     primary_provider = next(iter(providers.values()), FailingProvider())
     fallback = ChatService(repository, retriever, primary_provider, observability, providers=providers)
@@ -134,7 +118,7 @@ def build_chat_service(
         return fallback
 
     default_model = None
-    if settings.gemini_api_key and settings.gemini_model in ("gemini-1.5-flash", "gemini-2.0-flash"):
+    if f"gemini:{settings.gemini_model}" in models:
         default_model = f"gemini:{settings.gemini_model}"
     elif settings.groq_api_key:
         default_model = f"groq:{settings.groq_model}"
@@ -277,18 +261,10 @@ def create_app(
         if settings.gemini_api_key:
             options.append(
                 ModelOption(
-                    id="gemini:gemini-1.5-flash",
-                    name="Gemini 1.5 Flash",
+                    id=f"gemini:{settings.gemini_model}",
+                    name=f"Gemini ({settings.gemini_model})",
                     provider="gemini",
-                    is_default=(settings.gemini_model == "gemini-1.5-flash" or not settings.groq_api_key),
-                )
-            )
-            options.append(
-                ModelOption(
-                    id="gemini:gemini-2.0-flash",
-                    name="Gemini 2.0 Flash",
-                    provider="gemini",
-                    is_default=(settings.gemini_model == "gemini-2.0-flash"),
+                    is_default=True,
                 )
             )
         options.append(
