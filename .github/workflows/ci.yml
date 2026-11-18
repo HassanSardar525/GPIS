@@ -59,7 +59,7 @@ jobs:
           PGPASSWORD: gpis
         run: |
           psql -h localhost -U gpis -d gpis_test -c 'CREATE DATABASE gpis_punjab_test'
-          pytest -q
+          python -m pytest -q
       - name: Verify packaged source previews
         run: python -m app.history
       - name: Run RAG evaluation

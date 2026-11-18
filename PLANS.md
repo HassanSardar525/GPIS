@@ -43,3 +43,5 @@ Evaluator regression: the judge treated an earlier Multan question as an additio
 The GitHub runner reached PBS but timed out connecting to the official health PDF host. CI now extracts PHS2024 from the previously verified public multi-edition mirror and checks the original SHA-256. Production provenance continues to point to the Bureau of Statistics.
 
 A regression check distinguishes a request for a calculated literacy score from a request for the observed literacy rate. Only the observed fact requires the census table.
+
+Clean-runner CI reached both official inputs. Its pytest console entry point could not import the repository's scripts namespace. CI now uses the documented python -m pytest invocation.
