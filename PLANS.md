@@ -37,3 +37,5 @@ Hosted pre-merge acceptance and the production deployment await the owner's Rend
 Generation regression from the hosted experiment: Lahore’s correct 718,199 count cited a calculated education score. The district tool now returns census evidence for census facts even when the district has scores, and the agent validates the source before displaying the generated answer.
 
 Tenure citation regression: the chief-minister history preview named the officeholders but omitted their recorded handover dates. Verified the official history, retained the separately qualified Elahi oath date, and added inline sources to the overlap statements.
+
+Evaluator regression: the judge treated an earlier Multan question as an additional requirement of the Lahore follow-up. The evaluator now labels the current request, district selection and earlier context separately.
