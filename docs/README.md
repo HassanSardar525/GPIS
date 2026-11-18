@@ -5,7 +5,7 @@ This directory is the source of truth for product, technical, and evidence decis
 | Document | Use it for |
 |---|---|
 | [PROJECT_SCOPE.md](PROJECT_SCOPE.md) | Goals, users, boundaries, and success criteria |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Components, request flow, and replacement points |
+| [architecture.md](architecture.md) | Components, request flow, and replacement points |
 | [DATA_AND_SCORING.md](DATA_AND_SCORING.md) | Metrics, formulas, provenance, and limitations |
 | [RAG_DESIGN.md](RAG_DESIGN.md) | Retrieval, answer generation, citations, and evaluation |
 | [STATUS.md](STATUS.md) | Current working state and immediate next milestone |
