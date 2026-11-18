@@ -360,7 +360,11 @@ def create_app(
         session_id = request.session_id or str(uuid.uuid4())
         request = request.model_copy(update={"session_id": session_id})
         session_store.ensure_active(session_id)
-        response = await application.state.chat_service.answer(request)
+        # Hosted experiments use curated API calls in their own evaluator process.
+        # Suppress inherited SDK tracing for visitor conversations.
+        from langsmith import tracing_context
+        with tracing_context(enabled=False):
+            response = await application.state.chat_service.answer(request)
         session_store.touch(session_id)
         return response.model_copy(update={"session_id": session_id})
 

@@ -1,10 +1,13 @@
 services:
   - type: web
     name: gpis
+    branch: main
     runtime: docker
     plan: free
     healthCheckPath: /api/v1/health
     envVars:
+      - key: LANGSMITH_TRACING
+        value: "false"
       - key: GPIS_ENV
         value: production
       - key: GPIS_REPOSITORY
