@@ -13,7 +13,7 @@ Let a visitor find a district, compare a same-period metric, inspect historical 
 
 Use the 36-district punjab-v1 contract, existing API, Render and PostgreSQL/pgvector. Preserve the prototype score version. Use LangSmith for curated experiments only. Human-reviewed exact facts remain authoritative. Calibrate judge scores before considering them for release gates.
 
-## Remaining work
+## Verification record
 
 A release requires a successful live explanation, document retrieval, unsupported answer and provider failure check, plus the Multan to Lahore browser journey. Record actual results here. Existing historical results are in [project status](docs/STATUS.md).
 
@@ -28,3 +28,8 @@ Hosted experiment gpis-curated-f454244e passed six factual checks. Four judge ca
 Generation configuration regression: the historical hard-coded Gemini choices ignored the configured model. The model list and generation now use GEMINI_MODEL. The local release uses the Render Groq model openai/gpt-oss-20b.
 
 Clean-runner CI reproduced two missing-workbook failures. CI now retrieves checksum-verified originals before database and document tests. The local release gate passed on PostgreSQL with live Groq, extractive lookup, abstention and all five application/outage tests.
+
+
+## Deferred work
+
+Hosted pre-merge acceptance and the production deployment await the owner's Render setup. Human calibration of the advisory judge is pending. Future research and product ideas include a comparable earlier education period, expanded health and financial indicators, Urdu labels, operational alerting and a portfolio demonstration.

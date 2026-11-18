@@ -1,4 +1,6 @@
-# Project status
+# Historical project status
+
+For the current candidate and deployment state, see the [release plan](../PLANS.md).
 
 **Last updated:** 2026-11-03
 

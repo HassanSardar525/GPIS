@@ -196,8 +196,8 @@ tests/            Regression tests: API, scoring, RAG, agent, cache, sessions
 | [Source Coverage](docs/SOURCE_COVERAGE.md) | Official sources, verified periods, and candidate decisions |
 | [Project Scope](docs/PROJECT_SCOPE.md) | Problem statement, users, and non-goals |
 | [Decisions](docs/DECISIONS.md) | Architecture decision records |
-| [Status](docs/STATUS.md) | Current milestone and completed work |
-| [Backlog](docs/BACKLOG.md) | Prioritized future work |
+| [Release plan](PLANS.md) | Phase checklist, verification results and pending deployment |
+| [Testing](docs/testing.md) | Database, browser, release and curated LangSmith checks |
 | [Changelog](CHANGELOG.md) | Release history |
 
 ## ⚠️ Current Scope & Limitations
