@@ -15,39 +15,22 @@ Use the 36-district punjab-v1 contract, existing API, Render and PostgreSQL/pgve
 
 ## Verification record
 
-A release requires a successful live explanation, document retrieval, unsupported answer and provider failure check, plus the Multan to Lahore browser journey. Record actual results here. Existing historical results are in [project status](docs/STATUS.md).
+Application candidate `0a6a5fe` ran locally at `http://127.0.0.1:8177` against PostgreSQL/pgvector and Redis with the Render Groq model, `openai/gpt-oss-20b`. Revision `a108d33` corrects evaluation of age ranges and leaves the application code identical.
 
-Local UI review used 390px and 1280px screenshots. Nine UI and browser checks passed. The comparison table wraps its cells on narrow screens.
+| Check | Result |
+| --- | --- |
+| Full regression suite | All 204 tests passed on `a108d33` with fresh legacy/Punjab test databases and both browser widths. One upstream Starlette TestClient deprecation warning. [GitHub PR CI](https://github.com/HassanSardar525/GPIS/actions/runs/44370418263) also passed. |
+| Migration, seed, embeddings and document ingestion | 36 districts, 1,373 observations and 184 score results. Re-ingestion verified all 78 document chunks against the original sources. |
+| Deterministic RAG | 59 cases ran, including all four required document cases. Routing, measured answer accuracy, recall at five, citation precision and unsupported abstention each scored 1.00. |
+| Live API and failure paths | Verified a generated Groq explanation, extractive document lookup, unsupported abstention and cited fallback during an injected outage. |
+| Desktop and mobile | The 1,280px and 390px journeys verified Multan 61.41% and Lahore 79.62%, opened their workbook cells B1614 and B1284, inspected archived representation and asked a district-scoped follow-up. |
+| Packaged evidence | All 53 original-page previews validated. |
+| Hosted curated evaluation | LangSmith experiment `gpis-curated-0496c07d` on `a108d33` passed all six factual checks. The advisory judge scored grounding and relevance positively on all six. Only curated inputs were used. |
 
-The local PostgreSQL candidate passed the 59-case baseline, including all four document cases. Both originals reproduced 78 chunks (72 district rows and six parents). Hosted deployment is deferred by the owner.
+The hosted evaluation reproduced a correct Lahore count attached to an education-score citation, a tenure passage missing the handover dates, and evaluator mistakes with reversed district/value phrasing, age ranges and a changed district in a follow-up. Each correction has its own commit. CI uses the verified public archive for the health source because the official host timed out from a GitHub runner. See [testing](docs/testing.md) for reproduction commands.
 
-The six-case curated LangSmith experiment uses a content-versioned dataset. Judge scores remain advisory pending independent human calibration.
+## Remaining work
 
-Hosted experiment gpis-curated-f454244e passed six factual checks. Four judge calls were rate limited. The evaluator now honors bounded Retry-After delays and accepts an independently selected judge model.
-
-Generation configuration regression: the historical hard-coded Gemini choices ignored the configured model. The model list and generation now use GEMINI_MODEL. The local release uses the Render Groq model openai/gpt-oss-20b.
-
-Clean-runner CI reproduced two missing-workbook failures. CI now retrieves checksum-verified originals before database and document tests. The local release gate passed on PostgreSQL with live Groq, extractive lookup, abstention and all five application/outage tests.
-
-
-## Deferred work
-
-Hosted pre-merge acceptance and the production deployment await the owner's Render setup. Human calibration of the advisory judge is pending. Future research and product ideas include a comparable earlier education period, expanded health and financial indicators, Urdu labels, operational alerting and a portfolio demonstration.
-
-Generation regression from the hosted experiment: Lahore’s correct 718,199 count cited a calculated education score. The district tool now returns census evidence for census facts even when the district has scores, and the agent validates the source before displaying the generated answer.
-
-Tenure citation regression: the chief-minister history preview named the officeholders but omitted their recorded handover dates. Verified the official history, retained the separately qualified Elahi oath date, and added inline sources to the overlap statements.
-
-Evaluator regression: the judge treated an earlier Multan question as an additional requirement of the Lahore follow-up. The evaluator now labels the current request, district selection and earlier context separately.
-
-The GitHub runner reached PBS but timed out connecting to the official health PDF host. CI now extracts PHS2024 from the previously verified public multi-edition mirror and checks the original SHA-256. Production provenance continues to point to the Bureau of Statistics.
-
-A regression check distinguishes a request for a calculated literacy score from a request for the observed literacy rate. Only the observed fact requires the census table.
-
-Clean-runner CI reached both official inputs. Its pytest console entry point could not import the repository's scripts namespace. CI now uses the documented python -m pytest invocation.
-
-The same score-citation issue reproduced for pairwise literacy questions. The census source check and district-data tool now cover direct comparisons of observed census metrics as well as single-district lookups.
-
-The factual evaluator now recognizes both “Multan: 61.41%” and “61.41% for Multan”. Swapped values still fail, and the curated PBS cases explicitly require a census citation.
-
-The live Lahore case exposed an evaluator false negative: “aged 5-16 for Lahore” bound the age 16 as the population count. The checker now resolves reversed phrasing only for candidate metric values, and tests reject a wrong count or swapped district.
+- The owner plans to set up Render later. Keep [the release PR](https://github.com/HassanSardar525/GPIS/pull/1) in draft until hosted acceptance passes. Deploy production from merged main.
+- Have a human reviewer label held-out examples before adopting the judge as a release gate.
+- Longer-term work includes a comparable earlier education period, richer health and financial indicators, Urdu labels, operational alerting and a portfolio demonstration.
