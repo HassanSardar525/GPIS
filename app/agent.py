@@ -79,7 +79,9 @@ def _selected_districts(requested: list[str]) -> list[str]:
 
 
 def _census_fact_sources(question: str) -> set[str]:
-    if classify_question(question) != QuestionRoute.EXACT_FACT or re.search(r"\bscores?\b", question, re.I):
+    if classify_question(question) not in {QuestionRoute.EXACT_FACT, QuestionRoute.COMPARISON}:
+        return set()
+    if re.search(r"\b(scores?|ranks?|rankings?|overall|performance)\b", question, re.I):
         return set()
     metrics = set(requested_metrics(question)) & CENSUS_METRICS.keys()
     return {"pbs_table_1" if key == "population_2023" else "pbs_table_12" for key in metrics}

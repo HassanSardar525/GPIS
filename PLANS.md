@@ -45,3 +45,5 @@ The GitHub runner reached PBS but timed out connecting to the official health PD
 A regression check distinguishes a request for a calculated literacy score from a request for the observed literacy rate. Only the observed fact requires the census table.
 
 Clean-runner CI reached both official inputs. Its pytest console entry point could not import the repository's scripts namespace. CI now uses the documented python -m pytest invocation.
+
+The same score-citation issue reproduced for pairwise literacy questions. The census source check and district-data tool now cover direct comparisons of observed census metrics as well as single-district lookups.

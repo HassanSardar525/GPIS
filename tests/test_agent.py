@@ -469,3 +469,9 @@ def test_census_value_and_score_requests_use_different_sources():
     from app.agent import _census_fact_sources
     assert _census_fact_sources("What is the literacy score of Multan?") == set()
     assert _census_fact_sources("What is the literacy rate of Multan?") == {"pbs_table_12"}
+
+
+def test_literacy_comparisons_require_census_evidence():
+    from app.agent import _census_fact_sources
+    assert _census_fact_sources("Compare Multan and Lahore total literacy rates.") == {"pbs_table_12"}
+    assert not _census_fact_sources("Compare the education scores of Multan and Lahore.")
