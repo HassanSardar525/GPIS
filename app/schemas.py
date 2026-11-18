@@ -270,6 +270,7 @@ class RetrievedEvidence(BaseModel):
     source_id: str
     locator: str
     period: str
+    chunk_type: str | None = None
     keyword_rank: int | None = None
     vector_rank: int | None = None
     semantic_similarity: float | None = None

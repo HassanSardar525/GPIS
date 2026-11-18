@@ -454,9 +454,15 @@ class PostgresRepository:
 
     def _filters(self, statement, district_slugs: list[str], category: str | None, period: str | None):
         if self.score_version == 'punjab-v1':
-            statement = statement.where(or_(EvidenceChunk.id.like('punjab-v1-%'), EvidenceChunk.id.like('%-development-trend'), EvidenceChunk.id.like('%-health-capacity-%')))
+            statement = statement.where(or_(
+                EvidenceChunk.id.like('punjab-v1-%'),
+                EvidenceChunk.id.like('%-development-trend'),
+                EvidenceChunk.id.like('%-health-capacity-%'),
+                EvidenceChunk.chunk_type == 'table_row',
+            ))
         else:
             statement = statement.where(~EvidenceChunk.id.like('punjab-v1-%'))
+        statement = statement.where(or_(EvidenceChunk.chunk_type.is_(None), EvidenceChunk.chunk_type != 'table_parent'))
         if district_slugs:
             statement = statement.where(
                 or_(District.slug.in_(district_slugs), EvidenceChunk.district_id.is_(None))
@@ -468,17 +474,18 @@ class PostgresRepository:
         return statement
 
     @staticmethod
-    def _evidence(row, keyword_rank=None, vector_rank=None, similarity=None) -> RetrievedEvidence:
+    def _evidence(row, keyword_rank=None, vector_rank=None, similarity=None, text_override=None) -> RetrievedEvidence:
         chunk, district, source = row
         return RetrievedEvidence(
             id=chunk.id,
             district_slug=district.slug if district else "project",
             district_name=district.name if district else "GPIS Project",
             category=chunk.category,
-            text=chunk.text,
+            text=text_override or chunk.text,
             source_id=chunk.source_id,
             locator=chunk.locator,
             period=chunk.period,
+            chunk_type=chunk.chunk_type,
             keyword_rank=keyword_rank,
             vector_rank=vector_rank,
             semantic_similarity=similarity,
@@ -493,6 +500,15 @@ class PostgresRepository:
             ),
         )
 
+    @staticmethod
+    def _context_text(session, chunk: EvidenceChunk) -> str:
+        if not chunk.parent_id:
+            return chunk.text
+        parent = session.get(EvidenceChunk, chunk.parent_id)
+        if parent is None:
+            raise ValueError(f"Evidence chunk {chunk.id} references a missing parent")
+        return f"{chunk.text}\n\nTable context: {parent.text}"
+
     def keyword_search(self, query, district_slugs, category, period, limit):
         with self.sessions() as session:
             ts_query = func.websearch_to_tsquery("english", query)
@@ -504,7 +520,16 @@ class PostgresRepository:
                 .where(EvidenceChunk.search_vector.op("@@")(ts_query))
             )
             statement = self._filters(statement, district_slugs, category, period).order_by(rank.desc()).limit(limit)
-            return [self._evidence(row[:3], keyword_rank=index) for index, row in enumerate(session.execute(statement), start=1)]
+            results = []
+            for index, row in enumerate(session.execute(statement), start=1):
+                results.append(
+                    self._evidence(
+                        row[:3],
+                        keyword_rank=index,
+                        text_override=self._context_text(session, row[0]),
+                    )
+                )
+            return results
 
     def fact_search(self, query, district_slugs, limit):
         from app.punjab_services import fact_search
@@ -570,7 +595,12 @@ class PostgresRepository:
             statement = self._filters(statement, district_slugs, category, period).order_by(distance).limit(limit)
             results = []
             for index, row in enumerate(session.execute(statement), start=1):
-                results.append(self._evidence(row[:3], vector_rank=index, similarity=max(0.0, 1 - float(row.distance))))
+                results.append(self._evidence(
+                    row[:3],
+                    vector_rank=index,
+                    similarity=max(0.0, 1 - float(row.distance)),
+                    text_override=self._context_text(session, row[0]),
+                ))
             return results
 
     def record_trace(self, trace: dict) -> None:

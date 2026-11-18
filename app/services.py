@@ -334,7 +334,18 @@ class HybridRetriever:
         ordered = sorted(combined.values(), key=lambda item: (-scores[item.id], item.id))
         for item in ordered:
             item.rrf_score = round(scores[item.id], 6)
-        return ordered[:limit]
+        selected = []
+        document_groups: set[tuple[str, str]] = set()
+        for item in ordered:
+            if item.chunk_type == "table_row":
+                group = (item.source_id, item.district_slug)
+                if group in document_groups:
+                    continue
+                document_groups.add(group)
+            selected.append(item)
+            if len(selected) == limit:
+                break
+        return selected
 
 
 class ChatService:

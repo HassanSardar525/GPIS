@@ -572,6 +572,58 @@
     ]
   },
   {
+    "id": "document-pbs-literacy-multan",
+    "question": "What does PBS Table 12 report about literacy in Multan?",
+    "districts": [
+      "multan"
+    ],
+    "route": "exact_fact",
+    "expected": [
+      "fact-multan-literacy_total_pct",
+      "doc-pbs-table-12-multan-v1"
+    ],
+    "requires_document_chunks": true
+  },
+  {
+    "id": "document-pbs-oosc-lahore",
+    "question": "PBS Table 12 out-of-school children Lahore",
+    "districts": [
+      "lahore"
+    ],
+    "route": "exact_fact",
+    "expected": [
+      "fact-lahore-out_of_school_children_5_16",
+      "doc-pbs-table-12-lahore-v1"
+    ],
+    "requires_document_chunks": true
+  },
+  {
+    "id": "document-phs-hospitals-multan",
+    "question": "What does Punjab Health Statistics Table 3 report for Multan hospitals and beds?",
+    "districts": [
+      "multan"
+    ],
+    "route": "exact_fact",
+    "expected": [
+      "service-multan-phs_hospitals_beds-2023-12-31",
+      "doc-phs-2024-table-3-multan-v1"
+    ],
+    "requires_document_chunks": true
+  },
+  {
+    "id": "document-phs-missing-cell",
+    "question": "Does the health table report dispensary beds for Multan?",
+    "districts": [
+      "multan"
+    ],
+    "route": "exact_fact",
+    "expected": [
+      "service-multan-phs_dispensaries_beds-2023-12-31",
+      "doc-phs-2024-table-3-multan-v1"
+    ],
+    "requires_document_chunks": true
+  },
+  {
     "id": "unsupported-0",
     "question": "Which politician caused this result?",
     "districts": [

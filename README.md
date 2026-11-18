@@ -34,6 +34,7 @@ Election debate often focuses on promises and personalities. Official district d
 - 🤖 **Tool-using RAG agent** — LangGraph agent with three controlled tools: district-data, evidence-search, and project-knowledge
 - 📎 **Citation-first design** — Every factual sentence cites a retrieved evidence passage with publisher, period, and page locator
 - 🔍 **Hybrid retrieval** — PostgreSQL full-text search + pgvector MiniLM embeddings combined through Reciprocal Rank Fusion
+- 📄 **Document-native evidence** — Checksum-pinned PBS XLSX and Punjab Health Statistics PDF tables become district-row chunks with parent table context
 - ⚡ **Redis caching** — Failure-safe cache-aside for query embeddings and ranked evidence with corpus-version invalidation
 - 💬 **Conversational memory** — PostgreSQL-backed LangGraph session checkpoints that survive API restarts
 - 🛡️ **Guardrails** — Source-backed officeholder names are allowed; unsupported personal causation, prompt injection and score manipulation are blocked
@@ -66,8 +67,10 @@ Election debate often focuses on promises and personalities. Official district d
 
 ```mermaid
 flowchart LR
-    S["Official PDF/XLSX sources"] --> J["Reviewed curated JSON"]
+    S["Official PDF/XLSX sources"] --> J["Reviewed observations + source-specific table parsers"]
+    J --> T["Document row chunks + parent table context"]
     J --> I["Idempotent seed + MiniLM embeddings"]
+    T --> I
     I --> P["PostgreSQL + pgvector"]
     P --> D1["District-data tool: SQL facts"]
     P --> R["Filtered full-text + vector RRF"]
@@ -132,11 +135,17 @@ docker compose up -d database redis
 .\.venv\Scripts\alembic upgrade head
 .\.venv\Scripts\python -m app.cli bootstrap
 
+# Optional document-native RAG ingestion (run once per registered source edition)
+.\.venv\Scripts\pip install -e ".[ingestion]"
+.\.venv\Scripts\python -m app.cli ingest-documents --source all
+
 # Run the app
 .\.venv\Scripts\python -m app.server
 ```
 
 Open http://127.0.0.1:8000. The first bootstrap downloads the local MiniLM model (~90 MB).
+
+Document ingestion reads the registered raw files during the command, validates every extracted value against the reviewed PostgreSQL observations, and stores retrieval chunks with exact workbook cells or PDF pages. Chat requests use the stored chunks; they do not reparse the source files. Use `--dry-run` to validate files without PostgreSQL or `--no-embed` to defer embeddings.
 
 ### Run tests
 
@@ -180,7 +189,7 @@ tests/            Regression tests: API, scoring, RAG, agent, cache, sessions
 
 | Document | Description |
 |---|---|
-| [Architecture](docs/ARCHITECTURE.md) | System diagram, modules, and API surface |
+| [Architecture](docs/architecture.md) | System diagram, modules, and API surface |
 | [Punjab Scoring](docs/PUNJAB_SCORING.md) | Active 36-district formulas, periods and source conflicts |
 | [Data & Scoring](docs/DATA_AND_SCORING.md) | Scoring methodology, formulas, and evidence contract |
 | [RAG Design](docs/RAG_DESIGN.md) | Retrieval pipeline, guardrails, and evaluation |

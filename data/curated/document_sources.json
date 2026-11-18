@@ -1,0 +1,32 @@
+{
+  "pbs_table_12": {
+    "parser": "pbs_table_12",
+    "parser_version": "document-pbs-table-12-v1",
+    "source_id": "pbs_table_12",
+    "local_file": "data/raw/pbs_census_2023_table_12_punjab.xlsx",
+    "sha256": "6725ab1aa033b5d26c5b83d545eb1c7d7242a9166095d6a0c0aefa9a2745860f",
+    "sheet": "punjab",
+    "period": "2023",
+    "table_reference": "Table 12",
+    "category": "education"
+  },
+  "phs_2024_table_3": {
+    "parser": "phs_2024_table_3",
+    "parser_version": "document-phs-2024-table-3-v1",
+    "source_id": "punjab_health_statistics_2024",
+    "local_file": "data/raw/punjab_health_statistics_2024.pdf",
+    "sha256": "d8bee7c31bf48c35371f6a389ddaa7f527fca3f9b6a19ddfd034fd5abf370d32",
+    "period": "2023-12-31",
+    "table_reference": "Table 3",
+    "category": "health",
+    "pdf_pages": [19, 20, 21, 22, 23],
+    "printed_page_offset": 15,
+    "column_bounds": [172, 198, 230, 260, 281, 305, 334, 363, 391, 413, 433, 455, 476, 497, 518, 540, 560],
+    "district_aliases": {
+      "R.Y.Khan": "rahim-yar-khan",
+      "D.G.Khan": "dera-ghazi-khan",
+      "T. T. Singh": "toba-tek-singh",
+      "M. B. Din": "mandi-bahauddin"
+    }
+  }
+}

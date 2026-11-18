@@ -37,6 +37,14 @@ async def evaluate(enforce: bool) -> int:
     service = ChatService(repository, retriever, FailingProvider())
     cases_path = CASES.with_name('punjab_rag_evaluation.json') if settings.score_version == 'punjab-v1' else CASES
     cases = json.loads(cases_path.read_text(encoding="utf-8"))
+    document_chunks_available = (
+        repository.name == "postgres"
+        and bool(repository.metadata().get("document_corpus_version"))
+    )
+    cases = [
+        case for case in cases
+        if not case.get("requires_document_chunks") or document_chunks_available
+    ]
 
     route_hits = 0
     expected_total = 0

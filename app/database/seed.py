@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from hashlib import sha256
 from pathlib import Path
 
 from sqlalchemy import delete, func, select
@@ -64,9 +65,15 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
     health_capacity = load_health_capacity(health_path) if health_path.is_file() else None
     qualification = load_qualification_registry(data_path.with_name("evidence_qualification.json"))
     scored = (score_punjab if score_version == VERSION else score_districts)(data["districts"], data["metadata"]["generated_on"])
-    corpus_version = retrieval_corpus_version(data_path, score_version)
+    base_corpus_version = retrieval_corpus_version(data_path, score_version)
     sessions = session_factory(database_url)
     with sessions.begin() as session:
+        document_metadata = session.get(DatasetMetadata, "document_corpus_version")
+        corpus_version = (
+            sha256((base_corpus_version + str(document_metadata.value)).encode()).hexdigest()
+            if document_metadata is not None
+            else base_corpus_version
+        )
         for source_id, source in data["sources"].items():
             _upsert(session, Source, {"id": source_id, **source, "sha256": source.get("sha256")}, ["id"])
         if health_capacity:
