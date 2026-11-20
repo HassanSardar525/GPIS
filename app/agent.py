@@ -26,6 +26,7 @@ from app.comparisons import (
     comparison_language_is_safe,
     comparison_numbers_are_grounded,
 )
+from app.facts import CENSUS_METRICS, requested_metrics
 from app.llm import CITATION_MARKER
 from app.observability import NoopObservability, Observability
 from app.repositories import GPISRepository
@@ -75,6 +76,15 @@ class ProjectKnowledgeInput(BaseModel):
 def _selected_districts(requested: list[str]) -> list[str]:
     request = CURRENT_REQUEST.get()
     return requested or (request.selected_districts() if request else [])
+
+
+def _census_fact_sources(question: str) -> set[str]:
+    if classify_question(question) not in {QuestionRoute.EXACT_FACT, QuestionRoute.COMPARISON}:
+        return set()
+    if re.search(r"\b(scores?|ranks?|rankings?|overall|performance)\b", question, re.I):
+        return set()
+    metrics = set(requested_metrics(question)) & CENSUS_METRICS.keys()
+    return {"pbs_table_1" if key == "population_2023" else "pbs_table_12" for key in metrics}
 
 
 def _citation_dict(citation: Citation) -> dict[str, Any]:
@@ -137,6 +147,9 @@ def build_agent_tools(
     async def district_data(action: str, districts: list[str], category: str) -> str:
         """Read exact GPIS district data. Use for available districts, scores, rankings, trends, and comparisons."""
         selected = _selected_districts(districts)
+        request = CURRENT_REQUEST.get()
+        if selected and request and _census_fact_sources(request.question):
+            return json.dumps(_evidence_payload(repository.fact_search(request.question, selected, 6)), default=str)
         if action == "list":
             return json.dumps({"districts": repository.list_districts(), "count": len(repository.list_districts())})
         if action == "rankings":
@@ -363,6 +376,9 @@ class AgentChatService:
     async def answer(self, request: ChatRequest) -> ChatResponse:
         from app.routing import resolve_request_districts, unavailable_data_reason
         request = resolve_request_districts(request, self.repository)
+        from app.history_chat import is_history_question
+        if is_history_question(request.question):
+            return await self.fallback.answer(request)
         if request.model in {"fallback", "extractive"} or unavailable_data_reason(request, self.repository):
             return await self.fallback.answer(request)
         for slug in request.selected_districts():
@@ -411,6 +427,12 @@ class AgentChatService:
             if comparison and not comparison_language_is_safe(answer):
                 raise RuntimeError("The agent used unsafe causal comparison language")
             citations = [citation for key, citation in citation_map.items() if not marker_ids or key in marker_ids]
+            sources = _census_fact_sources(request.question)
+            if sources:
+                if not sources <= {citation.source_id for citation in citations} or any(
+                    citation.evidence_id.startswith("score-") for citation in citations
+                ):
+                    raise RuntimeError("Census fact requires its official census evidence")
             if comparison:
                 citations = list(
                     {

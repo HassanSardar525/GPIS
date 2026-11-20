@@ -55,7 +55,7 @@ class Settings:
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_timeout_seconds: float = 15.0
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-flash-latest"
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     gemini_timeout_seconds: float = 15.0
     phoenix_enabled: bool = False
@@ -79,7 +79,7 @@ class Settings:
             environment=os.getenv("GPIS_ENV", "development"),
             repository=repository,
             database_url=database_url,
-            score_version=os.getenv("GPIS_SCORE_VERSION", "prototype-v1"),
+            score_version=os.getenv("GPIS_SCORE_VERSION", "punjab-v1"),
             curated_data_path=Path(os.getenv("GPIS_CURATED_DATA", str(defaults.curated_data_path))),
             embedding_model=os.getenv("GPIS_EMBEDDING_MODEL", defaults.embedding_model),
             semantic_threshold=_float("GPIS_SEMANTIC_THRESHOLD", 0.35),

@@ -184,7 +184,7 @@ def test_available_models_with_gemini_and_groq_keys():
         curated_data_path=ROOT / "data/curated/districts.json",
         groq_api_key="gsk-test",
         gemini_api_key="gem-test",
-        gemini_model="gemini-1.5-flash",
+        gemini_model="gemini-flash-latest",
     )
     client = TestClient(create_app(settings=settings, repository=JsonRepository(settings.curated_data_path)))
     response = client.get("/api/v1/models")
@@ -192,10 +192,10 @@ def test_available_models_with_gemini_and_groq_keys():
     body = response.json()
     ids = [m["id"] for m in body["models"]]
     assert f"groq:{settings.groq_model}" in ids
-    assert "gemini:gemini-1.5-flash" in ids
-    assert "gemini:gemini-2.0-flash" in ids
+    assert f"gemini:{settings.gemini_model}" in ids
+    assert [m for m in ids if m.startswith("gemini:")] == [f"gemini:{settings.gemini_model}"]
     assert "fallback" in ids
-    assert body["default_model"] == "gemini:gemini-1.5-flash"
+    assert body["default_model"] == f"gemini:{settings.gemini_model}"
 
 
 def test_chat_with_explicit_fallback_model():

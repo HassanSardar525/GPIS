@@ -111,7 +111,7 @@ def main():
       "Printed health dashes mean nil or insignificant and remain null, not zero.",
       "Budgets cover District Health Authorities only, not all district spending. North: FY 2022-23; South: FY 2023-24. Do not rank these as a common-year series.",
       "Source arithmetic discrepancies and expenditure above budget are preserved; these facts do not extend the fixed ten-district GPIS score cohort."],districts=list(records.values()))
-    OUT.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
+    OUT.write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8",newline="\n")
     print(f"Verified {len(records)} districts, {sum(len(d['observations']) for d in records.values())} observations (including explicit nulls)")
 
 if __name__ == "__main__": main()

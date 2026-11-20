@@ -294,6 +294,9 @@ async def test_postgres_expired_cleanup_is_idempotent():
     await runtime.start()
     store = PostgresSessionStore(DATABASE_URL, ttl_hours=24)
     store.attach_checkpointer(runtime.checkpointer)
+    # The explicitly configured test database can contain expired sessions from
+    # earlier runs. Establish this test's baseline before creating its session.
+    await store.cleanup_expired()
     store.ensure_active(session_id)
     with session_factory(DATABASE_URL).begin() as database:
         database.get(ChatSession, session_id).expires_at = utcnow() - timedelta(seconds=1)

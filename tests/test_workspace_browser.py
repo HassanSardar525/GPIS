@@ -27,6 +27,14 @@ def test_workspace_navigation_and_charts(tmp_path):
      page.on('pageerror',lambda error:errors.append(str(error)))
      page.goto(os.environ['GPIS_BROWSER_TEST_URL'],wait_until='networkidle')
      expect(page.locator('#district-select option')).to_have_count(36)
+     summaries=page.request.get(os.environ['GPIS_BROWSER_TEST_URL']+'/api/v1/districts').json()['districts']
+     score_count=sum(d['scores']['overall'] is not None for d in summaries)
+     expect(page.locator('#map-scored-count')).to_have_text(f'{score_count} scored districts')
+     for d in summaries:
+      path=page.locator(f'.district-path[data-district="{d["slug"]}"]')
+      expect(path).to_have_count(1)
+      if d['scores']['overall'] is not None:
+       assert float(path.get_attribute('data-score'))==d['scores']['overall']
      expect(page.locator('#overview-page')).to_be_visible()
      expect(page.locator('#district-page')).to_be_hidden()
      expect(page.locator('#compare-page')).to_be_hidden()
@@ -44,7 +52,7 @@ def test_workspace_navigation_and_charts(tmp_path):
      expect(page.locator('#year-chart svg')).to_be_visible()
      expect(page.locator('#year-chart tbody tr')).to_have_count(2)
      page.locator('#ranking-category').select_option('overall')
-     expect(page.locator('#ranking-list li')).to_have_count(10)
+     expect(page.locator('#ranking-list li')).to_have_count(score_count)
      page.locator('#ranking-category').select_option('census:population_2023')
      expect(page.locator('#ranking-list .census-bar')).to_have_count(36)
      page.set_viewport_size({'width':661,'height':598})
@@ -56,8 +64,8 @@ def test_workspace_navigation_and_charts(tmp_path):
      page.locator('[data-nav=district]').click()
      expect(page.locator('#chat-form')).to_be_visible()
      expect(page.locator('#scorecards')).to_contain_text('Official health capacity')
-     expect(page.locator('#scorecards')).to_contain_text('5,818.950')
-     expect(page.locator('#scorecards')).to_contain_text('FY 2022-23')
+     expect(page.locator('#scorecards')).to_contain_text('5,472.330' if score_count==36 else '5,818.950')
+     expect(page.locator('#scorecards')).to_contain_text('FY 2023-24' if score_count==36 else 'FY 2022-23')
      assert page.evaluate("window.localStorage.getItem('gpis.sessionId')")==session
      page.reload(wait_until='networkidle')
      expect(page.locator('#district-name')).to_have_text('Lahore')

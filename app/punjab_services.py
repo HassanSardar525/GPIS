@@ -71,7 +71,8 @@ def fact_search(repository, question, slugs, limit):
         record=repository.get_district(slug)
         # Preserve the established, separately defined pilot metrics for specific legacy questions.
         from app.facts import requested_metrics
-        if record["score_details"] and requested_metrics(question): continue
+        requested = requested_metrics(question)
+        if record["score_details"] and requested and all(any(metric in record.get(category,{}) for category in ('education','health','accountability')) or metric == 'population_2023' for metric in requested): continue
         for row in query_rows(question,record):
             source=record["sources"][row["source_id"]]
             eid=f"service-{slug}-{row['metric_key']}-{row['period']}"
@@ -83,7 +84,7 @@ def fact_search(repository, question, slugs, limit):
     return results[:limit]
 
 
-def seed_services(session, dataset):
+def seed_services(session, dataset, prefix=''):
     from sqlalchemy import select
     from app.database.models import District, Observation, Source, EvidenceChunk
     from app.database.seed import _upsert
@@ -100,4 +101,6 @@ def seed_services(session, dataset):
                 if float(existing.value)!=row["value"] or existing.source_id!=row["source_id"]: raise ValueError("Conflicting existing service observation")
                 continue
             _upsert(session,Observation,values,["district_id","metric_key","period"])
-        for chunk in evidence(record): _upsert(session,EvidenceChunk,dict(chunk,district_id=did),["id"])
+        for chunk in evidence(record):
+            chunk['id'] = prefix + chunk['id']
+            _upsert(session,EvidenceChunk,dict(chunk,district_id=did),["id"])

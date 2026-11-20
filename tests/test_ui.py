@@ -20,7 +20,9 @@ def test_dashboard_exposes_trend_comparison_and_rag_states():
 
 def test_chat_output_is_escaped_before_html_rendering():
     script = (ROOT / "app/static/app.js").read_text(encoding="utf-8")
-    assert "escapeHtml(data.answer)" in script
+    assert "renderAnswerWithEvidence(data.answer, data.citations)" in script
+    historical = (ROOT / "app/static/history.js").read_text(encoding="utf-8")
+    assert "escapeHtml(answer).replace" in historical
     assert "safeUrl(citation.url)" in script
     assert "escapeHtml(citation.passage)" in script
     assert "escapeHtml(citation.title)" in script
