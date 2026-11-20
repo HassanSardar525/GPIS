@@ -14,37 +14,35 @@
   <img src="https://img.shields.io/badge/districts-36_census_%7C_36_scored-orange.svg" alt="Districts">
 </p>
 
----
+# GPIS · Government Performance Intelligence System
 
-## What is GPIS?
+GPIS helps citizens, journalists, and researchers compare Punjab’s 36 Census 2023 districts. Search for a district, compare a measure for the same reporting period, and open the government table behind it. District profiles also show who held office during a measurement period and where the historical record is incomplete.
 
-District profiles now connect measured changes to named provincial officeholders
-and clickable original-page/cell evidence. Health history covers 36 districts;
-comparative development spending covers 17 South DHAs. Officeholder dates and
-earlier-year coverage remain explicitly partial. See
-[historical evidence and coverage](docs/HISTORICAL_EVIDENCE.md).
+**Release status.** The first release candidate has passed local acceptance and GitHub CI. The Render blueprint targets merged `main`. Hosted acceptance and production deployment are pending. [Release plan](PLANS.md) · [Release pull request](https://github.com/HassanSardar525/GPIS/pull/1)
 
-Election debate often focuses on promises and personalities. Official district data exists — literacy rates, health facilities, budget audits — but it is scattered across government spreadsheets and PDF reports that ordinary citizens rarely read.
+## Explore a district
 
-**GPIS** gives citizens, journalists, and civic researchers a simple, evidence-backed view of how districts are actually performing, with enough source detail to verify every claim. Every displayed number traces to an official Pakistani government publication with exact page and table locators.
+1. **Find Multan.** Search by name or use the Punjab map. Selecting a search result opens the profile with its population, education, health capacity, budget indicators, and score breakdown.
+2. **Compare with Lahore.** Choose **Compare districts** and select Lahore. The Census 2023 total literacy row shows **61.41% for Multan** and **79.62% for Lahore**. Open the source beside either value to inspect PBS Table 12, cells `B1614` and `B1284` respectively. Rankings and charts provide the wider district context.
+3. **Check who held office.** On the profile, **Who held office during this period?** aligns dated observations with provincial administrations. Select a tenure to inspect the observations it covers, or expand archived constituency records to see the office, area, date qualifications, and source. Overlap establishes who served during the period. Assigning personal credit or blame requires separate evidence.
+4. **Ask a follow-up.** Ask GPIS carries the selected district into the question. Answers can include source passages, page or cell locators, and evidence previews. The interface identifies fallback answers and explains when evidence is insufficient. Sessions support follow-ups, expiry, starting over, and deletion.
 
-## ✨ Key Features
+## What the figures cover
 
-- 📊 **Deterministic scoring** — Education, health-access, and budget-accountability scores calculated by versioned Python rules, never by the LLM
-- 🤖 **Tool-using RAG agent** — LangGraph agent with three controlled tools: district-data, evidence-search, and project-knowledge
-- 📎 **Citation-first design** — Every factual sentence cites a retrieved evidence passage with publisher, period, and page locator
-- 🔍 **Hybrid retrieval** — PostgreSQL full-text search + pgvector MiniLM embeddings combined through Reciprocal Rank Fusion
-- 📄 **Document-native evidence** — Checksum-pinned PBS XLSX and Punjab Health Statistics PDF tables become district-row chunks with parent table context
-- ⚡ **Redis caching** — Failure-safe cache-aside for query embeddings and ranked evidence with corpus-version invalidation
-- 💬 **Conversational memory** — PostgreSQL-backed LangGraph session checkpoints that survive API restarts
-- 🛡️ **Guardrails** — Source-backed officeholder names are allowed; unsupported personal causation, prompt injection and score manipulation are blocked
-- 📈 **36 census districts** — Source-aligned data; 36 scored under punjab-v1 with education, health-capacity, and DHA budget-utilization indicators
-- 🔬 **Measurable quality** — 63-case deterministic RAG evaluation with enforced accuracy, recall, and citation gates
+| Area | Evidence and coverage |
+|---|---|
+| Education and population | PBS Census 2023 Tables 1 and 12 supply district population, literacy by sex, and out-of-school counts. A comparable earlier literacy series is awaiting review. |
+| Public health capacity | Punjab Health Statistics Table 3 provides facility and bed observations. Four institution counts have comparable snapshots on **1 January and 31 December 2023** for all 36 districts. |
+| District Health Authority spending | FY 2023–24 spending and grant utilization feed scores for all 36 districts. Reviewed historical comparisons cover 17 South Punjab authorities across FY 2022–23 and FY 2023–24. Comparability for the 19 northern authorities remains under review. |
+| Historical representation | The register contains 300 records, including seven chief-minister entries, three caretaker portfolio records, and 290 MPA entries from the 2018 Assembly’s **2021 publication**. Profiles distinguish this archived membership from verified service dates. |
+| Source viewer | Citations open registered evidence, including highlighted workbook cells, PDF pages, source summaries, and calculated-score inputs. The release packages 53 original PDF page previews. |
+
+The active `punjab-v1` score is the equal-weight mean of three measures covering literacy and gender inclusion, relative facility availability per 100,000 residents, and DHA budget utilization. These indicators describe specific aspects of district performance. Source conflicts, reporting periods, and missing inputs appear alongside the relevant figures. The original ten-district `prototype-v1` remains reproducible. [Scoring formulas](docs/PUNJAB_SCORING.md) · [Historical evidence and coverage](docs/HISTORICAL_EVIDENCE.md)
 
 ## 📸 Screenshots
 
 <details>
-<summary><strong>Overview — District scorecards at a glance</strong></summary>
+<summary><strong>Overview — Punjab district map</strong></summary>
 <br>
 <img src="docs/assets/screenshot-overview.jpg" alt="GPIS Overview Page" width="100%">
 </details>
@@ -61,105 +59,59 @@ Election debate often focuses on promises and personalities. Official district d
 <img src="docs/assets/screenshot-compare.jpg" alt="GPIS Compare and Trends" width="100%">
 </details>
 
-## 🏗️ Architecture
+## Architecture and Ask GPIS
 
-<img src="docs/assets/gpis-system-architecture.png" alt="GPIS System Architecture" width="100%">
+<img src="docs/assets/gpis-system-architecture.png" alt="GPIS ingestion, retrieval, scoring, and application architecture" width="100%">
 
-```mermaid
-flowchart LR
-    S["Official PDF/XLSX sources"] --> J["Reviewed observations + source-specific table parsers"]
-    J --> T["Document row chunks + parent table context"]
-    J --> I["Idempotent seed + MiniLM embeddings"]
-    T --> I
-    I --> P["PostgreSQL + pgvector"]
-    P --> D1["District-data tool: SQL facts"]
-    P --> R["Filtered full-text + vector RRF"]
-    R --> C1["Redis cache-aside: query vectors + ranked evidence"]
-    C1 --> E1["Evidence-search tool"]
-    J --> K1["Project-knowledge tool"]
-    D1 --> L["LangGraph agent + session memory"]
-    E1 --> L
-    K1 --> L
-    L --> G["Groq tool calling + grounded generation"]
-    L --> F["Extractive fallback / abstention"]
-    L --> X["Phoenix/OpenTelemetry traces"]
-    G --> A["FastAPI /api/v1"]
-    F --> A
-    P --> D["Deterministic scoring"]
-    D --> A
-    A --> U["HTML/CSS/JavaScript UI"]
-```
+- **Data and scoring.** Python computes versioned scores and comparisons from reviewed observations. PostgreSQL/pgvector stores observations, scores, and searchable evidence. A JSON repository supports lightweight development and parity tests.
+- **Document ingestion.** Separate, checksum-verified parsers read the PBS Table 12 workbook and the Punjab Health Statistics 2024 Table 3 PDF. They check district values against reviewed observations and produce 72 district rows plus six parent table or page records. Chat retrieves these stored passages with their source locations.
+- **Retrieval and generation.** A bounded LangGraph agent can look up structured district facts, search official evidence, or consult project methodology. Hybrid search combines PostgreSQL full-text and MiniLM vector results using reciprocal rank fusion. Groq or Gemini can generate an explanation. Citation checks, extractive fallback, and abstention handle invalid citations, provider failures, and unsupported questions. Request checks also cover prompt injection and attempts to manipulate scores.
+- **Sessions and operations.** FastAPI serves the HTML/CSS/JavaScript dashboard and versioned API. Pydantic validates API payloads, SQLAlchemy accesses PostgreSQL 16, and Alembic manages schema changes. PostgreSQL persists chat checkpoints. Redis optionally caches query embeddings and ranked evidence, with invalidation when the corpus changes. Optional Phoenix/OpenTelemetry spans support diagnostics. A separate LangSmith runner evaluates curated cases. Visitor chat disables inherited LangSmith tracing.
 
-Scores are calculated by versioned Python rules and stored in PostgreSQL. RAG and Groq may explain scores but cannot calculate or change them.
+The interactive API documentation at [local Swagger UI](http://127.0.0.1:8000/docs) includes district profiles, census and score rankings, trends, history, officeholders, evidence, model selection, chat, sessions, and service health. [Architecture](docs/architecture.md) · [RAG design](docs/RAG_DESIGN.md)
 
-## 🛠️ Tech Stack
+## Quick start
 
-| Layer | Technology |
-|---|---|
-| **Backend** | Python 3.11, FastAPI, Pydantic v2, Uvicorn |
-| **Database** | PostgreSQL 16, pgvector, Alembic migrations |
-| **RAG Agent** | LangGraph, LangChain, Gemini / Groq with source-based fallback |
-| **Embeddings** | sentence-transformers/all-MiniLM-L6-v2 (local, 384D) |
-| **Caching** | Redis 7 with failure-safe cache-aside |
-| **Observability** | Phoenix/OpenTelemetry (optional), LangSmith (optional) |
-| **Frontend** | Vanilla HTML/CSS/JavaScript (3 hash-routed views) |
-| **Infrastructure** | Docker, Docker Compose, GitHub Actions CI |
-| **Deployment** | Render (app), Neon (PostgreSQL), Upstash (Redis) |
-
-## 📊 RAG Quality Gates
-
-The table below is the historical prototype-v1 PostgreSQL baseline, not a fresh measurement of punjab-v1. Run `python scripts/run_rag_evaluation.py --enforce` locally.
-
-| Metric | Result | Gate |
-|---|---|---|
-| Answer accuracy | 92.06% | ≥ 85% |
-| Retrieval recall@5 | 98.31% | ≥ 90% |
-| Citation precision | 100% | ≥ 95% |
-| Unsupported-question abstention | 100% | = 100% |
-| Evaluation cases | 63 deterministic + 12 live-agent | — |
-
-## 🚀 Quick Start
-
-**Requirements:** Python 3.11+, Docker Desktop, and optionally a Groq API key.
+Use Python 3.11 and Docker with Compose. From a fresh checkout of the release branch, run these PowerShell commands. The example environment points to the local Compose database and selects `punjab-v1`.
 
 ```powershell
-# Clone and set up
-git clone https://github.com/HassanSardar525/GPIS.git
+git clone --branch feat/gpis-first-release https://github.com/HassanSardar525/GPIS.git
 cd GPIS
 python -m venv .venv
-.\.venv\Scripts\pip install -e ".[dev]"
-Copy-Item .env.example .env   # Then add your GROQ_API_KEY
-
-# Start services and seed data
-docker compose up -d database redis
-.\.venv\Scripts\alembic upgrade head
-.\.venv\Scripts\python -m app.cli bootstrap
-
-# Optional document-native RAG ingestion (run once per registered source edition)
-.\.venv\Scripts\pip install -e ".[ingestion]"
-.\.venv\Scripts\python -m app.cli ingest-documents --source all
-
-# Run the app
-.\.venv\Scripts\python -m app.server
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[dev,browser,ingestion]"
+Copy-Item .env.example .env
+docker compose up -d --wait database redis
+python -m alembic upgrade head
+python -m app.cli bootstrap
+python -m scripts.fetch_test_sources
+python -m app.cli ingest-documents --source all
+python -m app.server
 ```
 
-Open http://127.0.0.1:8000. The first bootstrap downloads the local MiniLM model (~90 MB).
+Open the [local dashboard](http://127.0.0.1:8000). Bootstrap seeds observations and downloads the MiniLM model on first use to embed missing evidence. Source acquisition and document ingestion are separate steps. For live answers, set `GROQ_API_KEY` or `GEMINI_API_KEY` and the corresponding model in `.env` before starting the server. Extractive answers are available without a provider key. [Environment settings](.env.example)
 
-Document ingestion reads the registered raw files during the command, validates every extracted value against the reviewed PostgreSQL observations, and stores retrieval chunks with exact workbook cells or PDF pages. Chat requests use the stored chunks; they do not reparse the source files. Use `--dry-run` to validate files without PostgreSQL or `--no-embed` to defer embeddings.
+To run the web service and its dependencies in containers, use `docker compose up --build`. Run the source acquisition and ingestion commands from the host checkout against the same database to enable document-backed retrieval. [Docker Compose configuration](compose.yml) · [Render blueprint](render.yaml)
 
-### Run tests
+## Verification
+
+The full local suite passed **204 tests** with fresh PostgreSQL test databases and desktop and mobile browsers. The results below were recorded for the release through commit `a108d33`. [Verification record](PLANS.md) · [GitHub CI run](https://github.com/HassanSardar525/GPIS/actions/runs/44370418263)
+
+| Level | What was verified |
+|---|---|
+| Component | Source extraction, routing, score formulas, district and period filters, and officeholder date matching. |
+| Pipeline | **59 deterministic cases**, including all four required document cases. Routing, answer accuracy as measured by the fixture, recall at five, citation precision, and unsupported abstention each reached **100% on this set**. Separate checks exercised live Groq generation, document lookup, abstention, and a provider outage. |
+| Application | Desktop (1,280px) and mobile (390px) browser checks followed the Multan–Lahore comparison through both source cells, archived representation, and a cited follow-up after switching districts. |
+
+The hosted LangSmith experiment `gpis-curated-0496c07d` passed exact fact and citation checks on all six curated cases. The judge rated all six grounded and relevant. Its scores remain advisory pending independent human calibration. An earlier run caught an answer that gave the correct Lahore out-of-school count but cited an education score. The agent now checks for census evidence on that question.
 
 ```powershell
-$env:GPIS_TEST_DATABASE_URL="postgresql+psycopg://gpis:gpis@localhost:5432/gpis_test"  # Dedicated disposable test database
-.\.venv\Scripts\python -m pytest -q
-.\.venv\Scripts\python scripts/run_rag_evaluation.py --enforce
+python -m pytest -q
+python -m scripts.run_rag_evaluation --enforce --require-documents
+python -m scripts.check_release --url http://127.0.0.1:8000
 ```
 
-### Full Docker startup
-
-```powershell
-docker compose up --build
-```
+For the full suite, configure separate disposable legacy and Punjab test databases. For release acceptance, run the app with a live provider and install Chrome or Playwright Chromium. The release runner fails when a required browser or document check skips. Hosted experiments use `python -m scripts.run_curated_evaluation` with a candidate URL, revision, LangSmith key, and supported Groq judge model. [Testing commands and prerequisites](docs/testing.md)
 
 ## 📁 Project Structure
 
@@ -170,15 +122,19 @@ app/
   scoring.py      Deterministic score formulas
   cache.py        Failure-safe Redis cache-aside and corpus-version keys
   routing.py      Question classification and controlled query expansion
-  llm.py          Groq provider and citation validation
+  llm.py          Groq and Gemini providers and citation validation
   embeddings.py   Local MiniLM embeddings
+  document_ingestion.py  Checksum-verified workbook and PDF table ingestion
+  history.py        Dated observations, officeholders, and evidence anchors
+  punjab_scoring.py Punjab-wide scoring rules
   comparisons.py  Deterministic pairwise comparisons
   session_store.py PostgreSQL session lifecycle
   observability.py Optional Phoenix/OpenTelemetry spans
   main.py         FastAPI app and /api/v1 routes
-  database/       SQLAlchemy models, repository, seed, migrations
+  database/       SQLAlchemy models, repository, and seed
   static/         Browser UI (3 hash-routed views)
 alembic/          Database migrations
+data/evidence/    Packaged source previews
 data/curated/     36-district scoring contract + retained pilot baseline and source snapshots
 docs/             Architecture, methodology, RAG design, decisions, status
 scripts/          Evaluation, documentation checks, session cleanup
@@ -200,20 +156,9 @@ tests/            Regression tests: API, scoring, RAG, agent, cache, sessions
 | [Testing](docs/testing.md) | Database, browser, release and curated LangSmith checks |
 | [Changelog](CHANGELOG.md) | Release history |
 
-## ⚠️ Current Scope & Limitations
-
-- All 36 Census 2023 districts have punjab-v1 scores. The original ten-district prototype-v1 remains reproducible. Source conflicts are flagged; see [Punjab methodology](docs/PUNJAB_SCORING.md).
-- Education uses literacy and gender parity — not teaching quality or annual improvement.
-- Health is relative facility availability — not care quality or outcomes.
-- Accountability is budget utilization — not proof of honesty or corruption.
-- District results do not prove that an individual politician caused an outcome.
-- Groq is optional; the extractive fallback keeps the app functional without it.
-
-See the full [scope document](docs/PROJECT_SCOPE.md) and [data methodology](docs/DATA_AND_SCORING.md).
-
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, evidence requirements, and scoring rules.
+Read the [contributor guide](AGENTS.md) and [conventions](docs/conventions.md) for phase branches, review, evidence requirements, and scoring rules.
 
 ## 📄 License
 

@@ -8,6 +8,7 @@ Let a visitor find a district, compare a same-period metric, inspect historical 
 - [ ] Exercise the deployed candidate in desktop and mobile browsers. Record the candidate revision and results before merge.
 - [ ] Publish from merged main and repeat the deployed acceptance journey.
 - [x] Add repeatable component, pipeline and application checks plus a curated LangSmith dataset and experiment.
+- [x] Update the README with the implemented district journey, evidence coverage, RAG evaluation results, setup commands, and pending Render acceptance.
 
 ## Decisions
 
