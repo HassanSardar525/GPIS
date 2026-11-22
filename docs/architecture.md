@@ -88,4 +88,4 @@ Dependency injection selects a PostgreSQL repository in normal operation and the
 
 The web application serves the district search, comparison and source viewer from the same FastAPI service as chat. Reviewed SQL facts supply census values. Document ingestion validates the registered originals against those observations, then writes searchable row and parent chunks. It runs separately from container bootstrap.
 
-The release runner exercises the deployed API and browser. A separate operator-run LangSmith client submits only versioned test cases, reference answers and cited passages to hosted experiments. Visitor chat disables inherited LangSmith tracing. The [testing guide](testing.md) describes both entry points.
+The release runner exercises the deployed API and browser. A separate operator-run LangSmith client submits only versioned test cases, reference answers and cited passages to hosted experiments. Production chat disables inherited LangSmith tracing. Developers can opt in to tracing local chat turns grouped by GPIS session ID. See the [testing guide](testing.md).

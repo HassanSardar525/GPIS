@@ -9,10 +9,11 @@ Let a visitor find a district, compare a same-period metric, inspect historical 
 - [ ] Publish from merged main and repeat the deployed acceptance journey.
 - [x] Add repeatable component, pipeline and application checks plus a curated LangSmith dataset and experiment.
 - [x] Update the README with the implemented district journey, evidence coverage, RAG evaluation results, setup commands, and pending Render acceptance.
+- [x] Add opt-in development chat traces. Verified two turns from the rebuilt local Compose API in the same `gpis-local` LangSmith thread, with each hosted run matching the API trace ID.
 
 ## Decisions
 
-Use the 36-district punjab-v1 contract, existing API, Render and PostgreSQL/pgvector. Preserve the prototype score version. Use LangSmith for curated experiments only. Human-reviewed exact facts remain authoritative. Calibrate judge scores before considering them for release gates.
+Use the 36-district punjab-v1 contract, existing API, Render and PostgreSQL/pgvector. Preserve the prototype score version. Use curated data for LangSmith experiments. Developers can also enable local session tracing. Human-reviewed exact facts remain authoritative. Calibrate judge scores before considering them for release gates.
 
 ## Verification record
 

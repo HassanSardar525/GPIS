@@ -16,6 +16,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from langchain_groq import ChatGroq
+from langsmith import trace, tracing_context
 
 try:
     from langchain_google_genai import ChatGoogleGenerativeAI
@@ -336,11 +337,16 @@ def create_app(
         session_id = request.session_id or str(uuid.uuid4())
         request = request.model_copy(update={"session_id": session_id})
         session_store.ensure_active(session_id)
-        # Hosted experiments use curated API calls in their own evaluator process.
-        # Suppress inherited SDK tracing for visitor conversations.
-        from langsmith import tracing_context
-        with tracing_context(enabled=False):
-            response = await application.state.chat_service.answer(request)
+        if settings.environment == "development" and settings.trace_local_chat:
+            with tracing_context(enabled=True, metadata={"thread_id": session_id}), trace(
+                "GPIS chat", inputs={"messages": [{"role": "user", "content": request.question}]}
+            ) as turn:
+                response = await application.state.chat_service.answer(request)
+                turn.end(outputs={"messages": [{"role": "assistant", "content": response.answer}],
+                                  "mode": response.mode, "trace_id": response.trace_id})
+        else:
+            with tracing_context(enabled=False):
+                response = await application.state.chat_service.answer(request)
         session_store.touch(session_id)
         return response.model_copy(update={"session_id": session_id})
 

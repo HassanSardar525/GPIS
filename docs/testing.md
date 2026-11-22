@@ -47,6 +47,12 @@ The runner requires the document baseline and all browser tests to execute. It e
 
 Record the URL, candidate revision, actual answer modes, and test counts in PLANS.md. Point production Render at the merged main branch and rerun the same checks after rollout.
 
+## Local chat tracing
+
+For manual tracing on a local development instance, set `GPIS_TRACE_LOCAL_CHAT=true`, `LANGSMITH_API_KEY`, and `LANGSMITH_PROJECT` in `.env`, then run `docker compose up -d --build api`. Each chat turn sends the question and answer to that tracing project. Under Threads, find the `session_id` returned by the API. Set the switch to `false` and recreate the API to stop. Production chat always disables tracing.
+
+Use a single LangSmith destination for the API process. Compose forwards the project name. For a server started directly from Python, leave `LANGSMITH_AGENT_ID` and `LANGSMITH_AGENT_ENVIRONMENT` unset when using a tracing project.
+
 ## Curated LangSmith experiments
 
 Run `python -m scripts.run_curated_evaluation --url http://127.0.0.1:8000 --revision <candidate-sha>` from the checkout with LANGSMITH_API_KEY, GROQ_API_KEY and a supported GROQ_MODEL. The evaluator posts only the six questions and follow-ups in `tests/fixtures/curated_release_v1.json`. Hosted reference data includes the reviewed source values and locators. Each example uses a fresh session that the runner deletes when finished. Visitor requests disable inherited LangSmith tracing.

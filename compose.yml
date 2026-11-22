@@ -39,6 +39,7 @@ services:
     build: .
     environment:
       GPIS_ENV: development
+      GPIS_TRACE_LOCAL_CHAT: ${GPIS_TRACE_LOCAL_CHAT:-false}
       GPIS_DATABASE_URL: postgresql+psycopg://gpis:gpis@database:5432/gpis
       GPIS_REPOSITORY: postgres
       GPIS_SCORE_VERSION: punjab-v1
@@ -58,6 +59,10 @@ services:
       PHOENIX_ENABLED: ${PHOENIX_ENABLED:-false}
       PHOENIX_COLLECTOR_ENDPOINT: http://phoenix:6006/v1/traces
       PHOENIX_PROJECT_NAME: ${PHOENIX_PROJECT_NAME:-gpis-local}
+      LANGSMITH_TRACING: ${LANGSMITH_TRACING:-false}
+      LANGSMITH_ENDPOINT: ${LANGSMITH_ENDPOINT:-https://api.smith.langchain.com}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY:-}
+      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT:-gpis-local}
     depends_on:
       database:
         condition: service_healthy
