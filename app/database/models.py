@@ -75,6 +75,16 @@ class EvidenceChunk(Base):
     period: Mapped[str] = mapped_column(String(100), index=True)
     text: Mapped[str] = mapped_column(Text)
     locator: Mapped[str] = mapped_column(Text)
+    chunk_type: Mapped[str | None] = mapped_column(String(40), index=True, nullable=True)
+    parent_id: Mapped[str | None] = mapped_column(
+        ForeignKey("evidence_chunks.id", ondelete="SET NULL"), index=True, nullable=True
+    )
+    page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    table_reference: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    source_checksum: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    parser_version: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    content_hash: Mapped[str | None] = mapped_column(String(64), index=True, nullable=True)
+    extraction_metadata: Mapped[dict] = mapped_column(JSONB, default=dict)
     embedding: Mapped[list[float] | None] = mapped_column(Vector(384), nullable=True)
     search_vector: Mapped[str] = mapped_column(
         TSVECTOR,

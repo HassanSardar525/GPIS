@@ -24,7 +24,7 @@ FACTS = {
     "bhu", "bhus", "rhc", "rhcs", "hospital", "hospitals", "budget", "lapse", "utilization", "accountability", "education", "health",
 }
 UNSUPPORTED = {"weather", "recipe", "movie", "sport", "sports", "cricket", "stock", "stocks", "horoscope", "joke"}
-PERSON_BLAME = {"blame", "caused", "politician", "politicians", "representative", "representatives"}
+PERSON_BLAME = {"blame", "caused"}
 SCORE_MANIPULATION = {"override"}
 FUTURE_PREDICTION = {"forecast", "predict", "predicted", "prediction"}
 PROMPT_INJECTION_PHRASES = {
@@ -48,6 +48,7 @@ def requires_abstention(question: str) -> bool:
     tokens = set(tokenize(question))
     return bool(
         tokens & (PERSON_BLAME | SCORE_MANIPULATION | FUTURE_PREDICTION)
+        or (tokens & {'attribute', 'credit'} and tokens & {'politician', 'politicians', 'minister', 'representative'})
         or (tokens & UNSUPPORTED and not tokens & EVIDENCE_WORDS)
         or ("ignore" in tokens and bool(tokens & {"instructions", "previous", "system"}))
         or "next year" in lowered

@@ -1,4 +1,29 @@
-# Source coverage for the RAG-first expansion
+# Source coverage
+
+## Historical release (28 October 2026)
+
+The new history interface publishes four health-capacity count comparisons for
+all 36 districts (1 January/31 December 2023), and comparative development budgets
+for the 17 South DHAs (FY 2022–23/FY 2023–24). It retains North observations but
+blocks unreviewed cross-year comparisons. Education has one reviewed census
+snapshot; 2017 comparison remains pending. Officeholder coverage is partial:
+seven CM entries, three caretaker portfolio records and 290 archived MPA records
+from the Assembly's 2021 biography. Full MPA/minister service dates are not inferred.
+
+See [historical evidence](HISTORICAL_EVIDENCE.md) for exact coverage, the Multan
+source discrepancy, 53 packaged preview pages and notification-review gaps.
+The older temporal sections below describe the preserved prototype endpoints.
+
+## Active Punjab-wide contract (2026-10-22)
+
+`punjab_districts.json` supplies complete scoring inputs for 36 Census 2023
+districts, using PHS capacity as at 2023-12-31 and FY 2023-24 DHA budgets
+for all 36. The newly acquired North audit and exact source conflicts are
+documented in [Punjab methodology](PUNJAB_SCORING.md).
+
+The sections below retain acquisition history and the older snapshots.
+Their ten-district limitations apply to prototype-v1 or temporal series,
+not the new current-period punjab-v1 score contract.
 
 ## Verified current-period coverage
 

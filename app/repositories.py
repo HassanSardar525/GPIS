@@ -64,15 +64,16 @@ class JsonRepository:
     name = "json"
 
     def __init__(self, path: Path, score_version: str = PROTOTYPE_VERSION):
-        if score_version != PROTOTYPE_VERSION:
+        from app.punjab_scoring import VERSION, load_contract, score_districts as score_punjab
+        if score_version not in {PROTOTYPE_VERSION, VERSION}:
             raise ValueError(
                 f"Score version '{score_version}' is not active; evidence-v2 remains staged"
             )
         self.path = path
-        self.data = json.loads(path.read_text(encoding="utf-8"))
+        self.data = load_contract(path) if score_version == VERSION else json.loads(path.read_text(encoding="utf-8"))
         self.score_version = score_version
         self._cache_version = retrieval_corpus_version(path, score_version)
-        self.districts = score_districts(
+        self.districts = (score_punjab if score_version == VERSION else score_districts)(
             self.data["districts"], self.data["metadata"]["generated_on"]
         )
         self.by_slug = {district["slug"]: district for district in self.districts}
@@ -85,6 +86,9 @@ class JsonRepository:
                 self.by_slug.setdefault(record["slug"], unscored_record(record))
         from app.punjab_services import load_services, profile, evidence
         services = load_services(path)
+        if score_version == VERSION:
+            services = {'sources': self.data['sources'], 'districts': [
+                dict(slug=d['slug'], name=d['name'], observations=d['service_observations']) for d in self.data['districts']]}
         if services:
             self.data["sources"].update(services["sources"])
             for record in services["districts"]:
@@ -104,10 +108,11 @@ class JsonRepository:
         return self._cache_version
 
     def _methodology_citation(self, evidence_id: str, locator: str) -> dict:
-        source = self.data["sources"]["gpis_methodology_v1"]
+        source_id = "gpis_punjab_methodology" if self.score_version == 'punjab-v1' else "gpis_methodology_v1"
+        source = self.data["sources"][source_id]
         return {
             "evidence_id": evidence_id,
-            "source_id": "gpis_methodology_v1",
+            "source_id": source_id,
             "publisher": source["publisher"],
             "title": source["title"],
             "period": source["period"],
@@ -317,7 +322,8 @@ class JsonRepository:
                 "overall": {name: scores[name] for name in ("education", "health", "accountability")},
             }[score_category]
             detail = district["derived"]["score_details"][score_category]
-            evidence_id = f"score-{slug}-{score_category}-prototype-v1"
+            components = detail['components']
+            evidence_id = f"score-{slug}-{score_category}-{self.score_version}"
             citation = self._methodology_citation(evidence_id, f"{score_category.title()} formula and stored components")
             results.append(
                 RetrievedEvidence(

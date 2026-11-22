@@ -444,3 +444,34 @@ async def test_all_three_tools_return_structured_payloads():
     assert district_payload["count"] == 36
     assert evidence_payload["evidence"]
     assert any(item["evidence_id"] == "gpis-project-scope" for item in project_payload["citations"])
+
+
+@pytest.mark.asyncio
+async def test_scored_district_census_count_must_cite_the_census():
+    repository = JsonRepository(ROOT / "data/curated/districts.json", "punjab-v1")
+    retriever = HybridRetriever(repository, None)
+    model = ScriptedModel([
+        AIMessage(content="", tool_calls=[{"name": "district_data",
+            "args": {"action": "scores", "category": "education", "districts": ["lahore"]},
+            "id": "lahore-count", "type": "tool_call"}]),
+        AIMessage(content="718,199 out-of-school children [score-lahore-education-punjab-v1]"),
+    ])
+    service = AgentChatService(repository, retriever, model, ChatService(repository, retriever, FailingProvider()))
+    response = await service.answer(ChatRequest(question="PBS Table 12 out-of-school children Lahore", districts=["lahore"]))
+    assert "718,199" in response.answer
+    assert "[score-lahore-education-punjab-v1]" not in response.answer
+    assert any(c.source_id == "pbs_table_12" for c in response.citations)
+    tool_reply = next(m for m in model.calls[-1] if m.type == "tool")
+    assert "fact-lahore-out_of_school_children_5_16" in tool_reply.content
+
+
+def test_census_value_and_score_requests_use_different_sources():
+    from app.agent import _census_fact_sources
+    assert _census_fact_sources("What is the literacy score of Multan?") == set()
+    assert _census_fact_sources("What is the literacy rate of Multan?") == {"pbs_table_12"}
+
+
+def test_literacy_comparisons_require_census_evidence():
+    from app.agent import _census_fact_sources
+    assert _census_fact_sources("Compare Multan and Lahore total literacy rates.") == {"pbs_table_12"}
+    assert not _census_fact_sources("Compare the education scores of Multan and Lahore.")
