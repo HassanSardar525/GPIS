@@ -44,3 +44,4 @@ The hosted evaluation reproduced a correct Lahore count attached to an education
 - [x] Phase 3. Section feedback and retry controls, source links, keyboard and theme regressions. Browser journeys passed at 390 and 1280 px.
 - [ ] Release acceptance. Hosted Render verification is pending. The local default Gemini live explanation returned the extractive fallback.
 - [x] Mobile follow-up. Reproduced overlapping map controls at 390 px, separated them, and verified their bounds and screenshots in both themes. Body, muted and link text meet 4.5:1 against the page and panel surfaces.
+- [x] Local verification. Full suite passed (207 tests). PostgreSQL/Groq passed the release runner with all 59 evaluation cases, three live API scenarios, and five browser/provider checks. Draft [frontend release PR](https://github.com/HassanSardar525/GPIS/pull/2) awaits hosted acceptance.
