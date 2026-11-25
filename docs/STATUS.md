@@ -1,10 +1,23 @@
-# Project status
+# Historical project status
 
-**Last updated:** 2026-09-15
+For the current candidate and deployment state, see the [release plan](../PLANS.md).
 
-**Current milestone:** Phase 6 — Deployment and portfolio completion
+**Last updated:** 2026-11-03
 
-**State:** All development phases complete; deployment and documentation in progress
+**Current milestone:** Document-native table RAG implemented; evaluation expansion next
+
+**State:** Historical profiles, officeholder records, deterministic named-person
+chat, the packaged evidence viewer, and source-specific document table ingestion
+are implemented. Health comparisons cover 36 districts and comparative development
+spending covers 17. Complete officeholder dates and 2017 education comparability
+remain research gaps. Deployment remains pending. See
+[historical evidence](HISTORICAL_EVIDENCE.md) for coverage and operating instructions.
+
+**Release checks:** 190 tests passed, with two existing opt-in browser tests skipped.
+The 55-case baseline and 59-case document-enabled deterministic RAG evaluations
+pass every enforced metric. All 53 packaged
+preview hashes and Markdown links pass validation. Fresh and existing-database
+migration paths, idempotent ingestion, embedding, and retrieval were verified locally.
 
 ## Completed
 
@@ -64,13 +77,16 @@
 - [x] Added 36-district census comparison bars, two-district factual tables, and accessible budget-utilization graphs.
 - [x] Added official health and DHA budget facts for all Punjab districts.
 - [x] Added GitHub Actions CI with PostgreSQL/pgvector service.
+- [x] Added checksum-pinned, source-specific document ingestion for PBS Table 12 XLSX and Punjab Health Statistics 2024 Table 3 PDF.
+- [x] Added 72 district-row chunks, six parent table/page contexts, observation parity checks, deterministic provenance, idempotent writes, and safe cache invalidation.
+- [x] Kept SQL observations authoritative for exact facts and scores while allowing document-derived chunks to support explanations and citations.
 
 ## Known limitations
 
-- Ten districts are scored; the remaining 26 census districts have population and literacy facts only.
+- All 36 census districts are scored under `punjab-v1`; the original ten-district `prototype-v1` remains reproducible.
 - Development-budget utilization and reviewed public health-capacity counts have two comparable periods.
 - Health and accountability are provisional proxies, not comprehensive outcome measures.
-- Raw source acquisition is manual.
+- Raw source acquisition remains manual; supported Table 12 and Table 3 extraction and chunking are automated after acquisition.
 - Groq remains optional; the extractive fallback keeps the application functional without it.
 - Free-tier deployment includes cold starts after idle periods.
 - Phoenix is optional and local; no hosted monitoring exists.

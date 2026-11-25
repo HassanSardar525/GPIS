@@ -12,6 +12,7 @@ COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini ./
 COPY data/curated ./data/curated
+COPY data/evidence ./data/evidence
 
 # PyPI's Linux torch wheel can pull multi-gigabyte CUDA libraries. GPIS only
 # performs CPU inference, so install the official CPU wheel first.
@@ -19,6 +20,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install torch --index-url https://download.pytorch.org/whl/cpu
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-build-isolation ".[observability]"
+
+RUN python -m app.history
 
 # Pre-download the MiniLM model at build time so cold starts don't
 # spend time fetching it. The model is ~90 MB.

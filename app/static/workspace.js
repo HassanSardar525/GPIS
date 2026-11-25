@@ -13,14 +13,14 @@ function censusData(metric) {
 }
 
 function navigateWorkspace(loadSelection = true) {
-  const parts = location.hash.split('/');
-  const page = ['overview', 'district', 'compare'].includes(parts[1]) ? parts[1] : 'overview';
+  const parts = location.hash.split('?')[0].split('/');
+  const page = ['overview', 'district', 'compare', 'about'].includes(parts[1]) ? parts[1] : 'overview';
   document.querySelectorAll('[data-page]').forEach(element => { element.hidden = element.dataset.page !== page; });
   document.querySelectorAll('[data-nav]').forEach(link => {
     if (link.dataset.nav === page) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   });
-  document.title = `${page === 'district' ? 'District Profile & Ask GPIS' : page === 'compare' ? 'Compare & Trends' : 'Overview'} · GPIS`;
+  document.title = `${page === 'district' ? 'District Profile & Ask GPIS' : page === 'compare' ? 'Compare' : page === 'about' ? 'About GPIS' : 'Explore'} · GPIS`;
   if (loadSelection && page === 'district' && parts[2] && parts[2] !== state.district?.slug) {
     if (state.districts.some(item => item.slug === parts[2])) {
       select.value = parts[2];
@@ -35,12 +35,14 @@ function navigateWorkspace(loadSelection = true) {
   }
 }
 
+window.addEventListener('hashchange', () => navigateWorkspace(workspaceReady));
+document.addEventListener('DOMContentLoaded', () => navigateWorkspace(false));
+
 function initWorkspaceNavigation() {
   const other = document.querySelector('#compare-other');
   other.innerHTML = state.districts.map(item => `<option value="${escapeHtml(item.slug)}">${escapeHtml(item.name)}</option>`).join('');
   other.value = state.districts.find(item => item.slug !== select.value)?.slug || select.value;
   if (!workspaceReady) {
-    window.addEventListener('hashchange', () => navigateWorkspace());
     other.addEventListener('change', loadFactComparison);
     document.querySelector('#fact-comparison').addEventListener('click', event => {
       if (event.target.closest('[data-action="retry-facts"]')) loadFactComparison();
@@ -55,8 +57,131 @@ function syncWorkspaceDistrict(data) {
   const profile = '#/district/' + data.slug;
   document.querySelector('#open-profile').href = profile;
   document.querySelector('[data-nav="district"]').href = profile;
-  if (location.hash.startsWith('#/district')) history.replaceState(null, '', profile);
+  if (location.hash.startsWith('#/district')) history.replaceState(null, '', profile + (location.hash.includes('?') ? '?' + location.hash.split('?')[1] : ''));
   if (location.hash.startsWith('#/compare')) loadFactComparison();
+}
+
+function renderComparisonCharts(datasets, left, right) {
+  const getMetric = (key) => datasets.find(d => d.metric === key);
+  const dsTotalLit = getMetric('literacy_total_pct');
+  const dsMaleLit = getMetric('literacy_male_pct');
+  const dsFemaleLit = getMetric('literacy_female_pct');
+
+  const lTotalLit = dsTotalLit?.rows.find(r => r.slug === left.slug)?.value;
+  const rTotalLit = dsTotalLit?.rows.find(r => r.slug === right.slug)?.value;
+  const lMaleLit = dsMaleLit?.rows.find(r => r.slug === left.slug)?.value;
+  const rMaleLit = dsMaleLit?.rows.find(r => r.slug === right.slug)?.value;
+  const lFemaleLit = dsFemaleLit?.rows.find(r => r.slug === left.slug)?.value;
+  const rFemaleLit = dsFemaleLit?.rows.find(r => r.slug === right.slug)?.value;
+
+  const radius = 38;
+  const circumference = 2 * Math.PI * radius; // ~238.76
+  const makeDonut = (districtName, val, maleVal, femaleVal, colorClass, isLeft) => {
+    const pct = val != null ? Math.max(0, Math.min(100, val)) : 0;
+    const offset = Math.max(0, circumference - (pct / 100) * circumference);
+    return `<div class="comp-donut-card ${colorClass}">
+      <div class="comp-donut-head">
+        <span class="comp-donut-badge ${isLeft ? 'badge-primary' : 'badge-compare'}">${isLeft ? 'Primary District' : 'Comparison District'}</span>
+        <h4 class="comp-donut-name">${escapeHtml(districtName)}</h4>
+      </div>
+      <div class="comp-donut-meter-wrap" aria-hidden="true">
+        <svg class="comp-donut-svg" viewBox="0 0 96 96" width="96" height="96">
+          <circle class="comp-donut-track" cx="48" cy="48" r="${radius}" />
+          <circle class="comp-donut-arc arc-${colorClass}" cx="48" cy="48" r="${radius}" style="stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset};" />
+        </svg>
+        <div class="comp-donut-center">
+          <strong>${val != null ? number(val, 1) + '%' : '—'}</strong>
+          <small>Total Literacy</small>
+        </div>
+      </div>
+      <div class="comp-donut-substats">
+        <span class="substat">Male: <strong>${maleVal != null ? number(maleVal, 1) + '%' : '—'}</strong></span>
+        <span class="substat-sep">·</span>
+        <span class="substat">Female: <strong>${femaleVal != null ? number(femaleVal, 1) + '%' : '—'}</strong></span>
+      </div>
+    </div>`;
+  };
+
+  const leftDonut = makeDonut(left.name, lTotalLit, lMaleLit, lFemaleLit, 'left-district', true);
+  const rightDonut = makeDonut(right.name, rTotalLit, rMaleLit, rFemaleLit, 'right-district', false);
+
+  const barCards = datasets.map(dataset => {
+    const lRow = dataset.rows.find(r => r.slug === left.slug);
+    const rRow = dataset.rows.find(r => r.slug === right.slug);
+    const lVal = lRow ? lRow.value : null;
+    const rVal = rRow ? rRow.value : null;
+    const maxVal = Math.max(lVal || 0, rVal || 0, 1);
+    const lPct = lVal != null ? Math.max(4, Math.min(100, Math.round((lVal / maxVal) * 100))) : 0;
+    const rPct = rVal != null ? Math.max(4, Math.min(100, Math.round((rVal / maxVal) * 100))) : 0;
+
+    let deltaHtml = '';
+    if (lVal != null && rVal != null) {
+      const diff = lVal - rVal;
+      if (dataset.unit === 'percent') {
+        const diffAbs = Math.abs(diff).toFixed(1);
+        if (diff > 0.05) {
+          deltaHtml = `<span class="comp-delta-badge lead-left">${escapeHtml(left.name)} +${diffAbs} pp</span>`;
+        } else if (diff < -0.05) {
+          deltaHtml = `<span class="comp-delta-badge lead-right">${escapeHtml(right.name)} +${diffAbs} pp</span>`;
+        } else {
+          deltaHtml = `<span class="comp-delta-badge lead-equal">Equal (±0 pp)</span>`;
+        }
+      } else {
+        const diffAbs = Math.abs(diff);
+        if (diff > 0) {
+          deltaHtml = `<span class="comp-delta-badge lead-left">${escapeHtml(left.name)} +${number(diffAbs)}</span>`;
+        } else if (diff < 0) {
+          deltaHtml = `<span class="comp-delta-badge lead-right">${escapeHtml(right.name)} +${number(diffAbs)}</span>`;
+        } else {
+          deltaHtml = `<span class="comp-delta-badge lead-equal">Equal</span>`;
+        }
+      }
+    }
+
+    const formatVal = val => val == null ? 'Unavailable' : `${number(val, dataset.unit === 'percent' ? 2 : 0)}${dataset.unit === 'percent' ? '%' : ''}`;
+
+    return `<div class="comp-bar-card">
+      <div class="comp-bar-head">
+        <span class="comp-bar-title">${escapeHtml(dataset.label)}</span>
+        ${deltaHtml}
+      </div>
+      <div class="comp-bars-body">
+        <div class="comp-bar-row">
+          <span class="comp-bar-name" title="${escapeHtml(left.name)}">${escapeHtml(left.name)}</span>
+          <div class="comp-bar-track">
+            <div class="comp-bar-fill fill-left" style="width: ${lPct}%;"></div>
+          </div>
+          <span class="comp-bar-value">${escapeHtml(formatVal(lVal))}</span>
+        </div>
+        <div class="comp-bar-row">
+          <span class="comp-bar-name" title="${escapeHtml(right.name)}">${escapeHtml(right.name)}</span>
+          <div class="comp-bar-track">
+            <div class="comp-bar-fill fill-right" style="width: ${rPct}%;"></div>
+          </div>
+          <span class="comp-bar-value">${escapeHtml(formatVal(rVal))}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="comparison-visual-section">
+    <div class="comparison-donuts-header">
+      <h3 class="comparison-visual-heading">Literacy Rate Comparison (Census 2023)</h3>
+      <p class="comparison-visual-sub">Side-by-side literacy breakdown with male and female parity</p>
+    </div>
+    <div class="comparison-donuts-grid">
+      ${leftDonut}
+      <div class="comp-donuts-vs" aria-hidden="true"><span>VS</span></div>
+      ${rightDonut}
+    </div>
+    <div class="comparison-bars-header">
+      <h3 class="comparison-visual-heading">Comparative Metric Profiles</h3>
+      <p class="comparison-visual-sub">Animated proportional dual-bar comparisons across census indicators</p>
+    </div>
+    <div class="comparison-bars-grid">
+      ${barCards}
+    </div>
+  </div>`;
 }
 
 async function loadFactComparison() {
@@ -70,7 +195,7 @@ async function loadFactComparison() {
     return;
   }
   setBusy(container, true, 'Loading comparable census facts…');
-  const metrics = ['population_2023', 'literacy_total_pct', 'literacy_male_pct', 'literacy_female_pct', 'out_of_school_children_5_16'];
+  const metrics = ['literacy_total_pct', 'literacy_male_pct', 'literacy_female_pct', 'population_2023', 'out_of_school_children_5_16'];
   try {
     const datasets = await Promise.all(metrics.map(censusData));
     if (requestId !== factComparisonRequest) return;
@@ -78,15 +203,20 @@ async function loadFactComparison() {
     const right = state.districts.find(item => item.slug === rightSlug);
     const cell = (dataset, slug) => {
       const row = dataset.rows.find(item => item.slug === slug);
-      if (!row) return '<td>Unavailable</td>';
+      if (row?.value == null) return `<td>No figure for ${escapeHtml(dataset.period)}</td>`;
+      const anchor = row.citation.anchor_ids?.[0];
+      const source = anchor
+        ? evidenceButtons([anchor], 'View source')
+        : `<a class="source-link" href="${safeUrl(row.citation.url)}" target="_blank" rel="noreferrer">Official table</a>`;
       return `<td>${escapeHtml(number(row.value, dataset.unit === 'percent' ? 2 : 0))}${dataset.unit === 'percent' ? '%' : ''}
-        <a class="source-link" href="${safeUrl(row.citation.url)}" target="_blank" rel="noreferrer" title="${escapeHtml(row.citation.locator)}">Source</a></td>`;
+        ${source}</td>`;
     };
     container.innerHTML = `<div class="comparison-table-wrap"><table class="comparison-table">
       <caption>Census 2023 · ${escapeHtml(left.name)} and ${escapeHtml(right.name)}</caption>
       <thead><tr><th scope="col">Metric</th><th scope="col">${escapeHtml(left.name)}</th><th scope="col">${escapeHtml(right.name)}</th></tr></thead>
-      <tbody>${datasets.map(dataset => `<tr><th scope="row">${escapeHtml(dataset.label)}</th>${cell(dataset, leftSlug)}${cell(dataset, rightSlug)}</tr>`).join('')}</tbody></table></div>
-      <p class="coverage-note">One census snapshot. These facts do not establish a yearly trend or an overall performance score.</p>`;
+      <tbody>${datasets.map(dataset => `<tr><th scope="row">${escapeHtml(dataset.label)}<small>${escapeHtml(dataset.period)} · ${escapeHtml(dataset.unit)}</small></th>${cell(dataset, leftSlug)}${cell(dataset, rightSlug)}</tr>`).join('')}</tbody></table></div>
+      <p class="coverage-note">Punjab Census 2023. A comparable 2017 district literacy series is awaiting review.</p>
+      ${renderComparisonCharts(datasets, left, right)}`;
     setBusy(container, false);
   } catch (error) {
     if (requestId !== factComparisonRequest) return;

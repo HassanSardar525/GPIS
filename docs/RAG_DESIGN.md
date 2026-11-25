@@ -1,10 +1,19 @@
 # RAG design
 
+Current scoring: punjab-v1 covers 36 census districts; prototype-v1 remains available explicitly. Gemini and Groq are selectable providers. See [Punjab methodology](PUNJAB_SCORING.md).
+
 ## Purpose
 
 The evidence assistant helps a user understand official district data without asking them to read large spreadsheets or audit reports. Retrieval-augmented generation is used for explanation, not scoring.
 
 ## Current implementation
+
+Named-officeholder and tenure questions first use `historical_records`, a
+deterministic route shared by the agent and fallback service. It resolves reviewed
+roles/dates, calculates compatible district changes in Python and returns stable
+evidence anchors. It does not infer individual causation. The original retrieval
+flow below still handles other district questions. Full MPA/minister dates and
+earlier-year evidence remain partial; see [historical coverage](HISTORICAL_EVIDENCE.md).
 
 1. The browser creates a session ID and submits the question plus selected district filters.
 2. A single LangGraph agent may answer conversation directly or call at most two tool rounds.
@@ -17,6 +26,22 @@ The evidence assistant helps a user understand official district data without as
 9. Without a Groq key, the previous deterministic router, extractive fallback, and abstention behavior remain available.
 
 The application remains fully usable without a Groq key. Retrieved documents are treated as untrusted data and cannot supply instructions or modify scores.
+
+### Document-native table evidence
+
+`python -m app.cli ingest-documents --source all` processes two registered,
+checksum-pinned sources: PBS Census 2023 Table 12 XLSX and Punjab Health
+Statistics 2024 Table 3 PDF. The source-specific parsers validate layouts,
+district aliases, units, periods, missing cells, and every extracted numeric value
+against reviewed PostgreSQL observations before writing evidence.
+
+Each district block becomes a focused child chunk that repeats its table headers,
+units, period, and district. Each workbook table or PDF page also has a parent
+context chunk. Retrieval ranks only child rows and attaches their parent context
+before generation. Printed PDF dashes remain “not reported,” never zero. Existing
+SQL observations remain authoritative for exact facts and scoring; document chunks
+provide original-source context and citations. Raw documents are needed only for
+ingestion, not for runtime chat requests.
 
 ## Required guardrails
 
@@ -32,7 +57,7 @@ The application remains fully usable without a Groq key. Retrieved documents are
 
 Maintain questions covering direct fact lookup, district comparison, score explanation, source and period questions, unsupported questions requiring abstention, and adversarial requests to blame a person or override a score.
 
-The fixed 60-question deterministic fixture measures route accuracy, answer accuracy, retrieval recall@5, citation precision, unsupported abstention, retrieval latency, and end-to-end answer latency. Run `python scripts/run_rag_evaluation.py --enforce` against PostgreSQL before changing routing, chunks, embeddings, or thresholds.
+The deterministic fixture measures route accuracy, answer accuracy, retrieval recall@5, citation precision, unsupported abstention, retrieval latency, and end-to-end answer latency. Four document-specific cases are enabled automatically when PostgreSQL contains a `document_corpus_version`. Run `python scripts/run_rag_evaluation.py --enforce` against PostgreSQL before changing routing, chunks, embeddings, or thresholds.
 
 The fixed 12-scenario live-agent fixture covers greetings, exact score lookup, structured score/component comparisons, evidence search, methodology, single- and two-district temporal questions, follow-up memory, prompt injection, and score manipulation. With `GROQ_API_KEY` configured, run `python scripts/run_agent_evaluation.py --enforce` to measure answer accuracy, route accuracy, tool-selection accuracy, citation precision, abstention accuracy, and p50/p95 latency. Without a key, the command reports that the live-agent evaluation was skipped.
 

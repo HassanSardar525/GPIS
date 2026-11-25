@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from hashlib import sha256
 from pathlib import Path
 
 from sqlalchemy import delete, func, select
@@ -53,14 +54,26 @@ def _unit(metric: str) -> str:
 
 
 def seed_database(database_url: str, data_path: Path, score_version: str) -> dict[str, int]:
-    data = json.loads(data_path.read_text(encoding="utf-8"))
+    from app.punjab_scoring import VERSION, METHODS, load_contract, score_districts as score_punjab
+    if score_version not in {'prototype-v1', VERSION}:
+        raise ValueError('Unsupported score version')
+    # Retain the original cohort and score version before adding the new contract.
+    if score_version == VERSION:
+        seed_database(database_url, data_path, 'prototype-v1')
+    data = load_contract(data_path) if score_version == VERSION else json.loads(data_path.read_text(encoding="utf-8"))
     health_path = data_path.with_name("health_capacity_periods.json")
     health_capacity = load_health_capacity(health_path) if health_path.is_file() else None
     qualification = load_qualification_registry(data_path.with_name("evidence_qualification.json"))
-    scored = score_districts(data["districts"], data["metadata"]["generated_on"])
-    corpus_version = retrieval_corpus_version(data_path, score_version)
+    scored = (score_punjab if score_version == VERSION else score_districts)(data["districts"], data["metadata"]["generated_on"])
+    base_corpus_version = retrieval_corpus_version(data_path, score_version)
     sessions = session_factory(database_url)
     with sessions.begin() as session:
+        document_metadata = session.get(DatasetMetadata, "document_corpus_version")
+        corpus_version = (
+            sha256((base_corpus_version + str(document_metadata.value)).encode()).hexdigest()
+            if document_metadata is not None
+            else base_corpus_version
+        )
         for source_id, source in data["sources"].items():
             _upsert(session, Source, {"id": source_id, **source, "sha256": source.get("sha256")}, ["id"])
         if health_capacity:
@@ -122,6 +135,8 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
             for category, metric, value, evidence in observations:
                 source_id = evidence["source_id"]
                 period = data["sources"][source_id]["period"]
+                if score_version == VERSION and category == 'health':
+                    period = '2023-12-31'
                 _upsert(
                     session,
                     Observation,
@@ -134,7 +149,7 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                         "period": period,
                         "source_id": source_id,
                         "locator": evidence["locator"],
-                        "definition_version": "prototype-v1",
+                        "definition_version": score_version,
                         "geography_level": "district",
                         "population_basis": (
                             "Census 2023 district population"
@@ -147,9 +162,9 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                     ["district_id", "metric_key", "period"],
                 )
             temporal_evidence = next(
-                item for item in district["evidence"] if item["id"].endswith("-development-trend")
+                (item for item in district["evidence"] if item["id"].endswith("-development-trend")), None
             )
-            for period, period_values in district["accountability_periods"].items():
+            for period, period_values in district.get("accountability_periods", {}).items():
                 for metric, value in period_values.items():
                     _upsert(
                         session,
@@ -312,6 +327,8 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
                 )
 
         for category, formula in FORMULAS.items():
+            if score_version == VERSION:
+                formula = {'description': METHODS[category], 'cohort': 36, 'version': VERSION}
             _upsert(
                 session,
                 ScoreDefinition,
@@ -359,6 +376,11 @@ def seed_database(database_url: str, data_path: Path, score_version: str) -> dic
         services = load_services(data_path)
         if services:
             seed_services(session, services)
+        if score_version == VERSION:
+            seed_services(session, {'sources': data['sources'], 'districts': [dict(
+                slug=d['slug'], name=d['name'], observations=[{k:v for k,v in o.items() if k!='raw_text'} for o in d['service_observations']]) for d in data['districts']]}, prefix='punjab-v1-')
+        from app.history import seed_history
+        seed_history(session, data_path)
         return {
             "districts": session.scalar(select(func.count()).select_from(District)),
             "observations": session.scalar(select(func.count()).select_from(Observation)),

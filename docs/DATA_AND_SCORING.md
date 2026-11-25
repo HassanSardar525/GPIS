@@ -1,5 +1,10 @@
 # Data and scoring methodology
 
+The active application version is **punjab-v1**, covering 36 census districts.
+See [Punjab scoring](PUNJAB_SCORING.md) for its source contract and formulas.
+The definitions below document the retained **prototype-v1** and inactive
+**evidence-v2** versions; they must not be used to explain punjab-v1.
+
 ## Evidence contract
 
 Each district record contains raw metrics, evidence passages, and source metadata. A usable factual observation must include:
