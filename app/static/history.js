@@ -134,6 +134,11 @@ async function openEvidence(id, bookmark = true) {
     const params = new URLSearchParams(query || ''); params.set('evidence',id);
     history.pushState(null,'',`${path || '#/overview'}?${params}`);
   }
+  evidenceData = null;
+  document.querySelector('#evidence-controls').hidden = true;
+  document.querySelector('#evidence-official').hidden = true;
+  document.querySelector('#evidence-locator').textContent = '';
+  document.querySelector('#evidence-status').textContent = '';
   document.querySelector('#evidence-title').textContent = 'Loading evidence…';
   document.querySelector('#evidence-document').innerHTML = '';
   document.querySelector('#evidence-text').textContent = '';
@@ -153,7 +158,13 @@ async function openEvidence(id, bookmark = true) {
     if(token!==evidenceRequest)return;
     evidenceData=null;
     document.querySelector('#evidence-title').textContent='Evidence unavailable';
-    document.querySelector('#evidence-status').textContent=error.message;
+    const status = document.querySelector('#evidence-status');
+    status.textContent = error.message + ' ';
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.textContent = 'Retry evidence';
+    retry.onclick = () => openEvidence(id, false);
+    status.append(retry);
     document.querySelector('#evidence-official').hidden=true;
   }
 }

@@ -231,7 +231,7 @@ footer { padding: 28px; border-top: 1px solid var(--line); text-align: center; c
   .comparison-districts { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0s !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
 
 #overall-score[data-available="false"] { font-size: 1.8rem; overflow-wrap: anywhere; }
@@ -1214,3 +1214,25 @@ footer a, #evidence-official { color: var(--green); }
   #fact-comparison .comparison-table :is(th,td) { white-space: normal; overflow-wrap: anywhere; padding: .45rem .25rem; }
   #fact-comparison .comparison-table button { max-width: 100%; white-space: normal; padding: .4rem; }
 }
+
+.notice:empty { display: none; }
+.score-explainer { margin-bottom: var(--space-2); color: var(--muted); }
+.score-explainer summary { cursor: pointer; color: var(--green); }
+#fact-comparison .comparison-table { font-size: .9rem; }
+#fact-comparison .comparison-table :is(th, td) { border-color: var(--line); }
+#fact-comparison .comparison-table [data-evidence] { display: block; margin: .3rem 0 0 auto; padding: .3rem; color: var(--green); background: transparent; text-decoration: underline; }
+[data-theme="dark"] .map-tooltip-badge.badge-scored { background: var(--accent-fill); color: var(--ink); }
+[data-theme="dark"] .history-point { fill: var(--green); }
+[data-theme="dark"] .history-point.selected-point { fill: var(--gold); }
+[data-theme="dark"] .observation-interval { stroke: var(--green); }
+[data-theme="dark"] .evidence-sheet caption { color: var(--ink); }
+[data-theme="dark"] .evidence-sheet { background: var(--panel); color: var(--ink); }
+[data-theme="dark"] .evidence-sheet small { color: var(--muted); }
+[data-theme="dark"] .evidence-sheet .highlight-cell { background: #564728; }
+
+[data-theme="dark"] .district-path.is-active { fill: var(--accent-fill) !important; }
+[data-theme="dark"] .district-label-group.is-active-label .district-map-label { fill: var(--ink); }
+[data-theme="dark"] .map-status-pill.is-zoomed { color: var(--ink); }
+
+.metric-source, .score-method { color: inherit; text-underline-offset: .18em; }
+.score-method { display: inline-block; margin-top: .4rem; font-size: .85rem; }

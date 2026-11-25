@@ -35,12 +35,14 @@ function navigateWorkspace(loadSelection = true) {
   }
 }
 
+window.addEventListener('hashchange', () => navigateWorkspace(workspaceReady));
+document.addEventListener('DOMContentLoaded', () => navigateWorkspace(false));
+
 function initWorkspaceNavigation() {
   const other = document.querySelector('#compare-other');
   other.innerHTML = state.districts.map(item => `<option value="${escapeHtml(item.slug)}">${escapeHtml(item.name)}</option>`).join('');
   other.value = state.districts.find(item => item.slug !== select.value)?.slug || select.value;
   if (!workspaceReady) {
-    window.addEventListener('hashchange', () => navigateWorkspace());
     other.addEventListener('change', loadFactComparison);
     document.querySelector('#fact-comparison').addEventListener('click', event => {
       if (event.target.closest('[data-action="retry-facts"]')) loadFactComparison();
@@ -201,7 +203,7 @@ async function loadFactComparison() {
     const right = state.districts.find(item => item.slug === rightSlug);
     const cell = (dataset, slug) => {
       const row = dataset.rows.find(item => item.slug === slug);
-      if (!row) return '<td>Unavailable</td>';
+      if (row?.value == null) return `<td>No figure for ${escapeHtml(dataset.period)}</td>`;
       const anchor = row.citation.anchor_ids?.[0];
       const source = anchor
         ? evidenceButtons([anchor], 'View source')

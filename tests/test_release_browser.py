@@ -30,6 +30,11 @@ def browser_page(request):
 @pytest.mark.parametrize("browser_page", [390, 1280], indirect=True)
 def test_district_journey(browser_page, tmp_path):
     page, expect = browser_page
+    page.emulate_media(color_scheme="dark", reduced_motion="reduce")
+    expect(page.locator("html")).to_have_attribute("data-theme", "dark")
+    page.locator("#theme-choice").select_option("light")
+    page.reload(wait_until="networkidle")
+    expect(page.locator("html")).to_have_attribute("data-theme", "light")
     search = page.locator("#district-query")
     search.fill("Multan")
     search.press("Enter")
@@ -47,9 +52,22 @@ def test_district_journey(browser_page, tmp_path):
     expect(literacy.locator("td").nth(1)).to_contain_text("79.62%")
     for i, cell in enumerate(("B1614", "B1284")):
         literacy.locator("td").nth(i).get_by_role("button").click()
-        expect(page.locator(".highlight-cell").filter(has_text=cell)).to_be_visible()
+        highlight = page.locator(".highlight-cell").filter(has_text=cell)
+        expect(highlight).to_be_visible()
+        bookmark = page.url
+        page.locator("#theme-choice").evaluate("""control => {
+            control.value = 'system';
+            control.dispatchEvent(new Event('change'));
+        }""")
+        page.emulate_media(color_scheme="light" if i == 0 else "dark")
+        expect(highlight).to_be_visible()
+        assert page.url == bookmark
         page.locator("#evidence-close").click()
-    page.screenshot(path=str(tmp_path / "comparison.png"))
+    page.evaluate("window.scrollTo(0, 0)")
+    for theme in ("light", "dark"):
+        page.locator("#theme-choice").select_option(theme)
+        expect(table.locator("thead")).to_contain_text("Multan")
+        page.screenshot(path=str(tmp_path / f"comparison-{theme}.png"))
     page.locator("[data-nav=district]").click()
     representation = page.get_by_text("Constituency representation", exact=False).filter(has_text="published 2021").first
     representation.click()

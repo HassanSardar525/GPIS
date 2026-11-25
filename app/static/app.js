@@ -132,6 +132,8 @@ function showDistrictError(error) {
   document.querySelector('#district-summary').setAttribute('aria-busy', 'false');
   document.querySelector('#district-name').textContent = 'District unavailable';
   document.querySelector('#scorecards').innerHTML = `<div class="state-error" role="alert"><p>${escapeHtml(error.message)}</p><button type="button" data-action="retry-district">Retry district</button></div>`;
+  const notice = document.querySelector('#notice');
+  notice.innerHTML = '<span>District details could not load.</span> <button type="button" data-action="retry-district">Retry district</button>';
   renderTrendError(error);
 }
 
@@ -255,7 +257,7 @@ function card(category, title, score, rank, detail, metrics, sourceUrl) {
   return `<article class="score-card" data-evidence-category="${category}">
     <div class="score-top"><div><h3>${escapeHtml(title)}</h3><span class="rank">Rank ${rank.rank} of ${state.districts.filter(item => item.scores[category] != null).length}</span></div><button class="score-number" type="button" data-score-category="${category}" title="Ask why this score was given">${score}</button></div>
     ${renderScoreQuality(detail)}
-    <ul class="metric-list">${metrics.map(([label, value]) => `<li><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`).join('')}</ul>
+    <ul class="metric-list">${metrics.map(([label, value]) => `<li><span>${escapeHtml(label)}</span><strong><a class="metric-source" href="${safeUrl(sourceUrl)}" target="_blank" rel="noreferrer" aria-label="${escapeHtml(label)}: ${escapeHtml(value)}, official source">${escapeHtml(value)}</a></strong></li>`).join('')}</ul>
     <a class="source-link" href="${safeUrl(sourceUrl)}" target="_blank" rel="noreferrer">View official source ↗</a>
   </article>`;
 }
@@ -284,16 +286,21 @@ function officialServiceCards(data) {
 }
 
 function renderDistrict(data) {
+  const hadSelection = Boolean(state.district);
   state.district = data;
   document.querySelector('#chat-context').textContent = 'District: ' + data.name;
   if (typeof syncWorkspaceDistrict === 'function') syncWorkspaceDistrict(data);
-  if (typeof window.highlightDistrictOnMap === 'function') window.highlightDistrictOnMap(data.slug, { zoom: true });
-  setBusy(document.querySelector('#notice'), false, data.metadata.disclaimer);
+  if (typeof window.highlightDistrictOnMap === 'function') window.highlightDistrictOnMap(data.slug, { zoom: hadSelection });
+  document.querySelector('#score-disclaimer').textContent = data.metadata.disclaimer;
+  setBusy(document.querySelector('#notice'), false, '');
   document.querySelector('#district-name').textContent = data.name;
   document.querySelector('#selected-summary').textContent = data.name;
   const populationSource = document.querySelector('#population-source');
   populationSource.hidden = !data.sources.pbs_table_1?.url;
   if (!populationSource.hidden) populationSource.href = safeUrl(data.sources.pbs_table_1.url);
+  const populationAnchor = data.evidence_anchors?.context?.[0];
+  if (populationAnchor) populationSource.dataset.evidence = populationAnchor;
+  else delete populationSource.dataset.evidence;
   document.querySelector('#population').textContent = `Population ${number(data.population_2023)} · Census 2023`;
   document.querySelector('#overall-score').dataset.available = String(data.derived.scores.overall != null);
   if (data.derived.scores.overall == null) {
@@ -342,6 +349,7 @@ function renderDistrict(data) {
 }
 
 function renderTrend(data) {
+  document.querySelector('#retry-trend').hidden = true;
   state.trend = data;
   if (typeof renderYearChart === 'function') renderYearChart(data);
   const signedChange = `${data.change_percentage_points > 0 ? '+' : ''}${number(data.change_percentage_points, 2)} pp`;
@@ -380,6 +388,7 @@ function renderTrend(data) {
 }
 
 function renderTrendError(error) {
+  document.querySelector('#retry-trend').hidden = !state.district || error.code === 'trend_unavailable';
   state.trend = null;
   document.querySelector('#year-chart')?.replaceChildren();
   const trendLabel = document.querySelector('#trend-district-label');
@@ -578,7 +587,20 @@ function chooseDistrict(slug) {
 }
 
 select.addEventListener('change', () => chooseDistrict(select.value));
-document.querySelector('#district-results').addEventListener('change', event => chooseDistrict(event.target.value));
+const districtResults = document.querySelector('#district-results');
+function confirmDistrictResult() {
+  if (!districtResults.value) return;
+  const slug = districtResults.value;
+  document.querySelector('#district-query').focus();
+  chooseDistrict(slug);
+}
+districtResults.addEventListener('click', confirmDistrictResult);
+districtResults.addEventListener('keydown', event => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    confirmDistrictResult();
+  }
+});
 const districtSearch = document.querySelector('.district-search');
 districtSearch.addEventListener('focusout', event => {
   if (!districtSearch.contains(event.relatedTarget)) document.querySelector('#district-results').hidden = true;
@@ -598,9 +620,24 @@ document.querySelector('#district-query').addEventListener('keydown', event => {
     event.preventDefault();
     const slug = results.value || results.options[0]?.value;
     chooseDistrict(slug);
-  } else if (event.key === 'ArrowDown' && !results.hidden && !results.disabled) {
+  } else if (event.key === 'ArrowDown' && !results.disabled) {
     event.preventDefault();
+    if (results.hidden) filterDistricts(true);
+    results.selectedIndex = 0;
     results.focus();
+  }
+});
+document.querySelector('#retry-trend').addEventListener('click', async () => {
+  const slug = select.value;
+  const requestId = state.districtRequest;
+  document.querySelector('#retry-trend').hidden = true;
+  setBusy(document.querySelector('#trend-panel'), true);
+  document.querySelector('#trend-change').textContent = 'Loading trend…';
+  try {
+    const trend = await json(`/api/v1/districts/${slug}/trends/development-budget`);
+    if (requestId === state.districtRequest) renderTrend(trend);
+  } catch (error) {
+    if (requestId === state.districtRequest) renderTrendError(error);
   }
 });
 rankingCategory.addEventListener('change', () => loadRankings().catch(showRankingError));
