@@ -14,13 +14,13 @@ function censusData(metric) {
 
 function navigateWorkspace(loadSelection = true) {
   const parts = location.hash.split('?')[0].split('/');
-  const page = ['overview', 'district', 'compare'].includes(parts[1]) ? parts[1] : 'overview';
+  const page = ['overview', 'district', 'compare', 'about'].includes(parts[1]) ? parts[1] : 'overview';
   document.querySelectorAll('[data-page]').forEach(element => { element.hidden = element.dataset.page !== page; });
   document.querySelectorAll('[data-nav]').forEach(link => {
     if (link.dataset.nav === page) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   });
-  document.title = `${page === 'district' ? 'District Profile & Ask GPIS' : page === 'compare' ? 'Compare & Trends' : 'Overview'} · GPIS`;
+  document.title = `${page === 'district' ? 'District Profile & Ask GPIS' : page === 'compare' ? 'Compare' : page === 'about' ? 'About GPIS' : 'Explore'} · GPIS`;
   if (loadSelection && page === 'district' && parts[2] && parts[2] !== state.district?.slug) {
     if (state.districts.some(item => item.slug === parts[2])) {
       select.value = parts[2];

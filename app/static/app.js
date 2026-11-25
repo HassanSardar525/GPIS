@@ -290,6 +290,10 @@ function renderDistrict(data) {
   if (typeof window.highlightDistrictOnMap === 'function') window.highlightDistrictOnMap(data.slug, { zoom: true });
   setBusy(document.querySelector('#notice'), false, data.metadata.disclaimer);
   document.querySelector('#district-name').textContent = data.name;
+  document.querySelector('#selected-summary').textContent = data.name;
+  const populationSource = document.querySelector('#population-source');
+  populationSource.hidden = !data.sources.pbs_table_1?.url;
+  if (!populationSource.hidden) populationSource.href = safeUrl(data.sources.pbs_table_1.url);
   document.querySelector('#population').textContent = `Population ${number(data.population_2023)} · Census 2023`;
   document.querySelector('#overall-score').dataset.available = String(data.derived.scores.overall != null);
   if (data.derived.scores.overall == null) {
@@ -499,7 +503,7 @@ async function askQuestion(question, districts = [state.district?.slug]) {
   }
 }
 
-function filterDistricts() {
+function filterDistricts(showAll = false) {
   const results = document.querySelector('#district-results');
   const query = document.querySelector('#district-query').value.trim();
   const normalize = value => value.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -512,12 +516,12 @@ function filterDistricts() {
     ? matches.map(district => `<option value="${escapeHtml(district.slug)}">${escapeHtml(district.name)}</option>`).join('')
     : '<option value="">No matching districts</option>';
   results.disabled = matches.length === 0;
-  results.size = query ? Math.max(2, Math.min(matches.length, 5)) : 1;
-  if (query && matches.length) results.selectedIndex = -1;
-  results.hidden = !query;
+  results.size = query || showAll ? Math.max(2, Math.min(matches.length, 5)) : 1;
+  if (matches.length) results.selectedIndex = -1;
+  results.hidden = !query && !showAll;
   document.querySelector('#district-search-status').textContent = query
     ? (matches.length ? `${matches.length} matching district${matches.length === 1 ? '' : 's'}. Choose a result or press Enter.` : 'No matching districts. Try another name.')
-    : 'District-level official data';
+    : 'Browse all districts or type a name.';
 }
 
 async function init() {
@@ -562,35 +566,41 @@ async function init() {
   await Promise.all([loadDistrict(initialSlug), loadModels()]);
 }
 
-function openDistrictProfile(slug) {
+function chooseDistrict(slug) {
   if (!slug) return;
   select.value = slug;
-  document.querySelector('#district-query').value = '';
+  const input = document.querySelector('#district-query');
+  input.value = '';
   filterDistricts();
-  const route = '#/district/' + slug;
-  if (location.hash !== route) location.hash = route;
-  else if (state.district?.slug !== slug) loadDistrict(slug).catch(showDistrictError);
+  document.querySelector('#selected-summary').textContent = select.selectedOptions[0].textContent;
+  document.querySelector('#open-profile').href = '#/district/' + slug;
+  loadDistrict(slug).catch(showDistrictError);
 }
 
-select.addEventListener('change', () => {
-  if (location.hash.startsWith('#/compare')) loadDistrict(select.value).catch(showDistrictError);
-  else openDistrictProfile(select.value);
+select.addEventListener('change', () => chooseDistrict(select.value));
+document.querySelector('#district-results').addEventListener('change', event => chooseDistrict(event.target.value));
+const districtSearch = document.querySelector('.district-search');
+districtSearch.addEventListener('focusout', event => {
+  if (!districtSearch.contains(event.relatedTarget)) document.querySelector('#district-results').hidden = true;
 });
-document.querySelector('#district-results').addEventListener('change', event => openDistrictProfile(event.target.value));
+document.querySelector('#district-query').addEventListener('focus', () => filterDistricts(true));
+districtSearch.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    document.querySelector('#district-query').focus();
+    document.querySelector('#district-results').hidden = true;
+  }
+});
 document.querySelector('#focus-chat').addEventListener('click', () => document.querySelector('#chat-question').focus());
-document.querySelector('#district-query').addEventListener('input', filterDistricts);
+document.querySelector('#district-query').addEventListener('input', () => filterDistricts(true));
 document.querySelector('#district-query').addEventListener('keydown', event => {
   const results = document.querySelector('#district-results');
   if (event.key === 'Enter' && !results.hidden && !results.disabled) {
     event.preventDefault();
     const slug = results.value || results.options[0]?.value;
-    openDistrictProfile(slug);
+    chooseDistrict(slug);
   } else if (event.key === 'ArrowDown' && !results.hidden && !results.disabled) {
     event.preventDefault();
     results.focus();
-  } else if (event.key === 'Escape') {
-    event.target.value = '';
-    filterDistricts();
   }
 });
 rankingCategory.addEventListener('change', () => loadRankings().catch(showRankingError));

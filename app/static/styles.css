@@ -1194,3 +1194,23 @@ footer a, #evidence-official { color: var(--green); }
     transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
   }
 }
+
+.selection-summary { display: grid; gap: var(--space-1); }
+.selection-summary strong { font: 700 1.4rem var(--font-title); }
+.compare-pickers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); margin-bottom: var(--space-2); }
+.compare-pickers select { margin-top: var(--space-1); }
+.district-search { position: relative; }
+#district-results:not([hidden]) { position: absolute; top: 100%; z-index: 5; padding: .4rem; box-shadow: var(--shadow); }
+#about-page .panel { margin-bottom: var(--space-3); }
+[data-theme="dark"] .profile-link { background: var(--accent-fill); }
+@media (max-width: 600px) {
+  .site-header { display: grid; grid-template-columns: 1fr auto; padding: 12px 16px; }
+  .theme-control { grid-row: 1; grid-column: 2; }
+  .page-nav { grid-column: 1 / -1; gap: 2px; }
+  .page-nav a { padding: 8px 10px; }
+  .selection-summary { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+  .district-toolbar .district-search { width: 100%; }
+  #fact-comparison .comparison-table { table-layout: fixed; min-width: 0; width: 100%; }
+  #fact-comparison .comparison-table :is(th,td) { white-space: normal; overflow-wrap: anywhere; padding: .45rem .25rem; }
+  #fact-comparison .comparison-table button { max-width: 100%; white-space: normal; padding: .4rem; }
+}

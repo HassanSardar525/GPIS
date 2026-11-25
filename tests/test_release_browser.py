@@ -34,6 +34,7 @@ def test_district_journey(browser_page, tmp_path):
     search.fill("Multan")
     search.press("Enter")
     expect(page.locator("#district-name")).to_have_text("Multan")
+    page.locator("#open-profile").click()
     expect(page.locator("#district-page")).to_be_visible()
     page.locator("[data-nav=compare]").click()
     page.locator("#compare-other").select_option("lahore")
@@ -56,8 +57,10 @@ def test_district_journey(browser_page, tmp_path):
     page.locator("#model-select").select_option("fallback")
     for district, number in (("Multan", "61.41"), ("Lahore", "79.6")):
         if district == "Lahore":
+            page.locator("[data-nav=overview]").click()
             search.fill(district)
             search.press("Enter")
+            page.locator("#open-profile").click()
         expect(page.locator("#district-name")).to_have_text(district)
         page.locator("#focus-chat").click()
         page.locator("#chat-question").fill("What is the total literacy rate?")

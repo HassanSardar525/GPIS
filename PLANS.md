@@ -40,5 +40,5 @@ The hosted evaluation reproduced a correct Lahore count attached to an education
 ## Frontend refresh
 
 - [x] Phase 1. Shared theme tokens and System, Light and Dark control. Verified switching on all three existing routes in Chrome.
-- [ ] Phase 2. District-first navigation and layouts.
+- [x] Phase 2. District-first navigation and layouts.
 - [ ] Phase 3. Section feedback, browser journeys and release verification.

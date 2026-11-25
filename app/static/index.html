@@ -11,11 +11,11 @@
 
 <body>
   <header class="site-header">
-    <a class="brand" href="#/overview">GPIS <span>Prototype</span></a>
+    <a class="brand" href="#/overview">GPIS</a>
     <nav class="page-nav" aria-label="Main navigation">
-      <a href="#/overview" data-nav="overview">Overview</a>
-      <a href="#/district" data-nav="district">District Profile &amp; Ask GPIS</a>
-      <a href="#/compare" data-nav="compare">Compare &amp; Trends</a>
+      <a href="#/overview" data-nav="overview">Explore</a>
+      <a href="#/district" data-nav="district">District profile</a>
+      <a href="#/compare" data-nav="compare">Compare</a>
     </nav>
     <label class="theme-control">Theme
       <select id="theme-choice"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select>
@@ -23,6 +23,8 @@
   </header>
 
   <main>
+    <section id="notice" class="notice" role="status" aria-live="polite"></section>
+    <section data-page="overview" id="overview-page">
     <section class="district-toolbar" aria-label="District selection">
       <div class="district-search">
         <label for="district-query">Find your district</label>
@@ -30,14 +32,14 @@
           aria-controls="district-results" aria-describedby="district-search-status">
         <select id="district-results" aria-label="Search results" hidden></select>
         <small id="district-search-status" role="status" aria-live="polite">District-level official data</small>
-        <label for="district-select">Or choose from the full list</label>
-        <select id="district-select" aria-label="Choose a district from the full list"></select>
-      </div>
-      <a class="profile-link" href="#/district" id="open-profile">Open district profile</a>
-    </section>
-    <section id="notice" class="notice" role="status" aria-live="polite"></section>
 
-    <section data-page="overview" id="overview-page">
+      </div>
+      <div class="selection-summary"><strong id="selected-summary" aria-live="polite"></strong>
+      <a class="profile-link" href="#/district" id="open-profile">View profile</a></div>
+    </section>
+
+
+
       <!-- Interactive Punjab 36-District SVG Map Component -->
       <section class="district-map-section" aria-label="Interactive District Map of Punjab, Pakistan">
         <div class="district-map-header">
@@ -455,8 +457,9 @@
 
 
 
-      <div class="overview-links"><a href="#/district">Explore district facts and ask questions →</a><a
-          href="#/compare">Compare districts and view charts →</a></div>
+    </section>
+    <section data-page="about" id="about-page" hidden>
+      <div class="page-intro"><h1>About GPIS</h1><p>Explore official census, health and spending records for Punjab’s 36 census districts. Every figure belongs to a reporting period. Missing records are shown as unavailable.</p></div>
       <section class="panel methodology">
         <p class="eyebrow">Read scores responsibly</p>
         <h2>What the prototype measures</h2>
@@ -532,8 +535,8 @@
         <div>
           <p class="eyebrow">District profile · source periods shown below</p>
           <h2 id="district-name">Loading…</h2>
-          <p id="population"></p>
-          <div class="profile-actions"><a href="#/compare">Compare districts</a><button type="button" id="focus-chat">Ask GPIS</button></div>
+          <p><span id="population"></span> <a id="population-source" class="source-link" target="_blank" rel="noreferrer">View source</a></p>
+          <div class="profile-actions"><a href="#/compare">Compare this district</a><button type="button" id="focus-chat">Ask GPIS</button></div>
         </div>
         <div class="overall-badge">
           <span>Overall comparative score</span>
@@ -602,8 +605,10 @@
       </div>
       <section class="panel fact-comparison" aria-labelledby="facts-title">
         <h2 id="facts-title">Side-by-side census facts</h2>
-        <label for="compare-other">Compare the selected district with</label>
-        <select id="compare-other"></select>
+        <div class="compare-pickers">
+          <label>First district<select id="district-select"></select></label>
+          <label>Second district<select id="compare-other"></select></label>
+        </div>
         <div id="fact-comparison" aria-live="polite" aria-busy="false"></div>
       </section>
       <article class="panel">
@@ -649,7 +654,7 @@
 
     </div>
   </main>
-  <footer>Architecture v0.2 · Scores and period changes are deterministic; RAG retrieves and explains them.</footer>
+  <footer><a href="#/about" data-nav="about">About GPIS</a></footer>
   <dialog id="evidence-panel" aria-labelledby="evidence-title">
     <div class="evidence-toolbar"><h2 id="evidence-title">Source evidence</h2><button type="button" id="evidence-close" aria-label="Close evidence">Close</button></div>
     <p id="evidence-locator"></p><p id="evidence-status" role="status"></p>
