@@ -43,3 +43,4 @@ The hosted evaluation reproduced a correct Lahore count attached to an education
 - [x] Phase 2. District-first navigation and layouts.
 - [x] Phase 3. Section feedback and retry controls, source links, keyboard and theme regressions. Browser journeys passed at 390 and 1280 px.
 - [ ] Release acceptance. Hosted Render verification is pending. The local default Gemini live explanation returned the extractive fallback.
+- [x] Mobile follow-up. Reproduced overlapping map controls at 390 px, separated them, and verified their bounds and screenshots in both themes. Body, muted and link text meet 4.5:1 against the page and panel surfaces.

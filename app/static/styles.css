@@ -1236,3 +1236,7 @@ footer a, #evidence-official { color: var(--green); }
 
 .metric-source, .score-method { color: inherit; text-underline-offset: .18em; }
 .score-method { display: inline-block; margin-top: .4rem; font-size: .85rem; }
+
+@media (max-width: 600px) {
+  .map-status-pill { top: auto; bottom: .85rem; max-width: calc(100% - 1.7rem); }
+}
