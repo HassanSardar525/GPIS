@@ -36,3 +36,9 @@ The hosted evaluation reproduced a correct Lahore count attached to an education
 - The owner plans to set up Render later. Keep [the release PR](https://github.com/HassanSardar525/GPIS/pull/1) in draft until hosted acceptance passes. Deploy production from merged main.
 - Have a human reviewer label held-out examples before adopting the judge as a release gate.
 - Longer-term work includes a comparable earlier education period, richer health and financial indicators, Urdu labels, operational alerting and a portfolio demonstration.
+
+## Frontend refresh
+
+- [x] Phase 1. Shared theme tokens and System, Light and Dark control. Verified switching on all three existing routes in Chrome.
+- [ ] Phase 2. District-first navigation and layouts.
+- [ ] Phase 3. Section feedback, browser journeys and release verification.
