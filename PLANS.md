@@ -58,3 +58,4 @@ The hosted evaluation reproduced a correct Lahore count attached to an education
 - [x] Group education, health and financial measures under three expandable cards. Move category history into its card and preserve source and score details.
 - [x] The expanded card fits the mobile viewport with the chart open. All four browser journeys passed. Reviewed the Attock profile at 390 and 1280 px.
 - [x] Confirmed history loads in the Health card on the older localhost API and the updated candidate.
+- [x] Local PostgreSQL release gate and full regression suite passed. [Draft PR 4](https://github.com/HassanSardar525/GPIS/pull/4) awaits hosted Render acceptance.
