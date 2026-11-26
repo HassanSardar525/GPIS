@@ -214,9 +214,14 @@ class HistoryRepository:
             r['officeholders'] = [t['id'] for t in holders['terms'] if possible_overlap(t, r['start'], r['end'])]
             bounds = term_bounds(selected) if selected else None
             r['within_selected_tenure'] = bool(bounds and bounds[0] <= r['start'] and r['end'] <= bounds[1])
-        return {'district': slug, 'metric': metric, 'metric_info': data['metrics'][metric],
+        district_comparison = compare_observations(rows, holders['terms'])
+        eligible = [t['id'] for t in holders['terms']
+                    if t['status'] == 'verified' and term_bounds(t)
+                    and compare_observations(rows, holders['terms'], t)['change'] is not None]
+        return {'district_comparison': district_comparison, 'comparable_tenures': eligible,
+                'district': slug, 'metric': metric, 'metric_info': data['metrics'][metric],
                 'metrics': data['metrics'], 'observations': sorted(rows, key=lambda r:r['start']),
-                'comparison': compare_observations(rows, holders['terms'], selected),
+                'comparison': compare_observations(rows, holders['terms'], selected) if selected else district_comparison,
                 'coverage': data['districts'][slug]['metrics'][metric], 'selected_tenure': tenure,
                 'notice': 'Missing years are not interpolated. Amounts are nominal rupees. No personal causal claim is implied.'}
 

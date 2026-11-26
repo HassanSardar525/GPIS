@@ -69,7 +69,7 @@ def test_district_journey(browser_page, tmp_path):
         expect(table.locator("thead")).to_contain_text("Multan")
         page.screenshot(path=str(tmp_path / f"comparison-{theme}.png"))
     page.locator("[data-nav=district]").click()
-    representation = page.get_by_text("Constituency representation", exact=False).filter(has_text="published 2021").first
+    representation = page.get_by_text("Historical representation", exact=False).filter(has_text="published 2021").first
     representation.click()
     expect(page.locator("#historical-content details[open]")).to_contain_text("start date unverified", ignore_case=True)
     page.locator("#model-select").select_option("fallback")

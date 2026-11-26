@@ -45,7 +45,7 @@ async function loadHistoricalEvidence(slug, reset = false) {
     const metricSelect = document.querySelector('#historical-metric');
     metricSelect.innerHTML = Object.entries(data.metrics).filter(([,m]) => m.category === category).map(([key,m]) => `<option value="${key}">${escapeHtml(m.label)}</option>`).join('');
     metricSelect.value = historicalMetric;
-    const comparison = data.comparison;
+    const comparison = data.district_comparison;
     const overlapNames = (comparison.officeholders || []).map(t => (t.person || 'Vacancy') + (t.status !== 'verified' ? ' (dates awaiting review)' : '')).join(', ');
     const selected = holders.terms.find(t => t.id === historicalTenure);
     const points = data.observations.filter(o => o.value !== null);
@@ -64,27 +64,42 @@ async function loadHistoricalEvidence(slug, reset = false) {
     const executives = holders.terms.filter(t => t.responsibility === 'provincial_executive');
     const representatives = holders.terms.filter(t => t.responsibility === 'constituency_representation');
     function termCard(t) {
+      const eligible = data.comparable_tenures.includes(t.id);
+      const startsBetween = comparison.change !== null && t.start_precision === 'day' &&
+        comparison.start < t.start && t.start <= comparison.end;
+      const qualification = startsBetween ? `Took office on ${escapeHtml(t.start)}, after the first measurement began on ${escapeHtml(comparison.start)}.` : '';
       return `<li class="officeholder ${historicalTenure === t.id ? 'selected-tenure' : ''}">
-        <button type="button" data-tenure="${escapeHtml(t.id)}" aria-pressed="${historicalTenure === t.id}">${escapeHtml(t.person || 'Vacancy')}</button>
+        <strong>${escapeHtml(t.person || 'Vacancy')}</strong>
+        ${eligible ? `<button type="button" data-tenure="${escapeHtml(t.id)}" aria-pressed="${historicalTenure === t.id}">Compare this term</button>` : ''}
+        ${qualification ? `<p>${qualification}</p>` : ''}
         <p>${escapeHtml(t.role)} · ${escapeHtml(t.constituency || 'Punjab province')}${t.portfolio ? ' · '+escapeHtml(t.portfolio) : ''} · ${escapeHtml(t.party || 'Party not recorded')}${t.caretaker ? ' · Caretaker' : ''}</p>
         <p>${escapeHtml(termDates(t))}</p>
         ${t.constituency ? `<p>${escapeHtml(t.constituency)} · ${escapeHtml(t.boundary_edition)}</p>` : ''}
         <details><summary>${t.status === 'verified' ? 'Source and date notes' : 'Incomplete record — review notes'}</summary><p>${escapeHtml(t.notes.join(' '))}</p>${evidenceButtons(t.anchor_ids)}</details>
       </li>`;
     }
-    container.innerHTML = `<p class="history-coverage"><strong>${escapeHtml(data.coverage.status.replaceAll('_',' '))}</strong> · ${escapeHtml(data.coverage.reason)}</p>
-      <div class="history-result" role="status"><strong>${escapeHtml(comparison.label)}</strong>
-      ${comparison.change !== null ? `<p>${number(comparison.change,3)} ${escapeHtml(comparison.unit)} · ${escapeHtml(comparison.from)} → ${escapeHtml(comparison.to)}</p><p>${escapeHtml(overlapNames)}</p>${evidenceButtons(comparison.anchor_ids)}` : ''}
-      <p>${escapeHtml(comparison.reason)}</p></div>
-      ${historicalTenure ? '<button type="button" data-tenure="">Clear tenure selection</button>' : ''}
+    const unit = {percent: '%', count: '', million_pkr: ' Rs million'}[data.metric_info.unit] ?? ' ' + escapeHtml(data.metric_info.unit);
+    const precision = {percent: 2, count: 0, million_pkr: 3}[data.metric_info.unit] ?? 2;
+    const gap = !points.length ? 'No reviewed figure for this measure.' :
+      category === 'education' && points.length === 1 ? 'An earlier comparable literacy figure is awaiting review.' :
+      points.length < 2 ? 'Only one measured period is available.' :
+      'The reporting boundaries and definitions still need a cross-year check.';
+    container.innerHTML = `<div class="history-readings">${data.observations.map(o => `<div>
+      <span>${escapeHtml(o.period)}</span><strong>${o.value === null ? 'Not reported' : number(o.value, precision) + unit}</strong>
+      ${evidenceButtons(o.anchor_ids, 'View source')}</div>`).join('')}</div>
+      <div class="history-result" role="status">${comparison.change !== null ?
+        `<strong>District change: ${comparison.change > 0 ? '+' : ''}${number(comparison.change,precision)} ${escapeHtml(comparison.unit.replace('million_pkr','Rs million'))}</strong>
+        <p>${escapeHtml(comparison.label)} · ${escapeHtml(overlapNames)}</p>` : escapeHtml(gap)}</div>
+      ${selected && data.comparison.change !== null ? `<p>${escapeHtml(selected.person)} · Change within this term: ${number(data.comparison.change,precision)} ${escapeHtml(data.comparison.unit)}</p><button type="button" data-tenure="">Clear tenure selection</button>` : ''}
+      <details class="history-detail"><summary>Chart and measurement details</summary>
       <div class="history-chart">${chart}</div>
       <div class="table-scroll"><table class="comparison-table"><caption>${escapeHtml(data.metric_info.label)} — measured dates, not publication dates</caption><thead><tr><th>Observation period</th><th>Value</th><th>Administrations overlapping this period</th><th>Evidence</th></tr></thead><tbody>
       ${data.observations.map(o => `<tr class="${o.within_selected_tenure ? 'selected-tenure' : ''}"><th>${escapeHtml(o.period)}<small>${escapeHtml(o.start)} to ${escapeHtml(o.end)} (${escapeHtml(o.date_precision)})</small></th><td>${o.value === null ? 'Not reported' : number(o.value,3)}</td><td>${escapeHtml(holders.terms.filter(t => o.officeholders.includes(t.id)).map(t => t.person).join(', ') || 'Verified date coverage unavailable')}<small>${escapeHtml(o.reason)}</small></td><td>${evidenceButtons(o.anchor_ids)}</td></tr>`).join('')}
       </tbody></table></div>
-      <p>${escapeHtml(data.notice)}</p>
-      <h3>Provincial executive timeline</h3><p>2017 onward · Select a term to highlight its observations. Unknown dates remain incomplete.</p>
-      <ol class="officeholder-timeline">${executives.map(termCard).join('')}</ol>
-      <details><summary>Constituency representation · 2018 Assembly, published 2021 (${representatives.length} archived records)</summary><p>${escapeHtml(holders.coverage.mpas)}</p><p>${escapeHtml(holders.notice)}</p><ul class="officeholder-timeline">${representatives.map(termCard).join('') || '<li>No reviewed representation records yet.</li>'}</ul></details>
+      <p>${escapeHtml(data.notice)}</p></details>
+      <details><summary>Provincial officeholders and term dates</summary>
+      <ol class="officeholder-timeline">${executives.map(termCard).join('')}</ol></details>
+      <details><summary>Historical representation · 2018 Assembly, published 2021 (${representatives.length} archived records)</summary><p>${escapeHtml(holders.coverage.mpas)}</p><p>${escapeHtml(holders.notice)}</p><ul class="officeholder-timeline">${representatives.map(termCard).join('') || '<li>No reviewed representation records yet.</li>'}</ul></details>
       <p class="history-coverage">${escapeHtml(holders.coverage.ministers)}</p>
       ${evidenceButtons(['calculated-'+slug], 'How this district’s scores are calculated')}`;
   } catch (error) {
@@ -180,13 +195,13 @@ document.addEventListener('click',event=>{
   const term=event.target.closest('[data-tenure]');
   if(term){historicalTenure=term.dataset.tenure;loadHistoricalEvidence(historicalSlug);}
   const tab=event.target.closest('[data-history-category]');
-  if(tab){historicalMetric={education:'literacy_total_pct',health:'phs_hospitals_count',spending:'dha_development_utilization_pct'}[tab.dataset.historyCategory];loadHistoricalEvidence(historicalSlug);}
+  if(tab){historicalMetric={education:'literacy_total_pct',health:'phs_hospitals_count',spending:'dha_development_budget_million_pkr'}[tab.dataset.historyCategory];loadHistoricalEvidence(historicalSlug,true);}
   if(event.target.closest('[data-history-retry]'))loadHistoricalEvidence(historicalSlug);
 });
 document.addEventListener('keydown',event=>{
   if(['Enter',' '].includes(event.key) && event.target.matches('circle[data-evidence]')) {event.preventDefault();openEvidence(event.target.dataset.evidence);}
 });
-document.querySelector('#historical-metric').addEventListener('change',event=>{historicalMetric=event.target.value;loadHistoricalEvidence(historicalSlug);});
+document.querySelector('#historical-metric').addEventListener('change',event=>{historicalMetric=event.target.value;loadHistoricalEvidence(historicalSlug,true);});
 document.querySelector('#evidence-close').addEventListener('click',()=>document.querySelector('#evidence-panel').close());
 document.querySelector('#evidence-panel').addEventListener('close',()=>{
   ++evidenceRequest;

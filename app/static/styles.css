@@ -1240,3 +1240,9 @@ footer a, #evidence-official { color: var(--green); }
 @media (max-width: 600px) {
   .map-status-pill { top: auto; bottom: .85rem; max-width: calc(100% - 1.7rem); }
 }
+
+.history-readings { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+.history-readings > div { flex: 1 1 8rem; padding: var(--space-2); border: 1px solid var(--line); border-radius: 10px; }
+.history-readings strong { display: block; margin: .3rem 0; font: bold 1.5rem var(--font-title); }
+#historical-content > details { padding-block: .65rem; border-top: 1px solid var(--line); }
+#historical-content summary { cursor: pointer; }
