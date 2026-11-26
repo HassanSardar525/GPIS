@@ -49,4 +49,4 @@ The hosted evaluation reproduced a correct Lahore count attached to an education
 ## District history evidence coverage
 
 - [x] Show district readings and explain coverage before officeholder context. Browser journeys passed and layouts reviewed at 390 and 1280 px.
-- [ ] Reconcile North DHA development accounts and document the literacy baseline.
+- [x] Reconcile North DHA development tables for 19 authorities. Five authorities have disputed inputs. All 56 source previews validated.

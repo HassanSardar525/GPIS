@@ -5,6 +5,7 @@ No model-generated text is searched for or used as an exact source quotation.
 """
 from __future__ import annotations
 
+from decimal import Decimal
 import hashlib
 import json
 import re
@@ -226,6 +227,55 @@ def build():
                     if slug=='multan':reason+=' Source conflict: comparative table final grant is 1013.030m; existing score input is 1013.029m. Historical series follows this table; scores are unchanged.'
                     observation(d,dict(metric_key=key,value=value,unit=unit,period=period,source_id=sid,locator=locator),'agp-south-comparative-development-v1',reason,aid)
 
+    # Cross-check the North report's explicit two-year tables against both district chapters.
+    sid = 'agp_dha_north_budget_2023_24'
+    periods = ('FY 2022-23', 'FY 2023-24')
+    north = {d['slug'] for d in current['districts']} - set(south)
+    chapter = {(r['district'], r['period'], r['metric']): r for r in observations if r['district'] in north}
+    with pdfplumber.open(ROOT / sources[sid]['local_file']) as pdf:
+        for measure, parts in [('budget', [(22, 1), (23, 0)]), ('expenditure', [(23, 1), (24, 0)])]:
+            metric = f'dha_development_{measure}_million_pkr'
+            totals = [Decimal(0), Decimal(0)]
+            seen = set()
+            for page_number, table_index in parts:
+                table = pdf.pages[page_number - 1].extract_tables()[table_index]
+                assert table[0][2::2] == list(periods)
+                heading = 'Final Grant' if measure == 'budget' else 'Expenditure'
+                assert all(table[1][c].replace('\n', ' ') == heading for c in (3, 5))
+                for row in table[2:]:
+                    values = [Decimal(row[c].replace(',', '')) for c in (3, 5)]
+                    if row[0] == 'Total':
+                        assert values == totals and seen == north
+                        continue
+                    slug = row[1].lower().replace(' ', '-')
+                    assert slug in north and slug not in seen
+                    seen.add(slug)
+                    locator = f'{heading}, {row[1]}, row {row[0]}; PDF page {page_number} (printed page {page_number-18})'
+                    aid = anchor(sid, locator)
+                    for i, (period, value) in enumerate(zip(periods, values)):
+                        totals[i] += value
+                        record = chapter[slug, period, metric]
+                        record['anchor_ids'].append(aid)
+                        if Decimal(str(record['value'])) == value:
+                            record['comparability'] = 'agp-north-comparative-development-v1'
+                            record['reason'] = 'District chapter and two-year comparison table agree for this authority and period.'
+                        else:
+                            record['reason'] = (f"Source conflict: district chapter reports {record['value']:.3f} million; "
+                                                f"comparative table reports {value:.3f} million. Change withheld.")
+    for slug in sorted(north):
+        for period in periods:
+            budget = chapter[slug, period, 'dha_development_budget_million_pkr']
+            spent = chapter[slug, period, 'dha_development_expenditure_million_pkr']
+            supported = budget['comparability'] and spent['comparability'] and budget['value']
+            observations.append({**budget, 'id': f"{slug}-dha_development_utilization_pct-{period.replace(' ', '-')}",
+                'metric': 'dha_development_utilization_pct', 'definition': 'dha_development_utilization_pct-v1',
+                'value': 100 * spent['value'] / budget['value'] if supported else None, 'unit': 'percent',
+                'comparability': budget['comparability'] if supported else None,
+                'status': 'verified' if supported else 'awaiting_review',
+                'reason': 'Expenditure divided by final grant, multiplied by 100.' if supported else
+                          'Utilization withheld: a source input is disputed or the denominator is zero.',
+                'anchor_ids': list(dict.fromkeys(budget['anchor_ids'] + spent['anchor_ids']))})
+
     # Hand-reviewed official officeholder register, with provenance per event.
     office = read('officeholder_register')
     for source_id, source in office['sources'].items():
@@ -276,7 +326,7 @@ def build():
             'ministers': 'Partial: reviewed caretaker portfolio appointments; remaining terms and portfolio changes await notifications.',
             'mpas': 'Partial 2021 biography snapshot. Actual service dates, vacancies and by-elections await review.',
             'status':'awaiting_review'}}
-    result = dict(version='history-v1', reviewed_on='2026-10-27', research_from='2017', sources=sources,
+    result = dict(version='history-v1', reviewed_on='2026-11-26', research_from='2017', sources=sources,
         source_register=office['source_register'],metrics=metrics,districts=districts,terms=terms,
         observations=observations,anchors=anchors,citation_index=index)
     # Scores are calculated, never a quoted source statistic. Link their input evidence.

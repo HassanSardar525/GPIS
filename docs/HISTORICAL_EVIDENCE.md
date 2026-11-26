@@ -9,14 +9,14 @@ This feature is additive: neither score formulas nor the two score contracts cha
 |---|---|
 | Health capacity | Four institution-count categories for all 36 census districts, at 1 January and 31 December 2023. Original Table 3 pages and component tehsil lists reviewed. Counts are not quality, access or outcomes. |
 | Development spending | Final grant, expenditure and calculated utilization for the 17 South DHA authorities in the report's explicit FY 2022–23/FY 2023–24 comparison. Nominal Rs million. |
-| North DHA history | Earlier and current source observations retained for 19 authorities. Cross-year definition/geography review is pending, so changes are blocked. |
+| North DHA history | The North report compares the same 19 DHAs across FY 2022–23 and FY 2023–24. Its development final grants match both district chapters for 16 authorities, expenditure for 16, and both inputs for 14. Total-budget and total-expenditure changes remain unverified. |
 | Education | Census 2023 literacy for 36 districts. PBS 2017 archive is registered for review; no 2017–2023 education change is published yet. |
 | Chief ministers | Seven named entries spanning the research period. Four have usable reviewed date intervals; early oath dates and Hamza Shahbaz's handover remain qualified. |
 | Ministers | Three caretaker portfolio records reported in January 2023. Exact portfolio start/end notifications remain unverified. |
 | MPAs | 290 constituency/name/party records from the Assembly's **2021 publication for the 2018 assembly**, spanning all 36 districts. These are archived representation records, not current MPAs or verified full terms. |
-| Previews | 53 original PDF page images, plus original workbook cells and headings. Reviewed highlights cover health rows, the comparative development table and workbook cells; other anchors offer a registered page or official source. |
+| Previews | 56 original PDF page images, plus original workbook cells and headings. Reviewed highlights cover health rows, the comparative development table and workbook cells; other anchors offer a registered page or official source. |
 
-The release contains 612 observations, 300 officeholder records and 921 anchors.
+The release contains 650 observations, 300 officeholder records and 959 anchors.
 Research starts at 2017; this does **not** mean annual data exists from 2017 onward.
 Missing records never imply zero or an office vacancy. MPA membership changes,
 by-elections, vacancies, ministerial changes and full date notifications remain
@@ -39,6 +39,24 @@ explicit coverage gaps. The schema and matching code support these records when 
   2023; the report was published the following day. Publication is not office start.
 - A politician's party belongs to the archived period, not a claim about current
   affiliation. Caretaker is represented separately from party.
+
+### North DHA development review, 26 November 2026
+
+The two-year tables identify the authority, fiscal years and units. Final grants are on PDF pages 22–23 (printed 4–5), and expenditure is on pages 23–24 (printed 5–6). The 19 rows sum to the printed final grants of 2,057.747 and 1,059.489 million rupees and expenditure of 801.684 and 557.664 million rupees. The final-grant table’s source footer mentions 2021–22, although its columns specify 2022–23 and 2023–24. Each published change therefore also requires agreement with both fiscal-year chapter figures. [Official North audit report](https://agp.gov.pk/SiteImage/Policy/AR%20on%20account%20of%2019%20DHand%20Education%20Authorities%20AY%202024-25.pdf#page=22)
+
+The following FY 2023–24 figures differ (chapter / comparison table, Rs million). The history panel preserves the chapter reading, links both sources and withholds the affected change and utilization comparison.
+
+| Authority | Final grant | Expenditure |
+|---|---|---|
+| Gujranwala | | 3.850 / 3.853 |
+| Mandi Bahauddin | 380.562 / 30.562 | |
+| Nankana Sahib | 4.030 / 4.031 | 4.030 / 4.031 |
+| Okara | | 29.677 / 29.679 |
+| Sheikhupura | 67.389 / 67.390 | |
+
+### Literacy baseline under review
+
+PBS publishes the 2017 ages-10-and-over district literacy figures in *Social Indicators of Punjab*, Table 4.01. Use the all-area, all-sexes literate row. Before publishing a district change, verify its 2017 and 2023 reporting boundaries, literacy definition and denominator, then register both table locations. [PBS district figures](https://www.pbs.gov.pk/wp-content/uploads/2020/07/Social_Indicators_of_Punjab_v2.pdf) · [PBS census archive](https://www.pbs.gov.pk/censusarchive/)
 
 ## API and deterministic matching
 

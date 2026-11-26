@@ -80,7 +80,8 @@ async function loadHistoricalEvidence(slug, reset = false) {
     }
     const unit = {percent: '%', count: '', million_pkr: ' Rs million'}[data.metric_info.unit] ?? ' ' + escapeHtml(data.metric_info.unit);
     const precision = {percent: 2, count: 0, million_pkr: 3}[data.metric_info.unit] ?? 2;
-    const gap = !points.length ? 'No reviewed figure for this measure.' :
+    const disputed = data.observations.find(o => o.reason.startsWith('Source conflict:') || o.reason.startsWith('Utilization withheld:'));
+    const gap = disputed ? disputed.reason : !points.length ? 'No reviewed figure for this measure.' :
       category === 'education' && points.length === 1 ? 'An earlier comparable literacy figure is awaiting review.' :
       points.length < 2 ? 'Only one measured period is available.' :
       'The reporting boundaries and definitions still need a cross-year check.';

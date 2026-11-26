@@ -33,9 +33,9 @@ GPIS helps citizens, journalists, and researchers compare Punjab’s 36 Census 2
 |---|---|
 | Education and population | PBS Census 2023 Tables 1 and 12 supply district population, literacy by sex, and out-of-school counts. A comparable earlier literacy series is awaiting review. |
 | Public health capacity | Punjab Health Statistics Table 3 provides facility and bed observations. Four institution counts have comparable snapshots on **1 January and 31 December 2023** for all 36 districts. |
-| District Health Authority spending | FY 2023–24 spending and grant utilization feed scores for all 36 districts. Reviewed historical comparisons cover 17 South Punjab authorities across FY 2022–23 and FY 2023–24. Comparability for the 19 northern authorities remains under review. |
+| District Health Authority spending | FY 2023–24 spending and grant utilization feed scores for all 36 districts. FY 2022–23 to FY 2023–24 development utilization can be compared for 17 South and 14 North authorities. Five North authorities have conflicting inputs. |
 | Historical representation | The register contains 300 records, including seven chief-minister entries, three caretaker portfolio records, and 290 MPA entries from the 2018 Assembly’s **2021 publication**. Profiles distinguish this archived membership from verified service dates. |
-| Source viewer | Citations open registered evidence, including highlighted workbook cells, PDF pages, source summaries, and calculated-score inputs. The release packages 53 original PDF page previews. |
+| Source viewer | Citations open registered evidence, including highlighted workbook cells, PDF pages, source summaries, and calculated-score inputs. The release packages 56 original PDF page previews. |
 
 The active `punjab-v1` score is the equal-weight mean of three measures covering literacy and gender inclusion, relative facility availability per 100,000 residents, and DHA budget utilization. These indicators describe specific aspects of district performance. Source conflicts, reporting periods, and missing inputs appear alongside the relevant figures. The original ten-district `prototype-v1` remains reproducible. [Scoring formulas](docs/PUNJAB_SCORING.md) · [Historical evidence and coverage](docs/HISTORICAL_EVIDENCE.md)
 

@@ -70,7 +70,14 @@ def test_release_coverage_and_sources():
         assert r['comparison']['change'] is not None
         assert HistoryRepository().history(slug,'literacy_total_pct')['comparison']['change'] is None
     comparable=sum(HistoryRepository().history(s,'dha_development_utilization_pct')['comparison']['change'] is not None for s in data['districts'])
-    assert comparable==17
+    assert comparable==31
+    store = HistoryRepository()
+    lahore = store.history('lahore', 'dha_development_expenditure_million_pkr')
+    assert lahore['comparison']['change'] == pytest.approx(4.595 - 22.350)
+    disputed = store.history('mandi-bahauddin', 'dha_development_budget_million_pkr')
+    assert disputed['comparison']['change'] is None
+    assert '30.562' in disputed['observations'][-1]['reason']
+    assert len(disputed['observations'][-1]['anchor_ids']) == 2
     mpas=[t for t in data['terms'] if t['role']=='MPA']
     assert len(mpas)>250
     assert all(t['start'] is None and t['end'] is None and t['mapping_anchor_ids'] for t in mpas)
@@ -95,7 +102,7 @@ def test_scan_spreadsheet_and_printed_page_locations():
 
 def test_packaged_assets_and_evidence_api_need_no_raw_files(monkeypatch):
     from app.history import verify_packaged_assets
-    assert verify_packaged_assets()==53
+    assert verify_packaged_assets()==56
     data=packaged_release()
     assets={p['asset'] for a in data['anchors'].values() for p in a.get('pages',[])}
     assert len(assets)>45
