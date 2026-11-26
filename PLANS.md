@@ -51,3 +51,4 @@ The hosted evaluation reproduced a correct Lahore count attached to an education
 - [x] Show district readings and explain coverage before officeholder context. Browser journeys passed and layouts reviewed at 390 and 1280 px.
 - [x] Reconcile North DHA development tables for 19 authorities. Five authorities have disputed inputs. All 56 source previews validated.
 - [x] Publish the five district literacy pairs explicitly compared by PBS. Verified the 2017 source and 2023 workbook values, all 57 evidence previews and the Lahore and disputed North spending flows at both widths. The other 31 literacy comparisons await district-level verification.
+- [x] Final local PostgreSQL release verification passed, including the full regression suite, 59 deterministic evaluation cases, live Groq generation, evidence lookup, abstention and browser journeys. [Draft release PR](https://github.com/HassanSardar525/GPIS/pull/3). Hosted Render acceptance remains pending.
