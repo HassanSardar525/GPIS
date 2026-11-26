@@ -543,21 +543,17 @@
           <strong id="overall-score">—</strong>
           <small id="overall-rank">—</small>
           <a href="#/about" class="score-method">Scoring method</a>
-          <div id="overall-quality" class="score-quality score-quality-inverse"></div>
+
         </div>
       </section>
 
-      <details class="score-explainer"><summary>How to read these scores</summary><p id="score-disclaimer"></p></details>
+      <details class="score-explainer"><summary>How to read these scores</summary><p id="score-disclaimer"></p><div id="overall-quality" class="score-quality"></div></details>
       <section id="scorecards" class="score-grid" aria-label="District facts and performance scores"></section>
 
-      <section class="panel" id="performance-history" aria-labelledby="history-title">
+      <section hidden id="performance-history" aria-labelledby="history-title">
         <h2 id="history-title">District measurements over time</h2>
         <p>Compare official figures by period. Officeholder dates give context and do not establish who caused a change.</p>
-        <div class="history-tabs" role="group" aria-label="Historical metric category">
-          <button type="button" data-history-category="education" aria-pressed="false">Education</button>
-          <button type="button" data-history-category="health" aria-pressed="true">Health capacity</button>
-          <button type="button" data-history-category="spending" aria-pressed="false">DHA spending</button>
-        </div>
+        <button type="button" id="close-profile-history">Close history</button>
         <label for="historical-metric">Historical metric</label>
         <select id="historical-metric"><option value="phs_hospitals_count">Public hospitals</option></select>
         <div id="historical-content" aria-busy="true"><p>Loading reviewed historical evidence…</p></div>

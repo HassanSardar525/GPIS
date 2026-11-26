@@ -41,7 +41,6 @@ async function loadHistoricalEvidence(slug, reset = false) {
     ]);
     if (token !== historicalRequest) return;
     const category = data.metric_info.category;
-    document.querySelectorAll('[data-history-category]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.historyCategory === category)));
     const metricSelect = document.querySelector('#historical-metric');
     metricSelect.innerHTML = Object.entries(data.metrics).filter(([,m]) => m.category === category).map(([key,m]) => `<option value="${key}">${escapeHtml(m.label)}</option>`).join('');
     metricSelect.value = historicalMetric;
@@ -190,13 +189,33 @@ function restoreEvidenceBookmark() {
   if(id) openEvidence(id,false);
   else if(document.querySelector('#evidence-panel').open) document.querySelector('#evidence-panel').close();
 }
+const profileHistoryPanel = document.querySelector('#performance-history');
+let profileHistoryOpener;
+window.closeProfileHistory = function () {
+  ++historicalRequest;
+  profileHistoryPanel.hidden = true;
+  document.querySelector('#scorecards').after(profileHistoryPanel);
+};
+document.querySelector('#close-profile-history').addEventListener('click', () => {
+  window.closeProfileHistory();
+  profileHistoryOpener?.focus();
+});
+
 document.addEventListener('click',event=>{
   const evidence=event.target.closest('[data-evidence]');
   if(evidence){event.preventDefault();openEvidence(evidence.dataset.evidence);return;}
   const term=event.target.closest('[data-tenure]');
   if(term){historicalTenure=term.dataset.tenure;loadHistoricalEvidence(historicalSlug);}
-  const tab=event.target.closest('[data-history-category]');
-  if(tab){historicalMetric={education:'literacy_total_pct',health:'phs_hospitals_count',spending:'dha_development_budget_million_pkr'}[tab.dataset.historyCategory];loadHistoricalEvidence(historicalSlug,true);}
+  const metric = event.target.closest('[data-profile-history]');
+  if (metric) {
+    profileHistoryOpener = metric;
+    metric.closest('.profile-more').append(profileHistoryPanel);
+    profileHistoryPanel.hidden = false;
+    historicalMetric = metric.dataset.profileHistory;
+    document.querySelector('#historical-content').textContent = 'Loading reviewed historical evidence…';
+    loadHistoricalEvidence(state.district.slug, true);
+    document.querySelector('#historical-metric').focus();
+  }
   if(event.target.closest('[data-history-retry]'))loadHistoricalEvidence(historicalSlug);
 });
 document.addEventListener('keydown',event=>{

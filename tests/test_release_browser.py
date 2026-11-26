@@ -69,6 +69,9 @@ def test_district_journey(browser_page, tmp_path):
         expect(table.locator("thead")).to_contain_text("Multan")
         page.screenshot(path=str(tmp_path / f"comparison-{theme}.png"))
     page.locator("[data-nav=district]").click()
+    health_card = page.locator('[data-evidence-category="health"]')
+    health_card.locator('.profile-more > summary').click()
+    health_card.get_by_role('button', name='History and officeholders').click()
     representation = page.get_by_text("Historical representation", exact=False).filter(has_text="published 2021").first
     representation.click()
     expect(page.locator("#historical-content details[open]")).to_contain_text("start date unverified", ignore_case=True)

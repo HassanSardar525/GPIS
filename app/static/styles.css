@@ -1180,7 +1180,7 @@ footer { padding: 28px; border-top: 1px solid var(--line); text-align: center; c
 .theme-control select { width: auto; padding: .5rem; }
 .site-header { flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 footer a, #evidence-official { color: var(--green); }
-[data-theme="dark"] :is(.overall-badge, .page-nav a[aria-current="page"], .fact-comparison .evidence-button) { background: var(--accent-fill); }
+[data-theme="dark"] :is(.page-nav a[aria-current="page"], .fact-comparison .evidence-button) { background: var(--accent-fill); }
 [data-theme="dark"] :is(.map-control-btn, .map-status-pill, #evidence-panel, #evidence-document) { background: var(--panel); color: var(--ink); }
 [data-theme="dark"] .province-context-path { fill: var(--tint); }
 [data-theme="dark"] .district-path:hover { fill: #50836d; }
@@ -1246,3 +1246,26 @@ footer a, #evidence-official { color: var(--green); }
 .history-readings strong { display: block; margin: .3rem 0; font: bold 1.5rem var(--font-title); }
 #historical-content > details { padding-block: .65rem; border-top: 1px solid var(--line); }
 #historical-content summary { cursor: pointer; }
+
+.score-grid { align-items: start; }
+.profile-card h3 { margin: 0; font-family: var(--font-title); }
+.profile-period { margin: .4rem 0; color: var(--muted); font-size: .9rem; }
+.profile-score { margin: var(--space-2) 0; color: var(--muted); }
+.profile-score strong { font: bold 2rem var(--font-title); color: var(--ink); }
+.profile-more > summary, .score-method-details > summary { cursor: pointer; color: var(--green); padding-block: .65rem; }
+.profile-more > summary { border-top: 1px solid var(--line); font-weight: bold; }
+.profile-more .less-label, .profile-more[open] > summary .more-label { display: none; }
+.profile-more[open] > summary .less-label { display: inline; }
+.profile-measure { border-bottom: 1px solid var(--line); padding: .6rem 0; }
+.profile-measure summary { cursor: pointer; }
+.profile-measure strong { display: block; padding-left: 1rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.measure-notes { padding-left: 1rem; color: var(--muted); overflow-wrap: anywhere; font-size: .85rem; }
+.measure-notes .source-link { margin: 0 .5rem .5rem 0; }
+.measure-notes button { padding: .4rem .7rem; }
+
+.profile-history-button { margin-top: var(--space-2); padding: .55rem .8rem; }
+.profile-card:has(.profile-more[open] > #performance-history) { grid-column: 1 / -1; }
+.profile-card #performance-history { margin: var(--space-2) 0 0; border-top: 1px solid var(--line); }
+#close-profile-history { display: block; margin-bottom: var(--space-2); padding: .45rem .7rem; }
+.district-heading .overall-badge { background: transparent; color: var(--ink); box-shadow: none; border-radius: 0; }
+.district-heading .overall-badge a { color: var(--green); }
