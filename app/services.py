@@ -250,7 +250,7 @@ class HybridRetriever:
         districts = request.selected_districts()
         if route == QuestionRoute.TEMPORAL_COMPARISON:
             facts = self.repository.trend_search(request.question, districts, limit)
-        elif route == QuestionRoute.SCORE_EXPLANATION or (
+        elif route == QuestionRoute.SCORE_EXPLANATION or (route == QuestionRoute.EXACT_FACT and 'score' in request.question.casefold()) or (
             route == QuestionRoute.COMPARISON
             and (
                 request.category is not None
@@ -276,7 +276,7 @@ class HybridRetriever:
                     (category for category in ("education", "health", "accountability") if category in lowered),
                     "education health accountability",
                 )
-            keyword += self.repository.keyword_search(method_query, districts, None, request.period, limit)
+            keyword = self.repository.keyword_search(method_query, districts, 'methodology', request.period, limit) + keyword
         elif route == QuestionRoute.SCORE_EXPLANATION:
             score_category = requested_score_category(request.question, request.category)
             keyword += self.repository.keyword_search(
@@ -334,7 +334,18 @@ class HybridRetriever:
         ordered = sorted(combined.values(), key=lambda item: (-scores[item.id], item.id))
         for item in ordered:
             item.rrf_score = round(scores[item.id], 6)
-        return ordered[:limit]
+        selected = []
+        document_groups: set[tuple[str, str]] = set()
+        for item in ordered:
+            if item.chunk_type == "table_row":
+                group = (item.source_id, item.district_slug)
+                if group in document_groups:
+                    continue
+                document_groups.add(group)
+            selected.append(item)
+            if len(selected) == limit:
+                break
+        return selected
 
 
 class ChatService:
@@ -368,6 +379,11 @@ class ChatService:
 
     async def answer(self, request: ChatRequest) -> ChatResponse:
         request = resolve_request_districts(request, self.repository)
+        from app.history_chat import history_answer
+        historical_response = history_answer(request, self.repository)
+        if historical_response is not None:
+            self._record_trace(request, historical_response, [], time.perf_counter())
+            return historical_response
         started = time.perf_counter()
         trace_id = str(uuid.uuid4())
         route = classify_question(request.question)
@@ -577,7 +593,9 @@ class ChatService:
             records = [self.repository.get_district(item["slug"]) for item in self.repository.list_districts()]
         lines = []
         if route == QuestionRoute.METHODOLOGY:
-            lines.extend(f"{name}_formula={formula}" for name, formula in METHODOLOGY_TEXT.items())
+            from app.punjab_scoring import METHODS
+            methods = METHODS if self.repository.score_version == 'punjab-v1' else METHODOLOGY_TEXT
+            lines.extend(f"{name}_formula={formula}" for name, formula in methods.items())
         for district in records:
             scores = district["derived"]["scores"]
             lines.append(
@@ -603,7 +621,9 @@ class ChatService:
                 "overall",
             )
             markers = " ".join(f"[{item.id}]" for item in evidence[:3])
-            return f"{METHODOLOGY_TEXT[category]} {markers}".strip()
+            from app.punjab_scoring import METHODS
+            methods = METHODS if self.repository.score_version == 'punjab-v1' else METHODOLOGY_TEXT
+            return f"{methods[category]} {markers}".strip()
         if route in {QuestionRoute.SCORE_EXPLANATION, QuestionRoute.PROJECT}:
             return " ".join(f"{item.text} [{item.id}]" for item in evidence[:3])
         if route == QuestionRoute.TEMPORAL_COMPARISON:

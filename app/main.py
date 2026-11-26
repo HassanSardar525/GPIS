@@ -16,6 +16,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from langchain_groq import ChatGroq
+from langsmith import trace, tracing_context
 
 try:
     from langchain_google_genai import ChatGoogleGenerativeAI
@@ -103,30 +104,14 @@ def build_chat_service(
         models["groq"] = groq_model
 
     if settings.gemini_api_key:
-        for g_model in ["gemini-1.5-flash", "gemini-2.0-flash"]:
-            gemini_provider = GeminiProvider(
-                api_key=settings.gemini_api_key,
-                model=g_model,
-                base_url=settings.gemini_base_url,
-                timeout_seconds=settings.gemini_timeout_seconds,
-            )
-            providers[f"gemini:{g_model}"] = gemini_provider
-            if g_model == settings.gemini_model:
-                providers["gemini"] = gemini_provider
-            if ChatGoogleGenerativeAI:
-                try:
-                    chat_gemini = ChatGoogleGenerativeAI(
-                        model=g_model,
-                        google_api_key=settings.gemini_api_key,
-                        temperature=0.1,
-                        timeout=settings.gemini_timeout_seconds,
-                        max_retries=1,
-                    )
-                    models[f"gemini:{g_model}"] = chat_gemini
-                    if g_model == settings.gemini_model:
-                        models["gemini"] = chat_gemini
-                except Exception:
-                    pass
+        gemini_id = f"gemini:{settings.gemini_model}"
+        gemini_provider = GeminiProvider(settings.gemini_api_key, settings.gemini_model,
+                                        settings.gemini_base_url, settings.gemini_timeout_seconds)
+        providers[gemini_id] = providers["gemini"] = gemini_provider
+        if ChatGoogleGenerativeAI:
+            chat_gemini = ChatGoogleGenerativeAI(model=settings.gemini_model, google_api_key=settings.gemini_api_key,
+                                                temperature=0.1, timeout=settings.gemini_timeout_seconds, max_retries=1)
+            models[gemini_id] = models["gemini"] = chat_gemini
 
     primary_provider = next(iter(providers.values()), FailingProvider())
     fallback = ChatService(repository, retriever, primary_provider, observability, providers=providers)
@@ -134,7 +119,7 @@ def build_chat_service(
         return fallback
 
     default_model = None
-    if settings.gemini_api_key and settings.gemini_model in ("gemini-1.5-flash", "gemini-2.0-flash"):
+    if f"gemini:{settings.gemini_model}" in models:
         default_model = f"gemini:{settings.gemini_model}"
     elif settings.groq_api_key:
         default_model = f"groq:{settings.groq_model}"
@@ -163,6 +148,8 @@ def create_app(
     observability = build_observability(settings)
     cache = build_cache(settings.redis_url)
     district_service = DistrictService(repository)
+    from app.history import HistoryRepository
+    historical = HistoryRepository(repository.name, settings.database_url)
     checkpoint_runtime = (
         PostgresCheckpointRuntime(settings.database_url)
         if repository.name == "postgres" and settings.database_url
@@ -275,18 +262,10 @@ def create_app(
         if settings.gemini_api_key:
             options.append(
                 ModelOption(
-                    id="gemini:gemini-1.5-flash",
-                    name="Gemini 1.5 Flash",
+                    id=f"gemini:{settings.gemini_model}",
+                    name=f"Gemini ({settings.gemini_model})",
                     provider="gemini",
-                    is_default=(settings.gemini_model == "gemini-1.5-flash" or not settings.groq_api_key),
-                )
-            )
-            options.append(
-                ModelOption(
-                    id="gemini:gemini-2.0-flash",
-                    name="Gemini 2.0 Flash",
-                    provider="gemini",
-                    is_default=(settings.gemini_model == "gemini-2.0-flash"),
+                    is_default=True,
                 )
             )
         options.append(
@@ -302,13 +281,35 @@ def create_app(
         default_id = next(opt.id for opt in options if opt.is_default)
         return ModelListResponse(models=options, default_model=default_id)
 
+    @application.get('/api/v1/districts/{slug}/officeholders')
+    def officeholders(slug: str):
+        return historical.officeholders(slug)
+
+    @application.get('/api/v1/districts/{slug}/history')
+    def district_history(slug: str, metric: str = 'phs_hospitals_count', tenure: str | None = None):
+        return historical.history(slug, metric, tenure)
+
+    @application.get('/api/v1/evidence/{anchor_id}')
+    def evidence(anchor_id: str):
+        return historical.evidence(anchor_id)
+
+    @application.get('/api/v1/evidence-assets/{filename}')
+    def evidence_asset(filename: str):
+        return FileResponse(historical.asset(filename), media_type='image/png')
+
     @application.get("/api/v1/districts", response_model=DistrictListResponse)
     def districts() -> DistrictListResponse:
         return DistrictListResponse(districts=district_service.list_districts(), metadata=repository.metadata())
 
     @application.get("/api/v1/districts/{slug}", response_model=DistrictDetail)
     def district(slug: str) -> DistrictDetail:
-        return DistrictDetail.model_validate(district_service.get_district(slug))
+        detail = dict(district_service.get_district(slug))
+        from app.history import citation_anchors
+        detail['evidence_anchors'] = {
+            e['category']: citation_anchors(e['source_id'], e['locator'], e.get('id', ''))
+            for e in detail['evidence']
+        }
+        return DistrictDetail.model_validate(detail)
 
     @application.get("/api/v1/census-rankings", response_model=CensusRankingResponse)
     def census_rankings(metric: str = Query(default="literacy_total_pct")) -> CensusRankingResponse:
@@ -336,7 +337,16 @@ def create_app(
         session_id = request.session_id or str(uuid.uuid4())
         request = request.model_copy(update={"session_id": session_id})
         session_store.ensure_active(session_id)
-        response = await application.state.chat_service.answer(request)
+        if settings.environment == "development" and settings.trace_local_chat:
+            with tracing_context(enabled=True, metadata={"thread_id": session_id}), trace(
+                "GPIS chat", inputs={"messages": [{"role": "user", "content": request.question}]}
+            ) as turn:
+                response = await application.state.chat_service.answer(request)
+                turn.end(outputs={"messages": [{"role": "assistant", "content": response.answer}],
+                                  "mode": response.mode, "trace_id": response.trace_id})
+        else:
+            with tracing_context(enabled=False):
+                response = await application.state.chat_service.answer(request)
         session_store.touch(session_id)
         return response.model_copy(update={"session_id": session_id})
 

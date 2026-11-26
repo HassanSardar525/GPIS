@@ -35,11 +35,14 @@ def test_official_service_coverage_and_source_periods():
     assert unavailable_data_reason(ChatRequest(question="How did the budget change?", districts=["lahore"]),repo)
 
 
-def test_source_snapshot_is_reproducible():
+def test_source_snapshot_is_reproducible(tmp_path, monkeypatch):
     pytest.importorskip("pdfplumber")
-    from scripts.build_punjab_services import OUT, main
+    from scripts import build_punjab_services as builder
+    OUT, main = builder.OUT, builder.main
     if not (ROOT / "data/raw/agp_punjab_north_dha_2023-24.pdf").is_file():
         pytest.skip("Official North Punjab PDF is not downloaded")
     original = OUT.read_bytes()
+    target = tmp_path / OUT.name
+    monkeypatch.setattr(builder, 'OUT', target)
     main()
-    assert OUT.read_bytes() == original
+    assert target.read_bytes() == original

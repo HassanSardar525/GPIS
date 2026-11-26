@@ -55,10 +55,11 @@ class Settings:
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_timeout_seconds: float = 15.0
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-flash-latest"
     gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     gemini_timeout_seconds: float = 15.0
     phoenix_enabled: bool = False
+    trace_local_chat: bool = False
     phoenix_endpoint: str | None = None
     phoenix_project_name: str = "gpis-local"
     session_ttl_hours: int = 24
@@ -79,7 +80,7 @@ class Settings:
             environment=os.getenv("GPIS_ENV", "development"),
             repository=repository,
             database_url=database_url,
-            score_version=os.getenv("GPIS_SCORE_VERSION", "prototype-v1"),
+            score_version=os.getenv("GPIS_SCORE_VERSION", "punjab-v1"),
             curated_data_path=Path(os.getenv("GPIS_CURATED_DATA", str(defaults.curated_data_path))),
             embedding_model=os.getenv("GPIS_EMBEDDING_MODEL", defaults.embedding_model),
             semantic_threshold=_float("GPIS_SEMANTIC_THRESHOLD", 0.35),
@@ -92,6 +93,7 @@ class Settings:
             gemini_base_url=os.getenv("GEMINI_BASE_URL", defaults.gemini_base_url),
             gemini_timeout_seconds=_float("GEMINI_TIMEOUT_SECONDS", 15.0),
             phoenix_enabled=_bool("PHOENIX_ENABLED", False),
+            trace_local_chat=_bool("GPIS_TRACE_LOCAL_CHAT"),
             phoenix_endpoint=os.getenv("PHOENIX_COLLECTOR_ENDPOINT") or None,
             phoenix_project_name=os.getenv("PHOENIX_PROJECT_NAME", defaults.phoenix_project_name),
             session_ttl_hours=_int("GPIS_SESSION_TTL_HOURS", defaults.session_ttl_hours),

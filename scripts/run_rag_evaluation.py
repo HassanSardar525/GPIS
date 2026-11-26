@@ -29,13 +29,27 @@ def percentile(values: list[float], quantile: float) -> float:
     return ordered[max(0, math.ceil(len(ordered) * quantile) - 1)]
 
 
-async def evaluate(enforce: bool) -> int:
+async def evaluate(enforce: bool, require_documents: bool = False) -> int:
     settings = Settings.from_env()
     repository = build_repository(settings)
     embedder = MiniLMEmbedder(settings.embedding_model) if repository.name == "postgres" else None
     retriever = HybridRetriever(repository, embedder, settings.semantic_threshold)
     service = ChatService(repository, retriever, FailingProvider())
-    cases = json.loads(CASES.read_text(encoding="utf-8"))
+    cases_path = CASES.with_name('punjab_rag_evaluation.json') if settings.score_version == 'punjab-v1' else CASES
+    cases = json.loads(cases_path.read_text(encoding="utf-8"))
+    document_chunks_available = (
+        repository.name == "postgres"
+        and bool(repository.metadata().get("document_corpus_version"))
+    )
+    document_cases = [case for case in cases if case.get("requires_document_chunks")]
+    if require_documents and (not document_cases or not document_chunks_available):
+        print("Release evaluation requires PostgreSQL and the ingested Punjab document corpus.")
+        return 1
+    document_failures = []
+    cases = [
+        case for case in cases
+        if not case.get("requires_document_chunks") or document_chunks_available
+    ]
 
     route_hits = 0
     expected_total = 0
@@ -63,6 +77,8 @@ async def evaluate(enforce: bool) -> int:
                 retrieval_hits += 1
             else:
                 failures.append(f"{case['id']}: missing {expected}")
+        if case.get("requires_document_chunks") and not set(case["expected"]) <= retrieved_ids:
+            document_failures.append(case["id"])
         answer_started = time.perf_counter()
         response = await service.answer(request)
         answer_latencies.append((time.perf_counter() - answer_started) * 1000)
@@ -88,6 +104,8 @@ async def evaluate(enforce: bool) -> int:
 
     metrics = {
         "cases": len(cases),
+        "document_cases_run": sum(bool(case.get("requires_document_chunks")) for case in cases),
+        "document_failures": document_failures,
         "route_accuracy": route_hits / len(cases),
         "answer_accuracy": answer_hits / len(cases),
         "retrieval_recall_at_5": retrieval_hits / expected_total if expected_total else 1,
@@ -109,6 +127,8 @@ async def evaluate(enforce: bool) -> int:
         "citation_precision": 0.95,
         "unsupported_abstention": 1.0,
     }
+    if require_documents and document_failures:
+        return 1
     if enforce and any(metrics[name] < threshold for name, threshold in thresholds.items()):
         return 1
     return 0
@@ -117,8 +137,9 @@ async def evaluate(enforce: bool) -> int:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--enforce", action="store_true", help="Fail when an acceptance threshold is missed")
+    parser.add_argument("--require-documents", action="store_true", help="Require every document retrieval case to run and pass")
     arguments = parser.parse_args()
-    raise SystemExit(asyncio.run(evaluate(arguments.enforce)))
+    raise SystemExit(asyncio.run(evaluate(arguments.enforce, arguments.require_documents)))
 
 
 if __name__ == "__main__":
