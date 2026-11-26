@@ -1248,6 +1248,7 @@ footer a, #evidence-official { color: var(--green); }
 #historical-content summary { cursor: pointer; }
 
 .score-grid { align-items: start; }
+.profile-card { min-width: 0; }
 .profile-card h3 { margin: 0; font-family: var(--font-title); }
 .profile-period { margin: .4rem 0; color: var(--muted); font-size: .9rem; }
 .profile-score { margin: var(--space-2) 0; color: var(--muted); }
