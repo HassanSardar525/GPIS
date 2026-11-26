@@ -1,0 +1,141 @@
+[
+  {
+    "id": "multan-document",
+    "inputs": {
+      "question": "What does PBS Table 12 report about literacy in Multan?",
+      "districts": [
+        "multan"
+      ],
+      "history": []
+    },
+    "reference": {
+      "answer": "Multan’s 2023 total literacy rate was 61.41%.",
+      "passage": "PBS Census 2023 Table 12, punjab!B1614: Multan total literacy 61.410495 percent.",
+      "values": [
+        [
+          "Multan",
+          "61.41"
+        ]
+      ],
+      "terms": [],
+      "abstain": false
+    }
+  },
+  {
+    "id": "lahore-document",
+    "inputs": {
+      "question": "PBS Table 12 out-of-school children Lahore",
+      "districts": [
+        "lahore"
+      ],
+      "history": []
+    },
+    "reference": {
+      "answer": "The 2023 census recorded 718,199 out-of-school children aged 5–16 in Lahore.",
+      "passage": "PBS Census 2023 Table 12, punjab!B1294: Lahore out-of-school children aged 5–16, 718199.",
+      "values": [
+        [
+          "Lahore",
+          "718199"
+        ]
+      ],
+      "terms": [],
+      "abstain": false
+    }
+  },
+  {
+    "id": "compare-literacy",
+    "inputs": {
+      "question": "Compare the 2023 total literacy rates of Multan and Lahore. Give each district's rate.",
+      "districts": [
+        "multan",
+        "lahore"
+      ],
+      "history": []
+    },
+    "reference": {
+      "answer": "Multan recorded 61.41% and Lahore recorded 79.62% in Census 2023.",
+      "passage": "PBS Table 12: Multan B1614 = 61.410495 percent; Lahore B1284 = 79.619010 percent.",
+      "values": [
+        [
+          "Multan",
+          "61.41"
+        ],
+        [
+          "Lahore",
+          "79.62"
+        ]
+      ],
+      "terms": [],
+      "abstain": false
+    }
+  },
+  {
+    "id": "district-followup",
+    "inputs": {
+      "question": "What is its total literacy rate?",
+      "districts": [
+        "lahore"
+      ],
+      "history": [
+        {
+          "question": "What does PBS Table 12 report about literacy in Multan?",
+          "districts": [
+            "multan"
+          ]
+        }
+      ]
+    },
+    "reference": {
+      "answer": "For the selected district, Lahore, 2023 total literacy was 79.62%.",
+      "passage": "PBS Table 12, punjab!B1284: Lahore total literacy 79.619010 percent.",
+      "values": [
+        [
+          "Lahore",
+          "79.62"
+        ]
+      ],
+      "terms": [],
+      "abstain": false
+    }
+  },
+  {
+    "id": "tenure",
+    "inputs": {
+      "question": "Who was chief minister during the change in Multan hospital numbers?",
+      "districts": [
+        "multan"
+      ],
+      "history": []
+    },
+    "reference": {
+      "answer": "The two 2023 snapshots span the administrations of Parvez Elahi and Mohsin Naqvi.",
+      "passage": "PHS Table 3: Multan had 22 hospitals on 2023-01-01 and 20 on 2023-12-31. The reviewed tenure register places Parvez Elahi and Mohsin Naqvi at the respective dates.",
+      "values": [],
+      "terms": [
+        "Parvez Elahi",
+        "Mohsin Naqvi",
+        "2023-01-01",
+        "2023-12-31"
+      ],
+      "abstain": false
+    }
+  },
+  {
+    "id": "unsupported",
+    "inputs": {
+      "question": "Which politician caused this result?",
+      "districts": [
+        "lahore"
+      ],
+      "history": []
+    },
+    "reference": {
+      "answer": "The evidence cannot establish that a politician caused the result.",
+      "passage": "District observations and overlapping terms do not establish personal causation.",
+      "values": [],
+      "terms": [],
+      "abstain": true
+    }
+  }
+]

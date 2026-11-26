@@ -1,0 +1,621 @@
+{
+  "source_id": "punjab_health_statistics_2023",
+  "sha256": "8c7c99b08bd0adfafc3afd324e1551797cbfc6ecd78dd920f7cf177db03aa6e8",
+  "snapshot_date": "2023-01-01",
+  "reviewed_on": "2026-10-27",
+  "review": "Original scanned pages 19\u201323 / printed pages 4\u20138 and corresponding PHS 2024 pages visually checked. Same four institution columns, district and component tehsil lists, and contributing agencies. Administrative splits remain within the original district rows in both editions. Changes can reflect reporting revisions; this is capacity, not health outcomes.",
+  "rows": [
+    {
+      "district": "bahawalnagar",
+      "pdf_page": 19,
+      "printed_page": "4",
+      "counts": {
+        "hospitals": 6,
+        "dispensaries": 29,
+        "rhcs": 10,
+        "bhus": 104
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.27946127946127947,
+        0.8649237472766884,
+        0.2962962962962963
+      ]
+    },
+    {
+      "district": "bahawalpur",
+      "pdf_page": 19,
+      "printed_page": "4",
+      "counts": {
+        "hospitals": 12,
+        "dispensaries": 70,
+        "rhcs": 13,
+        "bhus": 77
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.37542087542087543,
+        0.8649237472766884,
+        0.39225589225589225
+      ]
+    },
+    {
+      "district": "rahim-yar-khan",
+      "pdf_page": 19,
+      "printed_page": "4",
+      "counts": {
+        "hospitals": 6,
+        "dispensaries": 65,
+        "rhcs": 22,
+        "bhus": 107
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.4890572390572391,
+        0.8649237472766884,
+        0.5058922558922558
+      ]
+    },
+    {
+      "district": "dera-ghazi-khan",
+      "pdf_page": 19,
+      "printed_page": "4",
+      "counts": {
+        "hospitals": 7,
+        "dispensaries": 23,
+        "rhcs": 10,
+        "bhus": 55
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.5867003367003367,
+        0.8649237472766884,
+        0.6035353535353535
+      ]
+    },
+    {
+      "district": "layyah",
+      "pdf_page": 19,
+      "printed_page": "4",
+      "counts": {
+        "hospitals": 8,
+        "dispensaries": 34,
+        "rhcs": 6,
+        "bhus": 36
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.6675084175084175,
+        0.8649237472766884,
+        0.6843434343434344
+      ]
+    },
+    {
+      "district": "muzaffargarh",
+      "pdf_page": 19,
+      "printed_page": "4",
+      "counts": {
+        "hospitals": 6,
+        "dispensaries": 45,
+        "rhcs": 14,
+        "bhus": 76
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.7323232323232324,
+        0.8649237472766884,
+        0.7491582491582491
+      ]
+    },
+    {
+      "district": "rajanpur",
+      "pdf_page": 19,
+      "printed_page": "4",
+      "counts": {
+        "hospitals": 5,
+        "dispensaries": 13,
+        "rhcs": 7,
+        "bhus": 32
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.813973063973064,
+        0.8649237472766884,
+        0.8308080808080808
+      ]
+    },
+    {
+      "district": "chiniot",
+      "pdf_page": 20,
+      "printed_page": "5",
+      "counts": {
+        "hospitals": 3,
+        "dispensaries": 12,
+        "rhcs": 3,
+        "bhus": 38
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.2617845117845118,
+        0.8649237472766884,
+        0.2786195286195286
+      ]
+    },
+    {
+      "district": "faisalabad",
+      "pdf_page": 20,
+      "printed_page": "5",
+      "counts": {
+        "hospitals": 21,
+        "dispensaries": 116,
+        "rhcs": 21,
+        "bhus": 173
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.3265993265993266,
+        0.8649237472766884,
+        0.3434343434343434
+      ]
+    },
+    {
+      "district": "jhang",
+      "pdf_page": 20,
+      "printed_page": "5",
+      "counts": {
+        "hospitals": 8,
+        "dispensaries": 75,
+        "rhcs": 10,
+        "bhus": 61
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.44023569023569026,
+        0.8649237472766884,
+        0.45707070707070707
+      ]
+    },
+    {
+      "district": "toba-tek-singh",
+      "pdf_page": 20,
+      "printed_page": "5",
+      "counts": {
+        "hospitals": 8,
+        "dispensaries": 29,
+        "rhcs": 8,
+        "bhus": 74
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.5202020202020202,
+        0.8649237472766884,
+        0.5370370370370371
+      ]
+    },
+    {
+      "district": "gujranwala",
+      "pdf_page": 20,
+      "printed_page": "5",
+      "counts": {
+        "hospitals": 11,
+        "dispensaries": 59,
+        "rhcs": 14,
+        "bhus": 99
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.6178451178451179,
+        0.8649237472766884,
+        0.6346801346801347
+      ]
+    },
+    {
+      "district": "gujrat",
+      "pdf_page": 20,
+      "printed_page": "5",
+      "counts": {
+        "hospitals": 15,
+        "dispensaries": 6,
+        "rhcs": 10,
+        "bhus": 93
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.6978114478114478,
+        0.8649237472766884,
+        0.7146464646464646
+      ]
+    },
+    {
+      "district": "hafizabad",
+      "pdf_page": 20,
+      "printed_page": "5",
+      "counts": {
+        "hospitals": 2,
+        "dispensaries": 16,
+        "rhcs": 8,
+        "bhus": 33
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.7626262626262627,
+        0.8649237472766884,
+        0.7794612794612794
+      ]
+    },
+    {
+      "district": "mandi-bahauddin",
+      "pdf_page": 20,
+      "printed_page": "5",
+      "counts": {
+        "hospitals": 5,
+        "dispensaries": 8,
+        "rhcs": 11,
+        "bhus": 49
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.8114478114478114,
+        0.8649237472766884,
+        0.8282828282828283
+      ]
+    },
+    {
+      "district": "narowal",
+      "pdf_page": 21,
+      "printed_page": "6",
+      "counts": {
+        "hospitals": 3,
+        "dispensaries": 8,
+        "rhcs": 7,
+        "bhus": 57
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.23232323232323232,
+        0.8649237472766884,
+        0.24915824915824916
+      ]
+    },
+    {
+      "district": "sialkot",
+      "pdf_page": 21,
+      "printed_page": "6",
+      "counts": {
+        "hospitals": 10,
+        "dispensaries": 27,
+        "rhcs": 9,
+        "bhus": 90
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.30134680134680136,
+        0.8649237472766884,
+        0.3181818181818182
+      ]
+    },
+    {
+      "district": "kasur",
+      "pdf_page": 21,
+      "printed_page": "6",
+      "counts": {
+        "hospitals": 8,
+        "dispensaries": 32,
+        "rhcs": 13,
+        "bhus": 83
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.4057239057239057,
+        0.8649237472766884,
+        0.4225589225589226
+      ]
+    },
+    {
+      "district": "lahore",
+      "pdf_page": 21,
+      "printed_page": "6",
+      "counts": {
+        "hospitals": 50,
+        "dispensaries": 118,
+        "rhcs": 25,
+        "bhus": 7
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.49326599326599324,
+        0.8649237472766884,
+        0.51010101010101
+      ]
+    },
+    {
+      "district": "nankana-sahib",
+      "pdf_page": 21,
+      "printed_page": "6",
+      "counts": {
+        "hospitals": 4,
+        "dispensaries": 23,
+        "rhcs": 9,
+        "bhus": 49
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.5976430976430976,
+        0.8649237472766884,
+        0.6144781144781145
+      ]
+    },
+    {
+      "district": "sheikhupura",
+      "pdf_page": 21,
+      "printed_page": "6",
+      "counts": {
+        "hospitals": 11,
+        "dispensaries": 25,
+        "rhcs": 9,
+        "bhus": 84
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.6675084175084175,
+        0.8649237472766884,
+        0.6843434343434344
+      ]
+    },
+    {
+      "district": "khanewal",
+      "pdf_page": 21,
+      "printed_page": "6",
+      "counts": {
+        "hospitals": 7,
+        "dispensaries": 11,
+        "rhcs": 10,
+        "bhus": 81
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.7895622895622896,
+        0.8649237472766884,
+        0.8063973063973064
+      ]
+    },
+    {
+      "district": "lodhran",
+      "pdf_page": 22,
+      "printed_page": "7",
+      "counts": {
+        "hospitals": 5,
+        "dispensaries": 17,
+        "rhcs": 5,
+        "bhus": 48
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.2356902356902357,
+        0.8649237472766884,
+        0.25252525252525254
+      ]
+    },
+    {
+      "district": "multan",
+      "pdf_page": 22,
+      "printed_page": "7",
+      "counts": {
+        "hospitals": 22,
+        "dispensaries": 47,
+        "rhcs": 8,
+        "bhus": 84
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.2996632996632997,
+        0.8649237472766884,
+        0.3164983164983165
+      ]
+    },
+    {
+      "district": "vehari",
+      "pdf_page": 22,
+      "printed_page": "7",
+      "counts": {
+        "hospitals": 4,
+        "dispensaries": 37,
+        "rhcs": 14,
+        "bhus": 75
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.3813131313131313,
+        0.8649237472766884,
+        0.39814814814814814
+      ]
+    },
+    {
+      "district": "attock",
+      "pdf_page": 22,
+      "printed_page": "7",
+      "counts": {
+        "hospitals": 7,
+        "dispensaries": 9,
+        "rhcs": 6,
+        "bhus": 62
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.4612794612794613,
+        0.8649237472766884,
+        0.4781144781144781
+      ]
+    },
+    {
+      "district": "chakwal",
+      "pdf_page": 22,
+      "printed_page": "7",
+      "counts": {
+        "hospitals": 6,
+        "dispensaries": 18,
+        "rhcs": 16,
+        "bhus": 63
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.5749158249158249,
+        0.8649237472766884,
+        0.5917508417508418
+      ]
+    },
+    {
+      "district": "jhelum",
+      "pdf_page": 22,
+      "printed_page": "7",
+      "counts": {
+        "hospitals": 7,
+        "dispensaries": 26,
+        "rhcs": 7,
+        "bhus": 48
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.6725589225589226,
+        0.8649237472766884,
+        0.6893939393939394
+      ]
+    },
+    {
+      "district": "rawalpindi",
+      "pdf_page": 22,
+      "printed_page": "7",
+      "counts": {
+        "hospitals": 15,
+        "dispensaries": 22,
+        "rhcs": 8,
+        "bhus": 107
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.7525252525252525,
+        0.8649237472766884,
+        0.7693602693602694
+      ]
+    },
+    {
+      "district": "okara",
+      "pdf_page": 23,
+      "printed_page": "8",
+      "counts": {
+        "hospitals": 8,
+        "dispensaries": 29,
+        "rhcs": 10,
+        "bhus": 97
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.26515151515151514,
+        0.8649237472766884,
+        0.281986531986532
+      ]
+    },
+    {
+      "district": "pakpattan",
+      "pdf_page": 23,
+      "printed_page": "8",
+      "counts": {
+        "hospitals": 6,
+        "dispensaries": 10,
+        "rhcs": 5,
+        "bhus": 55
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.3400673400673401,
+        0.8649237472766884,
+        0.3569023569023569
+      ]
+    },
+    {
+      "district": "sahiwal",
+      "pdf_page": 23,
+      "printed_page": "8",
+      "counts": {
+        "hospitals": 9,
+        "dispensaries": 26,
+        "rhcs": 11,
+        "bhus": 78
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.3956228956228956,
+        0.8649237472766884,
+        0.41245791245791247
+      ]
+    },
+    {
+      "district": "bhakkar",
+      "pdf_page": 23,
+      "printed_page": "8",
+      "counts": {
+        "hospitals": 5,
+        "dispensaries": 30,
+        "rhcs": 6,
+        "bhus": 40
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.4696969696969697,
+        0.8649237472766884,
+        0.48653198653198654
+      ]
+    },
+    {
+      "district": "khushab",
+      "pdf_page": 23,
+      "printed_page": "8",
+      "counts": {
+        "hospitals": 6,
+        "dispensaries": 38,
+        "rhcs": 6,
+        "bhus": 45
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.5631313131313131,
+        0.8649237472766884,
+        0.57996632996633
+      ]
+    },
+    {
+      "district": "mianwali",
+      "pdf_page": 23,
+      "printed_page": "8",
+      "counts": {
+        "hospitals": 6,
+        "dispensaries": 20,
+        "rhcs": 10,
+        "bhus": 42
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.6557239057239057,
+        0.8649237472766884,
+        0.6725589225589226
+      ]
+    },
+    {
+      "district": "sargodha",
+      "pdf_page": 23,
+      "printed_page": "8",
+      "counts": {
+        "hospitals": 17,
+        "dispensaries": 12,
+        "rhcs": 13,
+        "bhus": 131
+      },
+      "rectangle": [
+        0.13507625272331156,
+        0.7297979797979798,
+        0.8649237472766884,
+        0.7466329966329966
+      ]
+    }
+  ]
+}

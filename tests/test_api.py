@@ -1,7 +1,10 @@
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from langsmith import tracing_context
+from langsmith.run_trees import RunTree
 
 from app.config import Settings
 from app.main import create_app
@@ -74,6 +77,28 @@ def test_blank_chat_question_fails_contract():
     response = CLIENT.post("/api/v1/chat", json={"question": "   ", "districts": ["multan"]})
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "validation_error"
+
+
+@pytest.mark.parametrize("environment,opt_in,expected", [
+    ("development", True, True), ("development", False, False), ("production", True, False)
+])
+def test_chat_thread_tracing_requires_local_opt_in(monkeypatch, environment, opt_in, expected):
+    runs = []
+    monkeypatch.setattr(RunTree, "post", lambda self: None)
+    monkeypatch.setattr(RunTree, "patch", lambda self: runs.append(self))
+    settings = replace(SETTINGS, environment=environment, trace_local_chat=opt_in)
+    client = TestClient(create_app(settings=settings, repository=JsonRepository(settings.curated_data_path)))
+    request = {"question": "Hello", "model": "fallback"}
+    with tracing_context(enabled=True):
+        first = client.post("/api/v1/chat", json=request)
+        assert first.status_code == 200
+        session_id = first.json()["session_id"]
+        second = client.post("/api/v1/chat", json={**request, "question": "Hi there", "session_id": session_id})
+        assert second.status_code == 200
+
+    assert [run.metadata["thread_id"] for run in runs] == ([session_id, session_id] if expected else [])
+    for run, response in zip(runs, [first, second]):
+        assert run.outputs["messages"][0]["content"] == response.json()["answer"]
 
 
 def test_chat_compatibility_alias_and_citations():
@@ -184,7 +209,7 @@ def test_available_models_with_gemini_and_groq_keys():
         curated_data_path=ROOT / "data/curated/districts.json",
         groq_api_key="gsk-test",
         gemini_api_key="gem-test",
-        gemini_model="gemini-1.5-flash",
+        gemini_model="gemini-flash-latest",
     )
     client = TestClient(create_app(settings=settings, repository=JsonRepository(settings.curated_data_path)))
     response = client.get("/api/v1/models")
@@ -192,10 +217,10 @@ def test_available_models_with_gemini_and_groq_keys():
     body = response.json()
     ids = [m["id"] for m in body["models"]]
     assert f"groq:{settings.groq_model}" in ids
-    assert "gemini:gemini-1.5-flash" in ids
-    assert "gemini:gemini-2.0-flash" in ids
+    assert f"gemini:{settings.gemini_model}" in ids
+    assert [m for m in ids if m.startswith("gemini:")] == [f"gemini:{settings.gemini_model}"]
     assert "fallback" in ids
-    assert body["default_model"] == "gemini:gemini-1.5-flash"
+    assert body["default_model"] == f"gemini:{settings.gemini_model}"
 
 
 def test_chat_with_explicit_fallback_model():

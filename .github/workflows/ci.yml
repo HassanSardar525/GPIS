@@ -35,6 +35,7 @@ jobs:
           --health-retries 10
     env:
       GPIS_TEST_DATABASE_URL: postgresql+psycopg://gpis:gpis@localhost:5432/gpis_test
+      GPIS_PUNJAB_TEST_DATABASE_URL: postgresql+psycopg://gpis:gpis@localhost:5432/gpis_punjab_test
       GPIS_REDIS_URL: redis://localhost:6379/0
     steps:
       - uses: actions/checkout@v4
@@ -43,9 +44,24 @@ jobs:
           python-version: "3.11"
           cache: pip
       - name: Install project
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,ingestion]"
+      - name: Cache reviewed source files
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          key: official-documents-${{ hashFiles('data/curated/document_sources.json', 'data/curated/pbs_table_1.json') }}
+      - name: Verify official test inputs
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y libarchive-tools
+          python -m scripts.fetch_test_sources --health-mirror
       - name: Run tests
-        run: pytest -q
+        env:
+          PGPASSWORD: gpis
+        run: |
+          psql -h localhost -U gpis -d gpis_test -c 'CREATE DATABASE gpis_punjab_test'
+          python -m pytest -q
+      - name: Verify packaged source previews
+        run: python -m app.history
       - name: Run RAG evaluation
         run: python scripts/run_rag_evaluation.py --enforce
       - name: Check Markdown links

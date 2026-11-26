@@ -12,15 +12,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "retrieval_traces",
-        sa.Column(
-            "details",
-            postgresql.JSONB(astext_type=sa.Text()),
-            nullable=False,
-            server_default=sa.text("'{}'::jsonb"),
-        ),
-    )
+    # 0001 uses current model metadata, which already contains this column on
+    # a fresh install. Existing databases still need the additive upgrade.
+    op.execute("ALTER TABLE retrieval_traces ADD COLUMN IF NOT EXISTS details JSONB NOT NULL DEFAULT '{}'::jsonb")
 
 
 def downgrade() -> None:

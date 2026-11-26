@@ -78,6 +78,7 @@ function renderCitations(citations = []) {
         <h4>Retrieved passage</h4>
         ${passage}
         ${officialLink}
+        ${typeof evidenceButtons === 'function' ? evidenceButtons(citation.anchor_ids) : ''}
       </div>
     </details>`;
   }).join('');
@@ -131,6 +132,8 @@ function showDistrictError(error) {
   document.querySelector('#district-summary').setAttribute('aria-busy', 'false');
   document.querySelector('#district-name').textContent = 'District unavailable';
   document.querySelector('#scorecards').innerHTML = `<div class="state-error" role="alert"><p>${escapeHtml(error.message)}</p><button type="button" data-action="retry-district">Retry district</button></div>`;
+  const notice = document.querySelector('#notice');
+  notice.innerHTML = '<span>District details could not load.</span> <button type="button" data-action="retry-district">Retry district</button>';
   renderTrendError(error);
 }
 
@@ -250,108 +253,174 @@ async function json(url, options) {
   return data;
 }
 
-function card(category, title, score, rank, detail, metrics, sourceUrl) {
-  return `<article class="score-card">
-    <div class="score-top"><div><h3>${escapeHtml(title)}</h3><span class="rank">Rank ${rank.rank} of ${state.districts.filter(item => item.scores[category] != null).length}</span></div><button class="score-number" type="button" data-score-category="${category}" title="Ask why this score was given">${score}</button></div>
-    ${renderScoreQuality(detail)}
-    <ul class="metric-list">${metrics.map(([label, value]) => `<li><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></li>`).join('')}</ul>
-    <a class="source-link" href="${safeUrl(sourceUrl)}" target="_blank" rel="noreferrer">View official source ↗</a>
-  </article>`;
+function measure(label, value, source, period, historyMetric, locator) {
+  const page = locator?.match(/PDF page (\d+)/i)?.[1];
+  const sourceUrl = source?.url && safeUrl(source.url);
+  const href = page && sourceUrl && sourceUrl !== '#' ? sourceUrl.split('#')[0] + '#page=' + page : sourceUrl;
+  return `<details class="profile-measure"><summary><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></summary>
+    <div class="measure-notes"><p>${escapeHtml(period || '')}</p>
+    ${locator ? `<p>${escapeHtml(locator.split('; sha256=')[0])}</p>` : ''}
+    ${href && href !== '#' ? `<a class="source-link" href="${href}" target="_blank" rel="noreferrer">Official source ↗</a>` : ''}
+    ${historyMetric ? `<button type="button" data-profile-history="${historyMetric}">Explore history</button>` : ''}</div></details>`;
 }
 
-function officialServiceCards(data) {
-  const labels = {hospitals: 'Hospitals', dispensaries: 'Dispensaries', rhcs: 'RHCs', bhus: 'BHUs', tb_clinics: 'TB clinics', sh_centers: 'Sub-health centres', mch_centers: 'Maternal and child health centres', trauma_centers: 'Trauma centres'};
+function profileCard(data, category, title, period, measures, note) {
+  const score = data.derived.scores[category];
+  const rank = data.rankings?.[category];
+  const detail = data.score_details?.[category];
+  const ranking = rank?.rank == null ? '' : `Rank ${rank.rank} of ${state.districts.filter(item => item.scores[category] != null).length}`;
+  const anchor = data.evidence_anchors?.[category]?.[0];
+  const defaultHistory = {education: 'literacy_total_pct', health: 'phs_hospitals_count', accountability: 'dha_development_budget_million_pkr'}[category];
+  return `<article class="score-card profile-card" data-evidence-category="${category}">
+    <h3>${title}</h3><p class="profile-period">${escapeHtml(period)}</p>
+    <p class="profile-score">${score == null ? 'Not scored' : `<strong>${escapeHtml(number(score,1))}</strong> / 100`}</p>
+    <details class="profile-more"><summary aria-label="View details for ${title}"><span class="more-label">View more</span><span class="less-label">View less</span></summary>
+      ${measures || '<p>No reviewed measures available.</p>'}
+      <button type="button" class="profile-history-button" data-profile-history="${defaultHistory}">History and officeholders</button>
+      ${note ? `<p>${escapeHtml(note)}</p>` : ''}
+      ${anchor ? `<button type="button" class="evidence-link" data-evidence="${escapeHtml(anchor)}">View district evidence</button>` : ''}
+      ${score == null ? '' : `<details class="score-method-details"><summary>Score details</summary><p>${ranking}</p>${renderScoreQuality(detail)}
+        <button type="button" data-score-category="${category}">Ask about this score</button></details>`}
+    </details></article>`;
+}
+
+function profileCards(data) {
+  const pct = value => value == null ? 'Unavailable' : number(value, 2) + '%';
+  const education = data.education || {};
+  const educationRows = [
+    ['Total literacy', pct(education.literacy_total_pct), 'literacy_total_pct'],
+    ['Female literacy', pct(education.literacy_female_pct)],
+    ['Male literacy', pct(education.literacy_male_pct)],
+    ['Out-of-school children aged 5–16', number(education.out_of_school_children_5_16)],
+  ].map(([label,value,key]) => measure(label,value,data.sources.pbs_table_12,'Census 2023 education',key)).join('');
+
   const health = data.official_health;
   const budget = data.official_budget;
-  let html = '';
+  const facilities = {hospitals:'Hospitals', dispensaries:'Dispensaries', rhcs:'Rural health centres', bhus:'Basic health units', tb_clinics:'TB clinics', sh_centers:'Sub-health centres', mch_centers:'Maternal and child health centres', trauma_centers:'Trauma centres'};
+  const serviceSource = service => Object.values(service?.sources || {})[0];
+  const healthScoreSource = data.metadata.active_score_version === 'punjab-v1' ? serviceSource(health) : data.sources.agp_dha;
+  const healthScorePeriod = data.score_details?.health?.reporting_period;
+  let healthRows = '';
+  if (data.derived.facility_count != null) {
+    healthRows += measure('Facilities used in score', number(data.derived.facility_count), healthScoreSource, healthScorePeriod);
+    healthRows += measure('Facilities per 100,000 residents', number(data.derived.facilities_per_100k,2), healthScoreSource, healthScorePeriod);
+    healthRows += measure('BHUs / RHCs used in score', number(data.health.bhus) + ' / ' + number(data.health.rhcs), healthScoreSource, healthScorePeriod);
+  }
   if (health) {
-    const values = Object.fromEntries(health.observations.map(row => [row.metric_key, row.value]));
-    const display = value => value == null ? '—' : number(value);
-    const source = Object.values(health.sources)[0];
-    html += `<article class="score-card"><h3>Official health capacity</h3><p>As at ${escapeHtml(health.period)} · Punjab Health Statistics</p>
-      <table><thead><tr><th>Facility</th><th>Institutions</th><th>Beds</th></tr></thead><tbody>${Object.entries(labels).map(([key, label]) => `<tr><th>${escapeHtml(label)}</th><td>${display(values[`phs_${key}_count`])}</td><td>${display(values[`phs_${key}_beds`])}</td></tr>`).join('')}</tbody></table>
-      <p class="muted">— = printed dash (nil or insignificant), not a confirmed zero. Capacity does not measure quality of care.</p><a class="source-link" href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">View official health source ↗</a></article>`;
+    healthRows += '<h4>Official health capacity</h4>';
+    const records = new Map(health.observations.map(row => [row.metric_key,row]));
+    for (const [key,label] of Object.entries(facilities)) {
+      const countKey = 'phs_' + key + '_count';
+      const count = records.get(countKey);
+      const beds = records.get('phs_' + key + '_beds');
+      const display = row => row ? (row.value == null ? '—' : number(row.value)) : 'Unavailable';
+      const historical = ['hospitals','dispensaries','rhcs','bhus'].includes(key) ? countKey : null;
+      healthRows += measure(label, display(count) + ' institutions · ' + display(beds) + ' beds',
+        serviceSource(health), health.period, historical, count?.locator || beds?.locator);
+    }
+  }
+  let financialRows = '';
+  const accounts = data.accountability;
+  const financialSource = data.metadata.active_score_version === 'punjab-v1' ? serviceSource(budget) : data.sources.agp_dha;
+  const period = data.score_details?.accountability?.reporting_period;
+  if (accounts) {
+    for (const [label, lapse] of [['Overall budget utilized', accounts.overall_budget_lapse_pct], ['Development budget utilized', accounts.development_budget_lapse_pct]]) {
+      financialRows += measure(label, pct(lapse == null ? null : 100-lapse), financialSource, period,
+        label === 'Development budget utilized' ? 'dha_development_utilization_pct' : null);
+    }
+    if (accounts.audited_formations != null) financialRows += measure('Formations audited', accounts.audited_formations + ' of ' + accounts.total_formations, financialSource, period);
   }
   if (budget) {
-    const values = Object.fromEntries(budget.observations.map(row => [row.metric_key, row.value]));
-    const source = Object.values(budget.sources)[0];
-    html += `<article class="score-card"><h3>Health-authority budget</h3><p>${escapeHtml(budget.period)} · Rs million</p>
-      <ul class="metric-list">${[['Total budget', 'total_budget'], ['Total expenditure', 'total_expenditure'], ['Development budget', 'development_budget'], ['Development expenditure', 'development_expenditure']].map(([label,key]) => `<li><span>${label}</span><strong>${number(values[`dha_${key}_million_pkr`],3)}</strong></li>`).join('')}</ul>
-      <p class="muted">District Health Authority spending only. North Punjab figures are FY 2022–23; South Punjab figures are FY 2023–24. These are not a same-year ranking.</p><a class="source-link" href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">View official budget source ↗</a></article>`;
+    financialRows += '<h4>District Health Authority budget</h4>';
+    for (const [key,label] of Object.entries({total_budget:'Total budget',total_expenditure:'Total expenditure',development_budget:'Development budget',development_expenditure:'Development expenditure'})) {
+      const metric = 'dha_' + key + '_million_pkr';
+      const row = budget.observations.find(item => item.metric_key === metric);
+      financialRows += measure(label, row?.value == null ? 'Unavailable' : number(row.value,3) + ' million Rs',
+        serviceSource(budget), budget.period, metric, row?.locator);
+    }
   }
-  return html;
+  return [
+    profileCard(data,'education','Education','Census 2023',educationRows),
+    profileCard(data,'health','Health',healthScorePeriod || health?.period || 'Health capacity',healthRows,
+      health ? 'A printed dash means nil or insignificant. Facility counts measure capacity, not quality of care.' : ''),
+    profileCard(data,'accountability','Financial management',period || budget?.period || 'District Health Authority',financialRows,
+      budget ? 'Amounts are nominal rupees and cover District Health Authority spending.' : ''),
+  ].join('');
 }
 
 function renderDistrict(data) {
+  const hadSelection = Boolean(state.district);
   state.district = data;
+  document.querySelector('#chat-context').textContent = 'District: ' + data.name;
   if (typeof syncWorkspaceDistrict === 'function') syncWorkspaceDistrict(data);
-  setBusy(document.querySelector('#notice'), false, data.metadata.disclaimer);
+  if (typeof window.highlightDistrictOnMap === 'function') window.highlightDistrictOnMap(data.slug, { zoom: hadSelection });
+  document.querySelector('#score-disclaimer').textContent = data.metadata.disclaimer;
+  setBusy(document.querySelector('#notice'), false, '');
   document.querySelector('#district-name').textContent = data.name;
+  document.querySelector('#selected-summary').textContent = data.name;
+  const populationSource = document.querySelector('#population-source');
+  populationSource.hidden = !data.sources.pbs_table_1?.url;
+  if (!populationSource.hidden) populationSource.href = safeUrl(data.sources.pbs_table_1.url);
+  const populationAnchor = data.evidence_anchors?.context?.[0];
+  if (populationAnchor) populationSource.dataset.evidence = populationAnchor;
+  else delete populationSource.dataset.evidence;
   document.querySelector('#population').textContent = `Population ${number(data.population_2023)} · Census 2023`;
   document.querySelector('#overall-score').dataset.available = String(data.derived.scores.overall != null);
   if (data.derived.scores.overall == null) {
     document.querySelector('#overall-score').textContent = 'Unavailable';
     document.querySelector('#overall-rank').textContent = 'Not ranked';
     document.querySelector('#overall-quality').textContent = 'Official facts available; outside the ten-district score cohort.';
-    const education = data.education;
-    document.querySelector('#scorecards').innerHTML = `<article class="score-card">
-      <h3>Census 2023 education</h3>
-      <ul class="metric-list">
-        <li><span>Total literacy</span><strong>${escapeHtml(number(education.literacy_total_pct, 2))}%</strong></li>
-        <li><span>Male literacy</span><strong>${escapeHtml(number(education.literacy_male_pct, 2))}%</strong></li>
-        <li><span>Female literacy</span><strong>${escapeHtml(number(education.literacy_female_pct, 2))}%</strong></li>
-        <li><span>Out-of-school age 5–16</span><strong>${escapeHtml(number(education.out_of_school_children_5_16))}</strong></li>
-      </ul><a class="source-link" href="${safeUrl(data.sources.pbs_table_12?.url)}" target="_blank" rel="noreferrer">View official source ↗</a>
-      </article>` + officialServiceCards(data);
     setBusy(document.querySelector('#notice'), false, (data.data_warnings || []).join(' '));
-    loadRankings().catch(showRankingError);
-    return;
+  } else {
+    document.querySelector('#overall-score').textContent = data.derived.scores.overall;
+    document.querySelector('#overall-rank').textContent = `Rank ${data.rankings.overall.rank} of ${state.districts.filter(item => item.scores.overall != null).length}`;
+    document.querySelector('#overall-quality').innerHTML = renderScoreQuality(data.score_details.overall);
   }
-  document.querySelector('#overall-score').textContent = data.derived.scores.overall;
-  document.querySelector('#overall-rank').textContent = `Rank ${data.rankings.overall.rank} of ${state.districts.filter(item => item.scores.overall != null).length}`;
-  document.querySelector('#overall-quality').innerHTML = renderScoreQuality(data.score_details.overall);
-
-  const education = data.education;
-  const health = data.health;
-  const accountability = data.accountability;
-  document.querySelector('#scorecards').innerHTML = [
-    card('education', 'Education', data.derived.scores.education, data.rankings.education, data.score_details.education, [
-      ['Total literacy', `${number(education.literacy_total_pct, 1)}%`],
-      ['Female literacy', `${number(education.literacy_female_pct, 1)}%`],
-      ['Out-of-school age 5–16', number(education.out_of_school_children_5_16)],
-    ], data.sources.pbs_table_12.url),
-    card('health', 'Health access proxy', data.derived.scores.health, data.rankings.health, data.score_details.health, [
-      ['Listed public facilities', number(data.derived.facility_count)],
-      ['Facilities per 100k', number(data.derived.facilities_per_100k, 2)],
-      ['BHUs / RHCs', `${number(health.bhus)} / ${number(health.rhcs)}`],
-    ], data.sources.agp_dha.url),
-    card('accountability', 'Financial management proxy', data.derived.scores.accountability, data.rankings.accountability, data.score_details.accountability, [
-      ['Overall budget utilized', `${number(100 - accountability.overall_budget_lapse_pct, 1)}%`],
-      ['Development budget utilized', `${number(100 - accountability.development_budget_lapse_pct, 1)}%`],
-      ['Formations audited', `${accountability.audited_formations} of ${accountability.total_formations}`],
-    ], data.sources.agp_dha.url),
-  ].join('') + officialServiceCards(data);
+  document.querySelector('#scorecards').innerHTML = profileCards(data);
   loadRankings().catch(showRankingError);
 }
 
 function renderTrend(data) {
+  document.querySelector('#retry-trend').hidden = true;
   state.trend = data;
   if (typeof renderYearChart === 'function') renderYearChart(data);
   const signedChange = `${data.change_percentage_points > 0 ? '+' : ''}${number(data.change_percentage_points, 2)} pp`;
   const change = document.querySelector('#trend-change');
   change.textContent = `${signedChange} · ${data.direction}`;
   change.dataset.direction = data.direction;
-  document.querySelector('#trend-periods').innerHTML = data.periods.map(period => `<article>
-    <span>${escapeHtml(period.period)}</span>
-    <strong>${number(period.utilization_pct, 2)}%</strong>
-    <small>Rs ${number(period.expenditure_million_pkr, 3)}m spent of Rs ${number(period.final_grant_million_pkr, 3)}m final grant</small>
-  </article>`).join('');
+  const radius = 28;
+  const circumference = 2 * Math.PI * radius; // ~175.93
+  document.querySelector('#trend-periods').innerHTML = data.periods.map(period => {
+    const pct = Math.max(0, Math.min(100, period.utilization_pct || 0));
+    const offset = Math.max(0, circumference - (pct / 100) * circumference);
+    const strokeColor = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--red)';
+    return `<article class="trend-period-card">
+      <div class="trend-donut-visual" aria-hidden="true">
+        <svg class="trend-donut-svg" viewBox="0 0 72 72" width="68" height="68">
+          <circle class="trend-donut-track" cx="36" cy="36" r="${radius}" />
+          <circle class="trend-donut-meter" cx="36" cy="36" r="${radius}" style="stroke: ${strokeColor}; stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset};" />
+        </svg>
+        <span class="trend-donut-pct">${Math.round(pct)}%</span>
+      </div>
+      <div class="trend-period-info">
+        <span>${escapeHtml(period.period)}</span>
+        <strong>${number(period.utilization_pct, 2)}%</strong>
+        <small>Rs ${number(period.expenditure_million_pkr, 3)}m spent of Rs ${number(period.final_grant_million_pkr, 3)}m final grant</small>
+        <div class="trend-meter-mini-track" aria-hidden="true">
+          <div class="trend-meter-mini-bar" style="width: ${pct}%; background: ${strokeColor};"></div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
   document.querySelector('#trend-warning').textContent = data.warnings.join(' ');
   document.querySelector('#trend-source').href = safeUrl(data.citation.url);
+  if (data.citation.anchor_ids?.length) document.querySelector('#trend-source').dataset.evidence = data.citation.anchor_ids[0];
+  else delete document.querySelector('#trend-source').dataset.evidence;
   document.querySelector('#trend-panel').setAttribute('aria-busy', 'false');
 }
 
 function renderTrendError(error) {
+  document.querySelector('#retry-trend').hidden = !state.district || error.code === 'trend_unavailable';
   state.trend = null;
   document.querySelector('#year-chart')?.replaceChildren();
   const trendLabel = document.querySelector('#trend-district-label');
@@ -360,11 +429,20 @@ function renderTrendError(error) {
   document.querySelector('#trend-periods').innerHTML = '';
   document.querySelector('#trend-warning').textContent = error.message;
   document.querySelector('#trend-source').removeAttribute('href');
+  delete document.querySelector('#trend-source').dataset.evidence;
   document.querySelector('#trend-panel').setAttribute('aria-busy', 'false');
 }
 
 async function loadDistrict(slug) {
   const requestId = ++state.districtRequest;
+  window.closeProfileHistory?.();
+  if (state.district?.slug !== slug) {
+    state.chatRequest += 1;
+    state.lastQuestion = null;
+    state.lastDistricts = [];
+    setBusy(document.querySelector('#chat-answer'), false, 'Ask a question about the selected district.');
+  }
+  setChatControlsDisabled(true);
   setBusy(document.querySelector('#district-summary'), true);
   document.querySelector('#district-name').textContent = 'Loading…';
   document.querySelector('#scorecards').innerHTML = '<article class="score-card skeleton" aria-hidden="true"></article><article class="score-card skeleton" aria-hidden="true"></article><article class="score-card skeleton" aria-hidden="true"></article>';
@@ -383,8 +461,10 @@ async function loadDistrict(slug) {
   }
   if (requestId !== state.districtRequest) return;
   renderDistrict(detail);
+
   if (trend.error) renderTrendError(trend.error); else renderTrend(trend);
   setBusy(document.querySelector('#district-summary'), false);
+  setChatControlsDisabled(false);
 }
 
 async function loadRankings() {
@@ -393,7 +473,7 @@ async function loadRankings() {
     return loadCensusRankings(requestId);
   }
   const note = document.querySelector('#ranking-note');
-  if (note) note.textContent = 'Reviewed performance scores: fixed ten-district cohort. Districts without a score are not ranked.';
+  if (note) note.textContent = 'Reviewed performance scores: ranked districts in the selected score version.';
   setBusy(document.querySelector('#ranking-list'), true, 'Loading rankings…');
   let data;
   try {
@@ -416,7 +496,8 @@ async function loadRankings() {
   setBusy(document.querySelector('#ranking-list'), false);
 }
 
-async function askQuestion(question, districts = [state.district.slug]) {
+async function askQuestion(question, districts = [state.district?.slug]) {
+  if (!state.district || select.value !== state.district.slug) return;
   if (location.hash.startsWith('#/compare') || location.hash === '#/overview') location.hash = '#/district/' + state.district.slug;
   const answer = document.querySelector('#chat-answer');
   const requestId = ++state.chatRequest;
@@ -444,7 +525,7 @@ async function askQuestion(question, districts = [state.district.slug]) {
     const comparison = renderComparison(data.comparison);
     const mode = ['groq', 'gemini', 'extractive', 'abstained'].includes(data.mode) ? data.mode : 'extractive';
     const modelBadge = data.model || data.mode;
-    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${mode}">${escapeHtml(modelBadge)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(String(data.trace_id).slice(0, 8))}</span></div>${renderAnswerStatus(data)}<p>${escapeHtml(data.answer)}</p>${comparison}${renderCitations(data.citations)}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
+    answer.innerHTML = `<div class="answer-meta"><span class="answer-mode mode-${mode}">${escapeHtml(modelBadge)}</span><span>${escapeHtml(data.route)}</span>${tools}<span>trace ${escapeHtml(String(data.trace_id).slice(0, 8))}</span></div>${renderAnswerStatus(data)}<p>${renderAnswerWithEvidence(data.answer, data.citations)}</p>${comparison}${renderCitations(data.citations)}${warnings ? `<ul class="chat-warnings">${warnings}</ul>` : ''}`;
     setBusy(answer, false);
     answer.focus({ preventScroll: true });
   } catch (error) {
@@ -458,7 +539,7 @@ async function askQuestion(question, districts = [state.district.slug]) {
   }
 }
 
-function filterDistricts() {
+function filterDistricts(showAll = false) {
   const results = document.querySelector('#district-results');
   const query = document.querySelector('#district-query').value.trim();
   const normalize = value => value.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -471,12 +552,12 @@ function filterDistricts() {
     ? matches.map(district => `<option value="${escapeHtml(district.slug)}">${escapeHtml(district.name)}</option>`).join('')
     : '<option value="">No matching districts</option>';
   results.disabled = matches.length === 0;
-  results.size = query ? Math.max(2, Math.min(matches.length, 5)) : 1;
-  if (query && matches.length) results.selectedIndex = -1;
-  results.hidden = !query;
+  results.size = query || showAll ? Math.max(2, Math.min(matches.length, 5)) : 1;
+  if (matches.length) results.selectedIndex = -1;
+  results.hidden = !query && !showAll;
   document.querySelector('#district-search-status').textContent = query
     ? (matches.length ? `${matches.length} matching district${matches.length === 1 ? '' : 's'}. Choose a result or press Enter.` : 'No matching districts. Try another name.')
-    : 'District-level official data';
+    : 'Browse all districts or type a name.';
 }
 
 async function init() {
@@ -505,42 +586,85 @@ async function init() {
     return;
   }
   state.districts = data.districts;
+  window.updateDistrictMapData?.(state.districts);
+  censusData('population_2023').then(dataset => window.updateDistrictMapData?.(state.districts, dataset.rows)).catch(() => {});
+  const scoredCount = state.districts.filter(d => d.scores.overall != null).length;
+  document.querySelector('#map-scored-count').textContent = `${scoredCount} scored districts`;
+  document.querySelector('#map-unscored-count').textContent = `${state.districts.length - scoredCount} facts-only districts`;
+  document.querySelector('#score-ranking-options').label = `Performance scores · ${scoredCount} districts`;
   select.innerHTML = data.districts.map(district => `<option value="${escapeHtml(district.slug)}">${escapeHtml(district.name)}</option>`).join('');
   select.disabled = false;
   filterDistricts();
-  const requestedSlug = location.hash.split('/')[2];
+  const requestedSlug = location.hash.split('?')[0].split('/')[2];
   const initialSlug = data.districts.some(item => item.slug === requestedSlug) ? requestedSlug : data.districts[0].slug;
   select.value = initialSlug;
   initWorkspaceNavigation();
   await Promise.all([loadDistrict(initialSlug), loadModels()]);
 }
 
-select.addEventListener('change', () => {
-  if (select.value) loadDistrict(select.value).catch(showDistrictError);
-});
-document.querySelector('#district-results').addEventListener('change', event => {
-  const slug = event.target.value;
-  if (slug) {
-    select.value = slug;
-    loadDistrict(slug).catch(showDistrictError);
+function chooseDistrict(slug) {
+  if (!slug) return;
+  select.value = slug;
+  const input = document.querySelector('#district-query');
+  input.value = '';
+  filterDistricts();
+  document.querySelector('#selected-summary').textContent = select.selectedOptions[0].textContent;
+  document.querySelector('#open-profile').href = '#/district/' + slug;
+  loadDistrict(slug).catch(showDistrictError);
+}
+
+select.addEventListener('change', () => chooseDistrict(select.value));
+const districtResults = document.querySelector('#district-results');
+function confirmDistrictResult() {
+  if (!districtResults.value) return;
+  const slug = districtResults.value;
+  document.querySelector('#district-query').focus();
+  chooseDistrict(slug);
+}
+districtResults.addEventListener('click', confirmDistrictResult);
+districtResults.addEventListener('keydown', event => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    confirmDistrictResult();
   }
 });
-document.querySelector('#district-query').addEventListener('input', filterDistricts);
+const districtSearch = document.querySelector('.district-search');
+districtSearch.addEventListener('focusout', event => {
+  if (!districtSearch.contains(event.relatedTarget)) document.querySelector('#district-results').hidden = true;
+});
+document.querySelector('#district-query').addEventListener('focus', () => filterDistricts(true));
+districtSearch.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    document.querySelector('#district-query').focus();
+    document.querySelector('#district-results').hidden = true;
+  }
+});
+document.querySelector('#focus-chat').addEventListener('click', () => document.querySelector('#chat-question').focus());
+document.querySelector('#district-query').addEventListener('input', () => filterDistricts(true));
 document.querySelector('#district-query').addEventListener('keydown', event => {
   const results = document.querySelector('#district-results');
   if (event.key === 'Enter' && !results.hidden && !results.disabled) {
     event.preventDefault();
     const slug = results.value || results.options[0]?.value;
-    if (slug) {
-      select.value = slug;
-      loadDistrict(slug).catch(showDistrictError);
-    }
-  } else if (event.key === 'ArrowDown' && !results.hidden && !results.disabled) {
+    chooseDistrict(slug);
+  } else if (event.key === 'ArrowDown' && !results.disabled) {
     event.preventDefault();
+    if (results.hidden) filterDistricts(true);
+    results.selectedIndex = 0;
     results.focus();
-  } else if (event.key === 'Escape') {
-    event.target.value = '';
-    filterDistricts();
+  }
+});
+document.querySelector('#retry-trend').addEventListener('click', async () => {
+  const slug = select.value;
+  const requestId = state.districtRequest;
+  document.querySelector('#retry-trend').hidden = true;
+  setBusy(document.querySelector('#trend-panel'), true);
+  document.querySelector('#trend-change').textContent = 'Loading trend…';
+  try {
+    const trend = await json(`/api/v1/districts/${slug}/trends/development-budget`);
+    if (requestId === state.districtRequest) renderTrend(trend);
+  } catch (error) {
+    if (requestId === state.districtRequest) renderTrendError(error);
   }
 });
 rankingCategory.addEventListener('change', () => loadRankings().catch(showRankingError));
@@ -610,4 +734,6 @@ function showInitError(error) {
 }
 
 setChatControlsDisabled(false);
+window.loadDistrict = loadDistrict;
+window.state = state;
 init().catch(showInitError);

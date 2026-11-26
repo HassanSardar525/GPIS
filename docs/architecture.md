@@ -1,6 +1,14 @@
 # Architecture
 
+Current scoring: punjab-v1 covers 36 census districts; prototype-v1 remains available explicitly. Gemini and Groq are selectable providers. See [Punjab methodology](PUNJAB_SCORING.md).
+
 ## Implemented architecture
+
+The historical evidence layer adds an atomic `historical_releases` JSONB record
+(or its identical curated JSON) and a packaged allowlist of original-page images.
+`app/history.py` performs date matching and change calculations. Neither historical
+answers nor evidence viewing depend on model generation or runtime PDF parsing.
+See [historical evidence](HISTORICAL_EVIDENCE.md) for APIs, release storage and coverage.
 
 ```mermaid
 flowchart LR
@@ -74,3 +82,10 @@ The application has no runtime dependency on the raw documents. Reviewed values 
 - `DELETE /api/v1/sessions/{session_id}` — permanent deletion with checkpoint cleanup
 
 Dependency injection selects a PostgreSQL repository in normal operation and the curated JSON adapter for lightweight tests. The scoring engine has no FastAPI, database, embedding, or LLM dependency. Rankings query stored results rather than recalculating in handlers.
+
+
+## Release evaluation
+
+The web application serves the district search, comparison and source viewer from the same FastAPI service as chat. Reviewed SQL facts supply census values. Document ingestion validates the registered originals against those observations, then writes searchable row and parent chunks. It runs separately from container bootstrap.
+
+The release runner exercises the deployed API and browser. A separate operator-run LangSmith client submits only versioned test cases, reference answers and cited passages to hosted experiments. Production chat disables inherited LangSmith tracing. Developers can opt in to tracing local chat turns grouped by GPIS session ID. See the [testing guide](testing.md).
