@@ -57,3 +57,4 @@ The hosted evaluation reproduced a correct Lahore count attached to an education
 
 - [x] Group education, health and financial measures under three expandable cards. Move category history into its card and preserve source and score details.
 - [ ] Resolve the reproduced mobile overflow and compatibility issue on the older local API, then repeat browser and release checks.
+- [x] Confirmed history loads in the Health card on the older localhost API and the updated candidate.

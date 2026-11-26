@@ -44,7 +44,7 @@ async function loadHistoricalEvidence(slug, reset = false) {
     const metricSelect = document.querySelector('#historical-metric');
     metricSelect.innerHTML = Object.entries(data.metrics).filter(([,m]) => m.category === category).map(([key,m]) => `<option value="${key}">${escapeHtml(m.label)}</option>`).join('');
     metricSelect.value = historicalMetric;
-    const comparison = data.district_comparison;
+    const comparison = data.district_comparison ?? data.comparison;
     const overlapNames = (comparison.officeholders || []).map(t => (t.person || 'Vacancy') + (t.status !== 'verified' ? ' (dates awaiting review)' : '')).join(', ');
     const selected = holders.terms.find(t => t.id === historicalTenure);
     const points = data.observations.filter(o => o.value !== null);
@@ -63,7 +63,7 @@ async function loadHistoricalEvidence(slug, reset = false) {
     const executives = holders.terms.filter(t => t.responsibility === 'provincial_executive');
     const representatives = holders.terms.filter(t => t.responsibility === 'constituency_representation');
     function termCard(t) {
-      const eligible = data.comparable_tenures.includes(t.id);
+      const eligible = data.comparable_tenures?.includes(t.id);
       const startsBetween = comparison.change !== null && t.start_precision === 'day' &&
         comparison.start < t.start && t.start <= comparison.end;
       const qualification = startsBetween ? `Took office on ${escapeHtml(t.start)}, after the first measurement began on ${escapeHtml(comparison.start)}.` : '';
