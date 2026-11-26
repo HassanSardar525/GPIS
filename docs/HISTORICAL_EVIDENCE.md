@@ -10,13 +10,13 @@ This feature is additive: neither score formulas nor the two score contracts cha
 | Health capacity | Four institution-count categories for all 36 census districts, at 1 January and 31 December 2023. Original Table 3 pages and component tehsil lists reviewed. Counts are not quality, access or outcomes. |
 | Development spending | Final grant, expenditure and calculated utilization for the 17 South DHA authorities in the report's explicit FY 2022–23/FY 2023–24 comparison. Nominal Rs million. |
 | North DHA history | The North report compares the same 19 DHAs across FY 2022–23 and FY 2023–24. Its development final grants match both district chapters for 16 authorities, expenditure for 16, and both inputs for 14. Total-budget and total-expenditure changes remain unverified. |
-| Education | Census 2023 literacy for 36 districts. PBS 2017 archive is registered for review; no 2017–2023 education change is published yet. |
+| Education | Census 2023 literacy for 36 districts. Five districts also have a verified 2017–2023 comparison. See the literacy source review below. |
 | Chief ministers | Seven named entries spanning the research period. Four have usable reviewed date intervals; early oath dates and Hamza Shahbaz's handover remain qualified. |
 | Ministers | Three caretaker portfolio records reported in January 2023. Exact portfolio start/end notifications remain unverified. |
 | MPAs | 290 constituency/name/party records from the Assembly's **2021 publication for the 2018 assembly**, spanning all 36 districts. These are archived representation records, not current MPAs or verified full terms. |
-| Previews | 56 original PDF page images, plus original workbook cells and headings. Reviewed highlights cover health rows, the comparative development table and workbook cells; other anchors offer a registered page or official source. |
+| Previews | 57 original PDF page images, plus original workbook cells and headings. Reviewed highlights cover health rows, the comparative development table and workbook cells; other anchors offer a registered page or official source. |
 
-The release contains 650 observations, 300 officeholder records and 959 anchors.
+The release contains 655 observations, 300 officeholder records and 964 anchors.
 Research starts at 2017; this does **not** mean annual data exists from 2017 onward.
 Missing records never imply zero or an office vacancy. MPA membership changes,
 by-elections, vacancies, ministerial changes and full date notifications remain
@@ -54,7 +54,9 @@ The following FY 2023–24 figures differ (chapter / comparison table, Rs millio
 | Okara | | 29.677 / 29.679 |
 | Sheikhupura | 67.389 / 67.390 | |
 
-### Literacy baseline under review
+### Literacy baseline review
+
+Figure 3.18 explicitly compares both censuses for Rawalpindi, Gujrat, Jhelum, Lahore and Sialkot. The paragraph above it gives the 2017 rates to two decimal places. Each 2023 rate agrees with the reviewed Table 12 workbook when rounded to the figure’s precision. For example, Lahore rose from 77.08% to 79.62%, a change of 2.54 percentage points. The remaining 31 districts require separate verification. [PBS provincial census report, printed page 84](https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf#page=108)
 
 PBS publishes the 2017 ages-10-and-over district literacy figures in *Social Indicators of Punjab*, Table 4.01. Use the all-area, all-sexes literate row. Before publishing a district change, verify its 2017 and 2023 reporting boundaries, literacy definition and denominator, then register both table locations. [PBS district figures](https://www.pbs.gov.pk/wp-content/uploads/2020/07/Social_Indicators_of_Punjab_v2.pdf) · [PBS census archive](https://www.pbs.gov.pk/censusarchive/)
 
@@ -147,7 +149,7 @@ access, draft/session preservation and escaped chat content.
 The 55-case Punjab deterministic RAG benchmark still passes every acceptance
 metric. These results do not claim complete officeholder research or full yearly
 coverage. Next curation priorities are official oath/end-date notifications,
-2017 literacy comparability, earlier health editions, and North DHA boundary review.
+the remaining 31 literacy baselines, earlier health editions, the five North DHA source conflicts and comparability of total budgets.
 
 General semantic RAG still lazily loads MiniLM. The local first score-question smoke
 test exceeded 45 seconds during that cold start; the model worked from its offline

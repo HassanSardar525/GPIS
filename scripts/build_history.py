@@ -36,6 +36,14 @@ def build():
         'publisher': 'Provincial Assembly of the Punjab', 'period': '2021 publication snapshot',
         'url': 'https://www.pap.gov.pk/uploads/downloads/biography-members-2018-23.pdf',
         'local_file': 'data/raw/pap_members_2018_23.pdf'}
+    literacy_source = 'pbs_punjab_provincial_census_2023'
+    sources[literacy_source] = {
+        'publisher': 'Pakistan Bureau of Statistics', 'title': 'Provincial Census Report 2023: Punjab',
+        'period': 'Census 2017 and Census 2023',
+        'url': 'https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf',
+        'local_file': 'data/raw/pbs_punjab_provincial_census_2023.pdf',
+        'sha256': '158c26de9420d87a3724025b5dc11e172c795e272cce4d9fe360ba81996b3de7',
+    }
     for s in sources.values():
         if s.get('local_file') and (ROOT / s['local_file']).is_file():
             digest = hashlib.sha256((ROOT / s['local_file']).read_bytes()).hexdigest()
@@ -275,6 +283,22 @@ def build():
                 'reason': 'Expenditure divided by final grant, multiplied by 100.' if supported else
                           'Utilization withheld: a source input is disputed or the denominator is zero.',
                 'anchor_ids': list(dict.fromkeys(budget['anchor_ids'] + spent['anchor_ids']))})
+
+    # Figure 3.18 explicitly pairs the census geographies. Its accompanying
+    # paragraph gives two decimal places for 2017; the chart rounds to one.
+    literacy_pairs = {'rawalpindi': (82.45, 83.2), 'gujrat': (78.68, 81.4),
+                      'jhelum': (78.94, 80.7), 'lahore': (77.08, 79.6), 'sialkot': (77.92, 78.4)}
+    for slug, (baseline, rounded_current) in literacy_pairs.items():
+        record = next(r for r in observations if r['district'] == slug and r['metric'] == 'literacy_total_pct')
+        assert round(record['value'], 1) == rounded_current
+        group = 'pbs-punjab-figure-3.18'
+        locator = f'Figure 3.18, opening paragraph, {slug.title()}; PDF page 108 (printed page 84)'
+        aid = anchor(literacy_source, locator)
+        reason = 'PBS pairs the same named district across the two censuses in Figure 3.18.'
+        record.update(comparability=group, reason=reason)
+        record['anchor_ids'].append(aid)
+        observation({'slug': slug}, dict(metric_key='literacy_total_pct', value=baseline, unit='percent',
+                    period='2017', source_id=literacy_source, locator=locator), group, reason, aid)
 
     # Hand-reviewed official officeholder register, with provenance per event.
     office = read('officeholder_register')

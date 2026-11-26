@@ -215,7 +215,7 @@ async function loadFactComparison() {
       <caption>Census 2023 · ${escapeHtml(left.name)} and ${escapeHtml(right.name)}</caption>
       <thead><tr><th scope="col">Metric</th><th scope="col">${escapeHtml(left.name)}</th><th scope="col">${escapeHtml(right.name)}</th></tr></thead>
       <tbody>${datasets.map(dataset => `<tr><th scope="row">${escapeHtml(dataset.label)}<small>${escapeHtml(dataset.period)} · ${escapeHtml(dataset.unit)}</small></th>${cell(dataset, leftSlug)}${cell(dataset, rightSlug)}</tr>`).join('')}</tbody></table></div>
-      <p class="coverage-note">Punjab Census 2023. A comparable 2017 district literacy series is awaiting review.</p>
+      <p class="coverage-note">Both columns use Census 2023. Open a district profile for its available historical comparisons.</p>
       ${renderComparisonCharts(datasets, left, right)}`;
     setBusy(container, false);
   } catch (error) {

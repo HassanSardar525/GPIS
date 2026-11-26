@@ -68,9 +68,14 @@ def test_release_coverage_and_sources():
         r=HistoryRepository().history(slug,'phs_hospitals_count')
         assert len(r['observations'])==2
         assert r['comparison']['change'] is not None
-        assert HistoryRepository().history(slug,'literacy_total_pct')['comparison']['change'] is None
+        literacy = HistoryRepository().history(slug, 'literacy_total_pct')['comparison']
+        assert (literacy['change'] is not None) == (slug in {'rawalpindi','gujrat','jhelum','lahore','sialkot'})
     comparable=sum(HistoryRepository().history(s,'dha_development_utilization_pct')['comparison']['change'] is not None for s in data['districts'])
     assert comparable==31
+    literacy = HistoryRepository().history('lahore', 'literacy_total_pct')
+    assert literacy['observations'][0]['value'] == 77.08
+    assert literacy['comparison']['change'] == pytest.approx(79.61901 - 77.08)
+    assert literacy['comparison']['unit'] == 'percentage points'
     store = HistoryRepository()
     lahore = store.history('lahore', 'dha_development_expenditure_million_pkr')
     assert lahore['comparison']['change'] == pytest.approx(4.595 - 22.350)
@@ -102,7 +107,7 @@ def test_scan_spreadsheet_and_printed_page_locations():
 
 def test_packaged_assets_and_evidence_api_need_no_raw_files(monkeypatch):
     from app.history import verify_packaged_assets
-    assert verify_packaged_assets()==56
+    assert verify_packaged_assets()==57
     data=packaged_release()
     assets={p['asset'] for a in data['anchors'].values() for p in a.get('pages',[])}
     assert len(assets)>45

@@ -4,13 +4,12 @@
 
 The new history interface publishes four health-capacity count comparisons for
 all 36 districts (1 January/31 December 2023), and comparative development budgets
-for 17 South and 16 North DHAs (FY 2022–23/FY 2023–24). North development expenditure is comparable for 16 DHAs and utilization for 14. Six conflicting inputs across five North authorities are documented. Education has one reviewed census
-snapshot; 2017 comparison remains pending. Officeholder coverage is partial:
+for 17 South and 16 North DHAs (FY 2022–23/FY 2023–24). North development expenditure is comparable for 16 DHAs and utilization for 14. Six conflicting inputs across five North authorities are documented. Five districts have verified Census 2017–2023 literacy changes. The other 31 have a 2023 reading. Officeholder coverage is partial:
 seven CM entries, three caretaker portfolio records and 290 archived MPA records
 from the Assembly's 2021 biography. Full MPA/minister service dates are not inferred.
 
 See [historical evidence](HISTORICAL_EVIDENCE.md) for exact coverage, the Multan
-source discrepancy, 56 packaged preview pages and notification-review gaps.
+source discrepancy, 57 packaged preview pages and notification-review gaps.
 The older temporal sections below describe the preserved prototype endpoints.
 
 ## Active Punjab-wide contract (2026-10-22)

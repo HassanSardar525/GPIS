@@ -120,6 +120,14 @@
       "local_file": "data/raw/pap_members_2018_23.pdf",
       "sha256": "cac1291d6a02eb4d2b592b11e5a0a314ec6fc06aeece229134da04fc5ce48cac"
     },
+    "pbs_punjab_provincial_census_2023": {
+      "publisher": "Pakistan Bureau of Statistics",
+      "title": "Provincial Census Report 2023: Punjab",
+      "period": "Census 2017 and Census 2023",
+      "url": "https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf",
+      "local_file": "data/raw/pbs_punjab_provincial_census_2023.pdf",
+      "sha256": "158c26de9420d87a3724025b5dc11e172c795e272cce4d9fe360ba81996b3de7"
+    },
     "punjab_cm_history": {
       "title": "Our Chief Ministers",
       "publisher": "Office of the Chief Minister, Punjab",
@@ -879,9 +887,9 @@
       "name": "Gujrat",
       "metrics": {
         "literacy_total_pct": {
-          "status": "awaiting_review",
-          "reason": "No reviewed comparable pair. Older source definitions/geography or missing observations still need review.",
-          "observations": 1,
+          "status": "verified",
+          "reason": "Comparable observations available.",
+          "observations": 2,
           "research_from": "2017"
         },
         "phs_hospitals_count": {
@@ -1092,9 +1100,9 @@
       "name": "Jhelum",
       "metrics": {
         "literacy_total_pct": {
-          "status": "awaiting_review",
-          "reason": "No reviewed comparable pair. Older source definitions/geography or missing observations still need review.",
-          "observations": 1,
+          "status": "verified",
+          "reason": "Comparable observations available.",
+          "observations": 2,
           "research_from": "2017"
         },
         "phs_hospitals_count": {
@@ -1376,9 +1384,9 @@
       "name": "Lahore",
       "metrics": {
         "literacy_total_pct": {
-          "status": "awaiting_review",
-          "reason": "No reviewed comparable pair. Older source definitions/geography or missing observations still need review.",
-          "observations": 1,
+          "status": "verified",
+          "reason": "Comparable observations available.",
+          "observations": 2,
           "research_from": "2017"
         },
         "phs_hospitals_count": {
@@ -2299,9 +2307,9 @@
       "name": "Rawalpindi",
       "metrics": {
         "literacy_total_pct": {
-          "status": "awaiting_review",
-          "reason": "No reviewed comparable pair. Older source definitions/geography or missing observations still need review.",
-          "observations": 1,
+          "status": "verified",
+          "reason": "Comparable observations available.",
+          "observations": 2,
           "research_from": "2017"
         },
         "phs_hospitals_count": {
@@ -2583,9 +2591,9 @@
       "name": "Sialkot",
       "metrics": {
         "literacy_total_pct": {
-          "status": "awaiting_review",
-          "reason": "No reviewed comparable pair. Older source definitions/geography or missing observations still need review.",
-          "observations": 1,
+          "status": "verified",
+          "reason": "Comparable observations available.",
+          "observations": 2,
           "research_from": "2017"
         },
         "phs_hospitals_count": {
@@ -13204,11 +13212,12 @@
       "definition": "literacy_total_pct-v1",
       "population_group": "ages 10+",
       "geography": "Census-2023-district:gujrat",
-      "comparability": null,
+      "comparability": "pbs-punjab-figure-3.18",
       "status": "verified",
-      "reason": "Measurement verified; historical comparability requires separately reviewed matching geography and definitions.",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
       "anchor_ids": [
-        "ev-06e8dbb2fb302d281bba"
+        "ev-06e8dbb2fb302d281bba",
+        "ev-77494c72a2ec5f0b1229"
       ]
     },
     {
@@ -13708,11 +13717,12 @@
       "definition": "literacy_total_pct-v1",
       "population_group": "ages 10+",
       "geography": "Census-2023-district:jhelum",
-      "comparability": null,
+      "comparability": "pbs-punjab-figure-3.18",
       "status": "verified",
-      "reason": "Measurement verified; historical comparability requires separately reviewed matching geography and definitions.",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
       "anchor_ids": [
-        "ev-d71ffe963392422d47f2"
+        "ev-d71ffe963392422d47f2",
+        "ev-ec312278928adeea65f4"
       ]
     },
     {
@@ -14394,11 +14404,12 @@
       "definition": "literacy_total_pct-v1",
       "population_group": "ages 10+",
       "geography": "Census-2023-district:lahore",
-      "comparability": null,
+      "comparability": "pbs-punjab-figure-3.18",
       "status": "verified",
-      "reason": "Measurement verified; historical comparability requires separately reviewed matching geography and definitions.",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
       "anchor_ids": [
-        "ev-2b608eccbbe241157afb"
+        "ev-2b608eccbbe241157afb",
+        "ev-e08e71728771ee20c6fa"
       ]
     },
     {
@@ -16466,11 +16477,12 @@
       "definition": "literacy_total_pct-v1",
       "population_group": "ages 10+",
       "geography": "Census-2023-district:rawalpindi",
-      "comparability": null,
+      "comparability": "pbs-punjab-figure-3.18",
       "status": "verified",
-      "reason": "Measurement verified; historical comparability requires separately reviewed matching geography and definitions.",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
       "anchor_ids": [
-        "ev-dd0f465718701ad818ff"
+        "ev-dd0f465718701ad818ff",
+        "ev-38ef9cb9c9c2ee158476"
       ]
     },
     {
@@ -17152,11 +17164,12 @@
       "definition": "literacy_total_pct-v1",
       "population_group": "ages 10+",
       "geography": "Census-2023-district:sialkot",
-      "comparability": null,
+      "comparability": "pbs-punjab-figure-3.18",
       "status": "verified",
-      "reason": "Measurement verified; historical comparability requires separately reviewed matching geography and definitions.",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
       "anchor_ids": [
-        "ev-cc42d33fa402e4f17069"
+        "ev-cc42d33fa402e4f17069",
+        "ev-97692fa2e3f9ad8a0aa9"
       ]
     },
     {
@@ -24951,6 +24964,106 @@
         "ev-5f96a490030fe9907f0a",
         "ev-7fa989619180b3163208",
         "ev-afbf40e288f6f13c3c87"
+      ]
+    },
+    {
+      "id": "rawalpindi-literacy_total_pct-2017",
+      "district": "rawalpindi",
+      "metric": "literacy_total_pct",
+      "value": 82.45,
+      "unit": "percent",
+      "start": "2017-01-01",
+      "end": "2017-12-31",
+      "date_precision": "year",
+      "period": "2017",
+      "definition": "literacy_total_pct-v1",
+      "population_group": "ages 10+",
+      "geography": "Census-2023-district:rawalpindi",
+      "comparability": "pbs-punjab-figure-3.18",
+      "status": "verified",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
+      "anchor_ids": [
+        "ev-38ef9cb9c9c2ee158476"
+      ]
+    },
+    {
+      "id": "gujrat-literacy_total_pct-2017",
+      "district": "gujrat",
+      "metric": "literacy_total_pct",
+      "value": 78.68,
+      "unit": "percent",
+      "start": "2017-01-01",
+      "end": "2017-12-31",
+      "date_precision": "year",
+      "period": "2017",
+      "definition": "literacy_total_pct-v1",
+      "population_group": "ages 10+",
+      "geography": "Census-2023-district:gujrat",
+      "comparability": "pbs-punjab-figure-3.18",
+      "status": "verified",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
+      "anchor_ids": [
+        "ev-77494c72a2ec5f0b1229"
+      ]
+    },
+    {
+      "id": "jhelum-literacy_total_pct-2017",
+      "district": "jhelum",
+      "metric": "literacy_total_pct",
+      "value": 78.94,
+      "unit": "percent",
+      "start": "2017-01-01",
+      "end": "2017-12-31",
+      "date_precision": "year",
+      "period": "2017",
+      "definition": "literacy_total_pct-v1",
+      "population_group": "ages 10+",
+      "geography": "Census-2023-district:jhelum",
+      "comparability": "pbs-punjab-figure-3.18",
+      "status": "verified",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
+      "anchor_ids": [
+        "ev-ec312278928adeea65f4"
+      ]
+    },
+    {
+      "id": "lahore-literacy_total_pct-2017",
+      "district": "lahore",
+      "metric": "literacy_total_pct",
+      "value": 77.08,
+      "unit": "percent",
+      "start": "2017-01-01",
+      "end": "2017-12-31",
+      "date_precision": "year",
+      "period": "2017",
+      "definition": "literacy_total_pct-v1",
+      "population_group": "ages 10+",
+      "geography": "Census-2023-district:lahore",
+      "comparability": "pbs-punjab-figure-3.18",
+      "status": "verified",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
+      "anchor_ids": [
+        "ev-e08e71728771ee20c6fa"
+      ]
+    },
+    {
+      "id": "sialkot-literacy_total_pct-2017",
+      "district": "sialkot",
+      "metric": "literacy_total_pct",
+      "value": 77.92,
+      "unit": "percent",
+      "start": "2017-01-01",
+      "end": "2017-12-31",
+      "date_precision": "year",
+      "period": "2017",
+      "definition": "literacy_total_pct-v1",
+      "population_group": "ages 10+",
+      "geography": "Census-2023-district:sialkot",
+      "comparability": "pbs-punjab-figure-3.18",
+      "status": "verified",
+      "reason": "PBS pairs the same named district across the two censuses in Figure 3.18.",
+      "anchor_ids": [
+        "ev-97692fa2e3f9ad8a0aa9"
       ]
     }
   ],
@@ -146137,6 +146250,161 @@
         "6"
       ]
     },
+    "ev-38ef9cb9c9c2ee158476": {
+      "id": "ev-38ef9cb9c9c2ee158476",
+      "source_id": "pbs_punjab_provincial_census_2023",
+      "title": "Provincial Census Report 2023: Punjab",
+      "publisher": "Pakistan Bureau of Statistics",
+      "period": "Census 2017 and Census 2023",
+      "url": "https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf#page=108",
+      "locator": "Figure 3.18, opening paragraph, Rawalpindi; PDF page 108 (printed page 84)",
+      "checksum": "158c26de9420d87a3724025b5dc11e172c795e272cce4d9fe360ba81996b3de7",
+      "kind": "pdf",
+      "pages": [
+        {
+          "number": 108,
+          "printed_label": "84",
+          "asset": "158c26de9420d87a-108.png",
+          "asset_sha256": "acc2e98461a6c8f222e0d8fb1e84312841cfa37e636842d87715fa32886a710b",
+          "rectangles": [],
+          "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+          "review": "Verified source page; exact highlight not yet reviewed."
+        }
+      ],
+      "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+      "highlight_status": "page_only",
+      "supporting_anchor_ids": [],
+      "pdf_pages": [
+        108
+      ],
+      "printed_page_labels": [
+        "84"
+      ]
+    },
+    "ev-77494c72a2ec5f0b1229": {
+      "id": "ev-77494c72a2ec5f0b1229",
+      "source_id": "pbs_punjab_provincial_census_2023",
+      "title": "Provincial Census Report 2023: Punjab",
+      "publisher": "Pakistan Bureau of Statistics",
+      "period": "Census 2017 and Census 2023",
+      "url": "https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf#page=108",
+      "locator": "Figure 3.18, opening paragraph, Gujrat; PDF page 108 (printed page 84)",
+      "checksum": "158c26de9420d87a3724025b5dc11e172c795e272cce4d9fe360ba81996b3de7",
+      "kind": "pdf",
+      "pages": [
+        {
+          "number": 108,
+          "printed_label": "84",
+          "asset": "158c26de9420d87a-108.png",
+          "asset_sha256": "acc2e98461a6c8f222e0d8fb1e84312841cfa37e636842d87715fa32886a710b",
+          "rectangles": [],
+          "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+          "review": "Verified source page; exact highlight not yet reviewed."
+        }
+      ],
+      "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+      "highlight_status": "page_only",
+      "supporting_anchor_ids": [],
+      "pdf_pages": [
+        108
+      ],
+      "printed_page_labels": [
+        "84"
+      ]
+    },
+    "ev-ec312278928adeea65f4": {
+      "id": "ev-ec312278928adeea65f4",
+      "source_id": "pbs_punjab_provincial_census_2023",
+      "title": "Provincial Census Report 2023: Punjab",
+      "publisher": "Pakistan Bureau of Statistics",
+      "period": "Census 2017 and Census 2023",
+      "url": "https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf#page=108",
+      "locator": "Figure 3.18, opening paragraph, Jhelum; PDF page 108 (printed page 84)",
+      "checksum": "158c26de9420d87a3724025b5dc11e172c795e272cce4d9fe360ba81996b3de7",
+      "kind": "pdf",
+      "pages": [
+        {
+          "number": 108,
+          "printed_label": "84",
+          "asset": "158c26de9420d87a-108.png",
+          "asset_sha256": "acc2e98461a6c8f222e0d8fb1e84312841cfa37e636842d87715fa32886a710b",
+          "rectangles": [],
+          "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+          "review": "Verified source page; exact highlight not yet reviewed."
+        }
+      ],
+      "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+      "highlight_status": "page_only",
+      "supporting_anchor_ids": [],
+      "pdf_pages": [
+        108
+      ],
+      "printed_page_labels": [
+        "84"
+      ]
+    },
+    "ev-e08e71728771ee20c6fa": {
+      "id": "ev-e08e71728771ee20c6fa",
+      "source_id": "pbs_punjab_provincial_census_2023",
+      "title": "Provincial Census Report 2023: Punjab",
+      "publisher": "Pakistan Bureau of Statistics",
+      "period": "Census 2017 and Census 2023",
+      "url": "https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf#page=108",
+      "locator": "Figure 3.18, opening paragraph, Lahore; PDF page 108 (printed page 84)",
+      "checksum": "158c26de9420d87a3724025b5dc11e172c795e272cce4d9fe360ba81996b3de7",
+      "kind": "pdf",
+      "pages": [
+        {
+          "number": 108,
+          "printed_label": "84",
+          "asset": "158c26de9420d87a-108.png",
+          "asset_sha256": "acc2e98461a6c8f222e0d8fb1e84312841cfa37e636842d87715fa32886a710b",
+          "rectangles": [],
+          "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+          "review": "Verified source page; exact highlight not yet reviewed."
+        }
+      ],
+      "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+      "highlight_status": "page_only",
+      "supporting_anchor_ids": [],
+      "pdf_pages": [
+        108
+      ],
+      "printed_page_labels": [
+        "84"
+      ]
+    },
+    "ev-97692fa2e3f9ad8a0aa9": {
+      "id": "ev-97692fa2e3f9ad8a0aa9",
+      "source_id": "pbs_punjab_provincial_census_2023",
+      "title": "Provincial Census Report 2023: Punjab",
+      "publisher": "Pakistan Bureau of Statistics",
+      "period": "Census 2017 and Census 2023",
+      "url": "https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf#page=108",
+      "locator": "Figure 3.18, opening paragraph, Sialkot; PDF page 108 (printed page 84)",
+      "checksum": "158c26de9420d87a3724025b5dc11e172c795e272cce4d9fe360ba81996b3de7",
+      "kind": "pdf",
+      "pages": [
+        {
+          "number": 108,
+          "printed_label": "84",
+          "asset": "158c26de9420d87a-108.png",
+          "asset_sha256": "acc2e98461a6c8f222e0d8fb1e84312841cfa37e636842d87715fa32886a710b",
+          "rectangles": [],
+          "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+          "review": "Verified source page; exact highlight not yet reviewed."
+        }
+      ],
+      "text": "The top five districts of Punjab Province having higher percentages of literacy in Census-2023 are\nRawalpindi, Gujrat, Jhelum, Lahore and Sialkot with literacy i.e. 83.2%,81.4%, 80.7%, 79.6% and\n78.4% higher than percentages of literacy in Census-2017 i.e. 82.45%, 78.68%, 78.94%, 77.08% and\n77.92% respectively depicting that the literacy level is higher in all five districts. The district wise\nliteracy comparison is also illustrated in the Figure 3.18 where Punjab Province bars are shown in green\ncolor. Districts bars shown in descending order with the respect to literacy percentages. The Figure below\nillustrates the comparative analysis of top five ranked districts with the previous Census.\nFigure 3.18 : Top Five Districts of Punjab With Higher Literacy Rate, Census-\n2017& 2023\n84.0\n83.2\n83.0 82.5\n82.0 81.4\n80.7\n81.0\n80.0 79.6\n78.9\n78.7\n79.0 78.4\n77.9\n78.0\n77.1\n77.0\n76.0\n75.0\n74.0\nRawalpindi Gujrat Jhelum Lahore Sialkot\n2017 2023\nThe district wise literacy comparison along with provincial and national levels is also illustrated in the\nFigure 3.19. The Purple and red vertical dashed lines represent National and Provincial literacy levels,\nrespectively. It is revealed that literacy of thirteen Higher literacy districts is even greater than the\nnational average of 61%.\nPopulation & Housing Census-2023 84",
+      "highlight_status": "page_only",
+      "supporting_anchor_ids": [],
+      "pdf_pages": [
+        108
+      ],
+      "printed_page_labels": [
+        "84"
+      ]
+    },
     "ev-b1b749d66d517199de09": {
       "id": "ev-b1b749d66d517199de09",
       "source_id": "punjab_cm_history",
@@ -155457,6 +155725,21 @@
     ],
     "agp_dha_north_budget_2023_24|Expenditure, Sargodha, row 19; PDF page 24 (printed page 6)": [
       "ev-991c8c5fa5259d571692"
+    ],
+    "pbs_punjab_provincial_census_2023|Figure 3.18, opening paragraph, Rawalpindi; PDF page 108 (printed page 84)": [
+      "ev-38ef9cb9c9c2ee158476"
+    ],
+    "pbs_punjab_provincial_census_2023|Figure 3.18, opening paragraph, Gujrat; PDF page 108 (printed page 84)": [
+      "ev-77494c72a2ec5f0b1229"
+    ],
+    "pbs_punjab_provincial_census_2023|Figure 3.18, opening paragraph, Jhelum; PDF page 108 (printed page 84)": [
+      "ev-ec312278928adeea65f4"
+    ],
+    "pbs_punjab_provincial_census_2023|Figure 3.18, opening paragraph, Lahore; PDF page 108 (printed page 84)": [
+      "ev-e08e71728771ee20c6fa"
+    ],
+    "pbs_punjab_provincial_census_2023|Figure 3.18, opening paragraph, Sialkot; PDF page 108 (printed page 84)": [
+      "ev-97692fa2e3f9ad8a0aa9"
     ],
     "punjab_cm_history|Named chief-minister history entries": [
       "ev-b1b749d66d517199de09"

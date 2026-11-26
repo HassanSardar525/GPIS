@@ -18,3 +18,5 @@ The reviewed hashes, acquisition details, comparability decisions, and Table 3 l
 
 
 - `agp_punjab_north_dha_2023-24.pdf`: [Official AGP North Punjab DHA report](https://agp.gov.pk/SiteImage/Policy/03-Comp.%20Audit-DHA%20AY%20%282023-24%29-Approved%20by%20AGP.pdf), downloaded 2026-09-06. Audit year 2023–24, budget tables for financial year 2022–23. SHA-256 and exact district pages are recorded in `data/curated/punjab_services.json`.
+
+- `pbs_punjab_provincial_census_2023.pdf`: Figure 3.18 and its accompanying paragraph on PDF page 108 provide the reviewed 2017 literacy baselines. The history builder verifies the original SHA-256. [PBS Punjab census report](https://www.pbs.gov.pk/wp-content/uploads/2020/07/Provincial-Census-Report-2023-Punjab.pdf)
